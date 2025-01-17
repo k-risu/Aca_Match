@@ -7,6 +7,7 @@ import SignupEnd from "./pages/member/SignupEnd";
 import MyPage from "./pages/mypage/MyPage";
 import AcademySearch from "./pages/AcademySearch";
 import AcademyDetail from "./pages/AcademyDetail";
+import Support from "./pages/Support";
 
 function App() {
   return (
@@ -19,8 +20,11 @@ function App() {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/signup/end" element={<SignupEnd />} />
             <Route path="/mypage" element={<MyPage />} />
-            <Route path="/academy" element={<AcademySearch />} />
-            <Route path="/academy/detail?id={id}" element={<AcademyDetail />} />
+            <Route path="/academy">
+              <Route index element={<AcademySearch />} />
+              <Route path="detail?id={id}" element={<AcademyDetail />} />
+            </Route>
+            <Route path="/support" element={<Support />} />
           </Routes>
         </Layout>
       </Router>
