@@ -8,9 +8,23 @@ import MyPage from "./pages/MyPage";
 import AcademySearch from "./pages/AcademySearch";
 import AcademyDetail from "./pages/AcademyDetail";
 import Support from "./pages/Support";
+import { ConfigProvider } from "antd";
+
 function App() {
   return (
-    <>
+    <ConfigProvider
+      theme={{
+        components: {
+          // Seed Token
+          Button: {
+            borderRadius: 12,
+            colorPrimary: "#3B77D8",
+            colorPrimaryHover: "#2F5FB5",
+            algorithm: true, // Enable algorithm
+          },
+        },
+      }}
+    >
       <Router>
         <Layout>
           <Routes>
@@ -27,7 +41,7 @@ function App() {
           </Routes>
         </Layout>
       </Router>
-    </>
+    </ConfigProvider>
   );
 }
 
