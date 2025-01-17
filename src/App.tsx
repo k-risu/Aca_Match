@@ -4,7 +4,7 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/member/LoginPage";
 import SignupPage from "./pages/member/SignupPage";
 import SignupEnd from "./pages/member/SignupEnd";
-import MyPage from "./pages/MyPage";
+import MyPage from "./pages/mypage/MyPage";
 import AcademySearch from "./pages/AcademySearch";
 import AcademyDetail from "./pages/AcademyDetail";
 import Support from "./pages/Support";
