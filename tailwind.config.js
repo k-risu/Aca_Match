@@ -8,12 +8,16 @@ export default {
     extend: {
       colors: {
         brand: {
-          main: "#3B77D8",
-          DEFAULT: "#242424",
+          BTBlue: "#3B77D8",
+          BTBlueHover: "#2F5FB5",
+          BTWhite: "#E8EEF3",
+          BTWhiteHover: "#C4D9E9",
+          default: "#242424",
           gray: "#666666",
         },
       },
     },
   },
+
   plugins: [],
 };
