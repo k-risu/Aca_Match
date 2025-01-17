@@ -1,5 +1,7 @@
+// CustomModal.tsx
 import React from "react";
 import { Modal } from "antd";
+import MainButton from "../button/Mainbutton";
 
 interface CustomModalProps {
   visible: boolean;
@@ -22,34 +24,38 @@ const CustomModal: React.FC<CustomModalProps> = ({
   button1Text,
   button2Text,
   width = 400,
-  height = 192,
+  height = 244,
 }) => {
   return (
     <Modal
       open={visible}
-      footer={null} // 커스텀 버튼 사용
-      closable={false} // 기본 닫기 버튼 제거
+      footer={null}
+      closable={false}
       centered
+      width={width}
+      style={{ height: `${height}px` }}
+      styles={{
+        body: {
+          height: `${height - 40}px`, // 본문 높이 설정
+        },
+      }}
     >
-      <div
-        className={`bg-white rounded-lg p-4 mx-auto`}
-        style={{ width: `${width}px`, height: `${height}px` }}
-      >
-        <h2 className="text-2xl font-bold mb-4 text-center">{title}</h2>
-        <p className="text-base mb-6 text-center">{content}</p>
-        <div className="flex justify-end space-x-4">
-          <button
+      <div className="rounded-3xl gap-y-7">
+        <h2 className="text-2xl font-bold text-left mb-[30px]">{title}</h2>
+        <p className="text-base text-left mb-[52px]">{content}</p>
+        <div className="flex justify-end">
+          <MainButton
             onClick={onButton1Click}
-            className="text-sm px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            className="w-[165px] h-[40px] text-sm px-4 py-2 bg-brand-BTWhite rounded hover:bg-slate-950"
           >
-            {button1Text}
-          </button>
-          <button
+            {button1Text || "Default Button Text"}
+          </MainButton>
+          <MainButton
             onClick={onButton2Click}
-            className="text-sm px-4 py-2 bg-[#2B99E3] text-white rounded hover:bg-[#2B99E3]"
+            className=" w-[165px] h-[40px] text-sm px-4 py-2 bg-brand-BTBlue text-white rounded hover:bg-brand-BTBlueHover "
           >
             {button2Text}
-          </button>
+          </MainButton>
         </div>
       </div>
     </Modal>
