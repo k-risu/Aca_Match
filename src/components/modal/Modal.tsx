@@ -1,5 +1,5 @@
 import React from "react";
-import MainButton from "../button/Mainbutton";
+import MainButton from "../button/MainButton";
 import styled from "@emotion/styled";
 
 interface CustomModalProps {

@@ -26,6 +26,7 @@ export default {
           BTBlueHover: "#2F5FB5",
           BTWhite: "#E8EEF3",
           BTWhiteHover: "#C4D9E9",
+          placeholder: "#507A95",
           default: "#242424",
           gray: "#666666",
         },
