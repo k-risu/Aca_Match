@@ -12,11 +12,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // 특정 경로에서 Header와 Footer를 숨기기 위한 배열
   const noLayoutPaths = ["/login", "/signup", "/signup/end"];
-  const noSideBarPaths = ["/signup", "/signup/end", "/"];
+  // const noSideBarPaths = ["/signup", "/signup/end", "/"];
 
   // 현재 경로가 noLayoutPaths에 포함되어 있으면 Header와 Footer를 숨김
   const isLayoutVisible = !noLayoutPaths.includes(pathname);
-  const isSideBarVisible = !noSideBarPaths.includes(pathname);
+  // const isSideBarVisible = !noSideBarPaths.includes(pathname);
 
   return (
     <div>
@@ -25,7 +25,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       )}
       <main className={"flex w-[1440px] mx-auto"}>{children}</main>
       {isLayoutVisible && (
-        <Footer className="w-[1440px] h-[100px] flex-col-center mx-auto bg-[#0E161B] text-white text-[14px]" />
+        <Footer className="w-[full] h-[100px] flex-col-center mx-auto bg-[#0E161B] text-white text-[14px]" />
       )}
     </div>
   );
