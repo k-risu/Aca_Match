@@ -29,10 +29,11 @@ function Pages({
   }
 
   return (
-    <ul className="flex items-center justify-center gap-2">
+    <ul className="flex m-5 items-center justify-center gap-2">
       <li>
         <button
           onClick={() => handlePageChange(currentPage - 1)}
+          className={"flex items-center justify-center w-9 h-9"}
           disabled={currentPage === 1}
         >
           <IoIosArrowBack />
@@ -44,7 +45,11 @@ function Pages({
           <button
             key={item}
             onClick={() => handlePageChange(item)}
-            className={currentPage === item ? "font-bold" : ""}
+            className={
+              currentPage === item
+                ? "w-9 h-9 bg-gray-200 rounded-full font-bold"
+                : "w-9 h-9"
+            }
           >
             {item}
           </button>
@@ -54,6 +59,7 @@ function Pages({
       <li>
         <button
           onClick={() => handlePageChange(currentPage + 1)}
+          className={"flex items-center justify-center w-9 h-9"}
           disabled={currentPage === totalPages}
         >
           <IoIosArrowForward />
