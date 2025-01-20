@@ -34,9 +34,9 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
   };
   return (
     <header className={className}>
-      <div className="w-[1440px] flex items-center justify-center mx-auto gap-[300px] ">
+      <div className="w-[1280px] flex items-center justify-between mx-auto  ">
         <div
-          className="w-[210px] h-[40px] cursor-pointer"
+          className="w-[210px] h-[40px] cursor-pointer mr-[full]"
           onClick={() => {
             navigate("/");
           }}

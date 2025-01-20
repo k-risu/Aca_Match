@@ -5,6 +5,7 @@ interface MainButtonProps extends ButtonProps {
   onClick: () => void;
   className: string;
   children: React.ReactNode;
+  htmlType?: "button" | "submit" | "reset";
 }
 /**
  * MainButton 컴포넌트는 클릭 이벤트와 스타일링을 처리하는 버튼입니다.
@@ -22,12 +23,14 @@ export default function MainButton({
   className,
   children,
   type = "default", // 기본값으로 'default' 설정
+  htmlType,
 }: MainButtonProps) {
   return (
     <Button
       className={className}
       onClick={onClick}
       type={type} // Button의 type을 그대로 전달
+      htmlType={htmlType}
     >
       {children}
     </Button>
