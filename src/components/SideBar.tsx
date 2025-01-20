@@ -30,7 +30,7 @@ const SideBar: React.FC<SideBarProps> = ({
 }) => {
   const navigate = useNavigate();
   return (
-    <div className={`mt-[93px] ${className}`}>
+    <div className={`w-[320px] mt-[93px] ${className}`}>
       <div className="w-[280px] mx-auto ">
         {menuItems.map((item, index) => (
           <div

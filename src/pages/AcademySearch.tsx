@@ -9,7 +9,7 @@ function AcademySearch() {
   ];
   return (
     <div>
-      <SideBar menuItems={menuItems} className="w-[320px] mt-[93px]">
+      <SideBar menuItems={menuItems}>
         <div>AcademySearch</div>
       </SideBar>
     </div>
