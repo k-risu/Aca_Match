@@ -115,9 +115,9 @@ function HomePage() {
   };
 
   return (
-    <div className="flex flex-col items-center px-4 py-[36px] gap-8 max-w-[1080px] mx-auto">
+    <div className="flex flex-col items-center px-4 py-[36px] gap-8 mx-auto">
       {/* 메인 베너 */}
-      <div className="w-full max-w-[990px] h-[480px] bg-gradient-to-b from-black/10 to-black/40 rounded-xl relative">
+      <div className="w-full max-w-[990px] min-w-[990px] h-[480px] bg-gradient-to-b from-black/10 to-black/40 rounded-xl relative">
         <div className="absolute left-10 top-[216px] text-white">
           <h1 className="text-5xl font-black font-lexend mb-4">
             원하는 학원을 찾아보세요
@@ -126,10 +126,10 @@ function HomePage() {
             여러분의 학습 목표에 맞는 학원을 쉽고 빠르게 추천해 드립니다.
           </p>
         </div>
-        <div className="absolute left-10 right-10 bottom-10 py-5 ">
+        <div className="absolute left-10 right-10 bottom-10 py-5 flex justify-center items-center w-[full]">
           <CustomInput
             placeholder="태그를 입력해 주세요"
-            width="910px"
+            width="100%"
             height="64px"
             borderRadius="12px"
             padding="0 46px 0 36px"
@@ -137,17 +137,15 @@ function HomePage() {
             focusBorder="none"
             border="none"
           >
-            <div>
-              <CiSearch className="text-[24px] font-bold  text-brand-placeholder absolute left-[10px] bottom-[40px] " />
+            <CiSearch className="text-[24px] font-bold  text-brand-placeholder absolute left-[10px] bottom-[40px] " />
 
-              <MainButton
-                className="py-5 text-white w-[95px] h-[48px] absolute left-[807px] bottom-[28px] z-10"
-                onClick={handleButton1Click}
-                type="primary"
-              >
-                검색
-              </MainButton>
-            </div>
+            <MainButton
+              className="py-5 text-white w-[95px] h-[48px] absolute right-[8px] bottom-[28px] z-10"
+              onClick={handleButton1Click}
+              type="primary"
+            >
+              검색
+            </MainButton>
           </CustomInput>
         </div>
       </div>

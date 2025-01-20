@@ -37,7 +37,7 @@ function CustomInput({
   border,
 }: CustomInputProps) {
   return (
-    <div>
+    <>
       <Input
         className={`text-[16px] placeholder-brand-placeholder focus:outline-${focusOutline} focus:border-${focusBorder} border-${border}`}
         placeholder={placeholder}
@@ -49,7 +49,7 @@ function CustomInput({
         }}
       />
       {children} {/* children 렌더링 */}
-    </div>
+    </>
   );
 }
 
