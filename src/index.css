@@ -3,6 +3,26 @@
 @tailwind components;
 @tailwind utilities;
 
+.flex-row-center {
+  @apply flex items-center justify-center;
+}
+
+.flex-row-between {
+  @apply flex items-center justify-between;
+}
+
+.flex-row-start {
+  @apply flex items-center justify-start;
+}
+
+.flex-col-center {
+  @apply flex flex-col items-center justify-center;
+}
+
+.flex-col-start {
+  @apply flex flex-col items-start;
+}
+
 :root {
   --primary-color: #000000;
   --secondary-color: #0000ff;
@@ -13,6 +33,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 16px; /* 기본 폰트 크기 설정 */
+  font-weight: 400; /* 기본 폰트 굵기 */
+  font-style: normal;
 }
 a {
   text-decoration: none;
@@ -28,11 +53,6 @@ html {
 body {
   font-size: var(--font-size-base);
   color: var(--primary-color);
-
-  font-family: "Noto Sans KR", sans-serif;
-  font-size: 16px; /* 기본 폰트 크기 설정 */
-  font-weight: 400; /* 기본 폰트 굵기 */
-  font-style: normal;
 }
 /* 웹서비스 개발시 권장함.(개인적으로) */
 html,
