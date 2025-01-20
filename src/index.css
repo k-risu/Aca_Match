@@ -23,6 +23,18 @@
   @apply flex flex-col items-start;
 }
 
+.small_line_button {
+  padding: 3px 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.small_color_button {
+}
+
 :root {
   --primary-color: #000000;
   --secondary-color: #0000ff;

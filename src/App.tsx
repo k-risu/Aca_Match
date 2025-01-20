@@ -8,7 +8,10 @@ import MyPage from "./pages/mypage/MyPage";
 import AcademySearch from "./pages/AcademySearch";
 import AcademyDetail from "./pages/AcademyDetail";
 import Support from "./pages/Support";
+import NotFoundPage from "./pages/NotFoundPage";
 import { ConfigProvider } from "antd";
+import MyPageRecord from "./pages/mypage/MyPageRecord";
+import MyPageLike from "./pages/mypage/MyPageLike";
 
 function App() {
   return (
@@ -32,12 +35,17 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/signup/end" element={<SignupEnd />} />
-            <Route path="/mypage" element={<MyPage />} />
+            <Route path="/mypage">
+              <Route index element={<MyPage />} />
+              <Route path="/mypage/record" element={<MyPageRecord />} />
+              <Route path="/mypage/like" element={<MyPageLike />} />
+            </Route>
             <Route path="/academy">
               <Route index element={<AcademySearch />} />
               <Route path="detail?id={id}" element={<AcademyDetail />} />
             </Route>
             <Route path="/support" element={<Support />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Layout>
       </Router>

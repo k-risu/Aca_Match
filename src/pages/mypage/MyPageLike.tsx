@@ -4,12 +4,12 @@ import SideBar from "../../components/SideBar";
 
 const menuItems = [
   { label: "회원정보 관리", isActive: false, link: "/" },
-  { label: "나의 학원정보", isActive: true, link: "/mypage" },
+  { label: "나의 학원정보", isActive: false, link: "/mypage" },
   { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
-  { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
+  { label: "나의 좋아요 목록", isActive: true, link: "/mypage/like" },
 ];
 
-function MyPage() {
+function MyPageLike() {
   const [totalItems, setTotalItems] = useState(0);
 
   const fetchData = (page: number) => {
@@ -31,42 +31,24 @@ function MyPage() {
 
       <div className="w-full">
         <h2 className="flex items-center justify-between pb-3 text-3xl font-bold">
-          나의 학원정보
+          나의 좋아요 목록
         </h2>
         <div className="w-full border border-b-0 rounded-lg overflow-hidden">
           <div className="flex justify-between align-middle p-4 border-b">
             <div className="flex items-center justify-center w-full">
               학원명
             </div>
-            <div className="flex items-center justify-center w-60">등록일</div>
-            <div className="flex items-center justify-center w-60">
-              처리상태
-            </div>
-            <div className="flex items-center justify-center w-60">
-              강좌등록
-            </div>
-            <div className="flex items-center justify-center w-60">
-              수정하기
-            </div>
+            <div className="flex items-center justify-center w-40">관리</div>
           </div>
 
           <div className="loop-content flex justify-between align-middle p-4 border-b">
-            <div className="flex justify-start items-center w-full">
+            <div className="w-full flex justify-start items-center">
               <div className="flex items-center">
                 <img src="" alt=" /" />
                 ABCDEFG 어학원
               </div>
             </div>
-            <div className="flex items-center justify-center w-60">
-              2025-01-01
-            </div>
-            <div className="flex items-center justify-center w-60">처리중</div>
-            <div className="flex items-center justify-center w-60">
-              <button type="button" className="small_line_button">
-                강좌등록
-              </button>
-            </div>
-            <div className="flex items-center justify-center w-60">
+            <div className="flex items-center justify-center w-40">
               <button className="small_line_button">수정하기</button>
             </div>
           </div>
@@ -78,16 +60,7 @@ function MyPage() {
                 ABCDEFG 어학원
               </div>
             </div>
-            <div className="flex items-center justify-center w-60">
-              2025-01-01
-            </div>
-            <div className="flex items-center justify-center w-60">처리중</div>
-            <div className="flex items-center justify-center w-60">
-              <button type="button" className="small_line_button">
-                강좌등록
-              </button>
-            </div>
-            <div className="flex items-center justify-center w-60">
+            <div className="flex items-center justify-center w-40">
               <button className="small_line_button">수정하기</button>
             </div>
           </div>
@@ -103,4 +76,4 @@ function MyPage() {
   );
 }
 
-export default MyPage;
+export default MyPageLike;
