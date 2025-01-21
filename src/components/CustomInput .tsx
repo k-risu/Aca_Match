@@ -46,6 +46,7 @@ function CustomInput({
           height: `${height}`,
           borderRadius: `${borderRadius}`,
           padding: `${padding}`,
+          fontSize: "14px",
         }}
       />
       {children} {/* children 렌더링 */}
