@@ -93,3 +93,10 @@ const CustomModal: React.FC<CustomModalProps> = ({
 };
 
 export default CustomModal;
+export const SecondaryButton = styled(MainButton)`
+  &:hover {
+    background-color: #c4d9e9 !important;
+    border-color: #c4d9e9 !important;
+    color: #000 !important;
+  }
+`;
