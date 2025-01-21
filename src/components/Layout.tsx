@@ -23,7 +23,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {isLayoutVisible && (
         <Header className="sticky top-0 left-0 right-0 z-50 flex items-center h-[64px] bg-white border-b border-brand-BTWhite" />
       )}
-      <main className={"flex mw-[990px] mx-auto"}>{children}</main>
+      <main className={"flex min-w-[990px] mx-auto max-w-[1280px]"}>
+        {children}
+      </main>
       {isLayoutVisible && (
         <Footer className="w-[full] h-[100px] flex-col-center mx-auto bg-[#0E161B] text-white text-[14px]" />
       )}
