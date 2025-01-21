@@ -12,6 +12,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import { ConfigProvider } from "antd";
 import MyPageRecord from "./pages/mypage/MyPageRecord";
 import MyPageLike from "./pages/mypage/MyPageLike";
+import MyPageUserInfo from "./pages/mypage/MyPageUserInfo";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
               <Route index element={<MyPage />} />
               <Route path="/mypage/record" element={<MyPageRecord />} />
               <Route path="/mypage/like" element={<MyPageLike />} />
+              <Route path="/mypage/user" element={<MyPageUserInfo />} />
             </Route>
             <Route path="/academy">
               <Route index element={<AcademySearch />} />
