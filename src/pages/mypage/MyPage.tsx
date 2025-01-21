@@ -8,6 +8,7 @@ const menuItems = [
   { label: "나의 학원정보", isActive: true, link: "/mypage" },
   { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
   { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
+  { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
 ];
 
 function MyPage() {

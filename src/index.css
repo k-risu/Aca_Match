@@ -26,6 +26,10 @@
   @apply font-bold text-3xl text-brand-default mt-[65px];
 }
 
+.title-font {
+  @apply font-bold text-3xl text-brand-default;
+}
+
 .small_line_button {
   padding: 3px 10px;
   border: 1px solid #ddd;
@@ -71,6 +75,7 @@ html {
 body {
   font-size: var(--font-size-base);
   color: var(--primary-color);
+  overflow-y: scroll;
 }
 /* 웹서비스 개발시 권장함.(개인적으로) */
 html,
