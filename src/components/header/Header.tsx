@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import MainButton from "../button/Mainbutton";
+import MainButton from "../button/MainButton";
 import { useState } from "react";
 import styled from "@emotion/styled";
 
@@ -60,7 +60,9 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
           <div className="flex items-center gap-[15px]">
             <MainButton
               type="primary"
-              onClick={handleButton1Click}
+              onClick={() => {
+                navigate("/signup");
+              }}
               className={`px-4 py-2 w-[85px] h-[40px]`}
             >
               회원가입
