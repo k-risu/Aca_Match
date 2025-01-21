@@ -23,6 +23,10 @@
   @apply flex flex-col items-start;
 }
 
+.title-font {
+  @apply font-bold text-3xl text-brand-default;
+}
+
 .small_line_button {
   padding: 3px 10px;
   border: 1px solid #ddd;
@@ -39,7 +43,7 @@
 }
 
 :root {
-  --primary-color: #000000;
+  --primary-color: #242424;
   --secondary-color: #0000ff;
   --font-size-base: 16px;
 }
@@ -56,7 +60,7 @@
 }
 a {
   text-decoration: none;
-  color: #000000;
+  color: #242424;
 }
 ul,
 li {
@@ -68,6 +72,7 @@ html {
 body {
   font-size: var(--font-size-base);
   color: var(--primary-color);
+  overflow-y: scroll;
 }
 /* 웹서비스 개발시 권장함.(개인적으로) */
 html,
