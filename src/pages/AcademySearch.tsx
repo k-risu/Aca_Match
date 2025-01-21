@@ -1,4 +1,4 @@
-import { Checkbox, Dropdown, Menu } from "antd";
+import { Checkbox, Dropdown, Menu, MenuProps, Pagination } from "antd";
 import { useState } from "react";
 import { SlArrowDown } from "react-icons/sl";
 import Pages from "../components/page/Pages";
@@ -111,6 +111,7 @@ const FilterBox = ({
 const AcademySearch = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [selectedSearchType, setSelectedSearchType] = useState<string>("태그");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const menu = (
     <Menu
@@ -237,7 +238,12 @@ const AcademySearch = () => {
     //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
     setTotalItems(10);
   };
+
+  // 페이지 변경 핸들러
   const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    console.log("Page changed to:", page); // 디버깅용 로그
+    // 여기서 필요한 데이터 fetch 로직 추가
     fetchData(page);
   };
 
@@ -272,8 +278,8 @@ const AcademySearch = () => {
   };
 
   return (
-    <div className="flex flex-row items-center justify-center w-full">
-      <div className="flex items-center ">
+    <div className="flex flex-row justify-between w-full gap-[12px]">
+      <div className="flex mt-[160px] ">
         <div className="flex-col-start gap-4 w-[288px] h-[916px]">
           <div className="flex items-start pb-5 pl-[15px] ">
             <h2 className="text-[24px] font-bold leading-[21px] text-brand-default">
@@ -296,13 +302,11 @@ const AcademySearch = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col items-start p-6 gap-3 w-[908px] max-w-[960px] mt-[25px]">
+      <div className="flex flex-col items-start gap-3 w-full mt-[65px]">
         {/* 상단 검색 영역 */}
-        <div className="flex flex-row flex-wrap justify-between items-start p-4 gap-3 w-full h-[72px]">
+        <div className="flex flex-row flex-wrap justify-between items-start gap-3 w-full h-[72px]">
           <div className="flex flex-col w-[288px] min-w-[288px] h-10">
-            <h1 className="font-lexend font-bold text-3xl text-brand-default">
-              학원 검색
-            </h1>
+            <h1 className="font-bold text-3xl text-brand-default">학원 검색</h1>
           </div>
         </div>
 
@@ -342,16 +346,16 @@ const AcademySearch = () => {
         <div className="flex flex-col w-full border border-[#DBE3E6] rounded-xl">
           {/* 테이블 헤더 */}
           <div className="flex flex-row h-[46px] items-center justify-center">
-            <span className="text-[14px] text-brand-default text-center w-[367px]">
+            <span className="flex-row-center text-[14px] text-brand-default text-center w-full">
               학원
             </span>
-            <span className="text-[14px] text-brand-default text-center w-[184px]">
+            <span className="flex-row-center text-[14px] text-brand-default text-center min-w-[15%]">
               태그
             </span>
-            <span className="text-[14px] text-brand-default text-center w-[176px]">
+            <span className="flex-row-center text-[14px] text-brand-default text-center  min-w-[15%]">
               지역
             </span>
-            <span className="text-[14px] text-brand-default text-center w-[147px]">
+            <span className="flex-row-center text-[14px] text-brand-default text-center  min-w-[15%]">
               별점
             </span>
           </div>
@@ -393,6 +397,15 @@ const AcademySearch = () => {
               </div>
             </div>
           ))}
+        </div>
+        <div className="flex w-full justify-center items-center my-4">
+          <Pagination
+            current={currentPage}
+            total={500} // 전체 아이템 수
+            pageSize={10} // 페이지당 아이템 수
+            onChange={handlePageChange}
+            showSizeChanger={false} // 페이지 사이즈 변경 옵션 숨김
+          />
         </div>
         <div className="flex w-full justify-center items-center">
           <Pages

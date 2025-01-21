@@ -68,7 +68,9 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
               회원가입
             </MainButton>
             <SecondaryButton
-              onClick={handleButton2Click}
+              onClick={() => {
+                navigate("/login");
+              }}
               className={`px-4 py-2 w-[85px] h-[40px]`}
             >
               로그인
