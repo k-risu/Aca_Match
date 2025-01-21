@@ -117,7 +117,7 @@ function HomePage() {
   return (
     <div className="flex flex-col items-center px-4 py-[36px] gap-8 mx-auto">
       {/* 메인 베너 */}
-      <div className="w-full max-w-[990px] min-w-[990px] h-[480px] bg-gradient-to-b from-black/10 to-black/40 rounded-xl relative">
+      <div className="w-full h-[480px] bg-gradient-to-b from-black/10 to-black/40 rounded-xl relative">
         <div className="absolute left-10 top-[216px] text-white">
           <h1 className="text-5xl font-black font-lexend mb-4">
             원하는 학원을 찾아보세요
