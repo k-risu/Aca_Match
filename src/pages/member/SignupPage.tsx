@@ -15,8 +15,6 @@ import { useNavigate } from "react-router-dom";
 import CustomInput from "../../components/CustomInput ";
 import { SecondaryButton } from "../../components/modal/Modal";
 
-import "./signupPage.css";
-
 function SignupPage() {
   const [value, setValue] = useState<number | null>(null); // 초기값을 1로 설정
   const [imageUrl, setImageUrl] = useState<string>();
@@ -322,7 +320,7 @@ function SignupPage() {
               </div>
             </Form.Item>
 
-            <Form.Item
+            {/* <Form.Item
               name="pic"
               valuePropName="user_pic"
               getValueFromEvent={e => (Array.isArray(e) ? e : e?.fileList)}
@@ -348,7 +346,7 @@ function SignupPage() {
                   </button>
                 </Upload>
               </div>
-            </Form.Item>
+            </Form.Item> */}
 
             {/* 약관 동의 */}
 

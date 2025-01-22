@@ -50,7 +50,7 @@ function App() {
             </Route>
             <Route path="/academy">
               <Route index element={<AcademySearch />} />
-              <Route path="detail?id={id}" element={<AcademyDetail />} />
+              <Route path="detail" element={<AcademyDetail />} />
             </Route>
             <Route path="/support" element={<Support />} />
             <Route path="*" element={<NotFoundPage />} />
