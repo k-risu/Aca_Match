@@ -14,6 +14,9 @@ import MyPageRecord from "./pages/mypage/MyPageRecord";
 import MyPageLike from "./pages/mypage/MyPageLike";
 import MyPageUserInfo from "./pages/mypage/MyPageUserInfo";
 import MypageReview from "./pages/mypage/MypageReview";
+import AcademyList from "./pages/mypage/academy/AcademyList";
+import AcademyAdd from "./pages/mypage/academy/AcademyAdd";
+import AcademyClassAdd from "./pages/mypage/academy/AcademyClassAdd";
 
 function App() {
   return (
@@ -47,6 +50,14 @@ function App() {
               <Route path="/mypage/like" element={<MyPageLike />} />
               <Route path="/mypage/user" element={<MyPageUserInfo />} />
               <Route path="/mypage/review" element={<MypageReview />} />
+            </Route>
+            <Route path="/mypage/academy">
+              <Route index element={<AcademyList />} />
+              <Route path="/mypage/academy/add" element={<AcademyAdd />} />
+              <Route
+                path="/mypage/academy/classAdd"
+                element={<AcademyClassAdd />}
+              />
             </Route>
             <Route path="/academy">
               <Route index element={<AcademySearch />} />
