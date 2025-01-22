@@ -329,7 +329,7 @@ const AcademySearch = () => {
           <div className="relative">
             <CustomInput
               placeholder={`${selectedSearchType}를 입력해주세요`}
-              width="358px"
+              width="395px"
               focusOutline="none"
               focusBorder="none"
             />
@@ -366,29 +366,29 @@ const AcademySearch = () => {
               key={index}
               className="flex flex-row h-[72px] border-t border-[#DBE3E6]"
             >
-              <div className="flex justify-center items-center w-[79px]">
+              <div className="flex justify-center items-center min-w-[10%]">
                 <div
                   className="w-[60px] h-[60px] rounded-[20px] bg-cover"
                   style={{ backgroundColor: "#F0F2F5" }}
                   // style={{ backgroundImage: `url(${academy.image})` }}
                 />
               </div>
-              <div className="flex items-center p-4 w-[278px] text-start">
+              <div className="flex items-center p-4 w-full text-start">
                 <span className="text-[14px] text-brand-default">
                   {academy.name}
                 </span>
               </div>
-              <div className="flex w-[184px] justify-center items-center p-4">
+              <div className="flex min-w-[15%] justify-center items-center p-4">
                 <span className="text-[14px] text-brand-placeholder">
                   {academy.tag}
                 </span>
               </div>
-              <div className="flex w-[176px] justify-center items-center p-4">
+              <div className="flex min-w-[15%] justify-center items-center p-4">
                 <span className="text-[14px] text-brand-placeholder">
                   {academy.location}
                 </span>
               </div>
-              <div className="flex w-[147px] justify-center items-center p-4">
+              <div className="flex min-w-[15%] justify-center items-center p-4">
                 <div className="flex justify-center items-center px-4 h-8 bg-[#F0F2F5] rounded-xl">
                   <span className="text-[14px] font-medium text-brand-default">
                     {academy.rating}
