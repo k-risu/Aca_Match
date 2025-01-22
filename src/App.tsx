@@ -1,5 +1,6 @@
 import Layout from "./components/Layout";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { ConfigProvider } from "antd";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/member/LoginPage";
 import SignupPage from "./pages/member/SignupPage";
@@ -9,10 +10,10 @@ import AcademySearch from "./pages/AcademySearch";
 import AcademyDetail from "./pages/AcademyDetail";
 import Support from "./pages/Support";
 import NotFoundPage from "./pages/NotFoundPage";
-import { ConfigProvider } from "antd";
 import MyPageRecord from "./pages/mypage/MyPageRecord";
 import MyPageLike from "./pages/mypage/MyPageLike";
 import MyPageUserInfo from "./pages/mypage/MyPageUserInfo";
+import MypageReview from "./pages/mypage/MypageReview";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
               <Route path="/mypage/record" element={<MyPageRecord />} />
               <Route path="/mypage/like" element={<MyPageLike />} />
               <Route path="/mypage/user" element={<MyPageUserInfo />} />
+              <Route path="/mypage/review" element={<MypageReview />} />
             </Route>
             <Route path="/academy">
               <Route index element={<AcademySearch />} />
