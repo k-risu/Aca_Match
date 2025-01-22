@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomInput from "../../components/CustomInput ";
 import MainButton from "../../components/button/MainButton";
+import { SecondaryButton } from "../../components/modal/Modal";
 
 function LoginPage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -41,13 +42,13 @@ function LoginPage() {
               </p>
             </div>
 
-            <div className="flex flex-col h-[272px]">
+            <div className="flex flex-col mb-[16px]">
               {/* 이메일 필드 */}
               <label className="flex text-[16px] w-[120px] font-[500] mb-[8px]">
                 이메일 &nbsp;
                 <label className="text-[#D9534F]">*</label>
               </label>
-              <CustomInput placeholder="이메일을 입력해주세요" width="448px" />
+              <CustomInput placeholder="이메일을 입력해주세요" width="480px" />
 
               {/* 비밀번호 */}
               <label className="flex text-[16px] w-[120px] font-[500] my-[8px]">
@@ -57,6 +58,7 @@ function LoginPage() {
               <CustomInput
                 type="password"
                 placeholder="비밀번호를 입력해주세요"
+                width="480px"
               />
 
               {/* 아이디 기억하기 */}
@@ -80,31 +82,47 @@ function LoginPage() {
               </div>
             </div>
 
-            {/* 회원가입 버튼 */}
-            {/* <MainButton
-              text="회원가입"
-              onClick={() => {
-                navigate("/signup");
-              }}
-            /> */}
+            <div className="flex flex-col items-center gap-[8px]">
+              {/* 회원가입 버튼 */}
+              <SecondaryButton
+                onClick={() => {
+                  navigate("/signup");
+                }}
+                className={`px-4 py-2 w-[480px] h-[40px]`}
+              >
+                회원가입
+              </SecondaryButton>
 
-            {/* SNS 로그인 */}
-            <div className="flex justify-center items-center p-2 w-full h-[56px] bg-bg-light rounded-xl mt-4">
-              <span className="text-text-dark font-semibold text-sm">
-                Log in with Kakao
-              </span>
-            </div>
+              {/* SNS 로그인 */}
+              <SecondaryButton
+                onClick={() => {
+                  navigate("/");
+                }}
+                className={`px-4 py-2 w-[480px] h-[40px]`}
+              >
+                Log in with kakao
+              </SecondaryButton>
 
-            {/* Google 로그인 */}
-            <div className="flex justify-center items-center p-2 w-full h-[56px] bg-bg-light rounded-xl mt-4">
-              <span className="text-text-dark font-semibold text-sm">
+              {/* Google 로그인 */}
+              <SecondaryButton
+                onClick={() => {
+                  navigate("/");
+                }}
+                className={`px-4 py-2 w-[480px] h-[40px]`}
+              >
                 Log in with Google
-              </span>
-            </div>
+              </SecondaryButton>
 
-            {/* 로그인 버튼 */}
-            <div className="flex justify-center items-center p-2 w-full h-[56px] bg-btn-blue rounded-xl mt-4">
-              <span className="text-white font-semibold text-sm">로그인</span>
+              {/* 로그인 버튼 */}
+              <MainButton
+                type="primary"
+                onClick={() => {
+                  navigate("/");
+                }}
+                className={`px-4 py-2 w-[480px] h-[40px]`}
+              >
+                로그인
+              </MainButton>
             </div>
           </div>
         </main>

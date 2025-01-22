@@ -1,0 +1,16 @@
+.ant-form-item-control-input-content {
+  .ant-input-affix-wrapper {
+    padding: 0px 11px;
+  }
+  .ant-input-status-error {
+    border: 1px solid #3b77d8 !important;
+  }
+  .ant-form-item-explain-error {
+    padding-left: 155px;
+    color: #3b77d8;
+    font-size: 0.85rem;
+  }
+  .ant-upload-list-item {
+    border: 1px solid #3b77d8 !important;
+  }
+}

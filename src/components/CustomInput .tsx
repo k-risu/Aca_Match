@@ -50,7 +50,7 @@ function CustomInput({
   const inputClassName = [
     "text-[14px]",
     "placeholder:text-[14px]",
-    "placeholder:text-brand-placeholder",
+    // "placeholder:text-brand-placeholder",
     focusOutline && `focus:outline-${focusOutline}`,
     focusBorder && `focus:border-${focusBorder}`,
     border && `border-${border}`,
@@ -59,8 +59,8 @@ function CustomInput({
     .join(" ");
   const InputStyle = styled.div`
     .ant-input-password input::placeholder {
-      color: #507a95 !important; /* 플레이스홀더 색상 */
-      opacity: 1;
+      /* color: #507a95 !important; 플레이스홀더 색상 */
+      /* opacity: 1; */
     }
   `;
 
