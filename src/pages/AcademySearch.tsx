@@ -7,6 +7,7 @@ import { DownOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import CustomInput from "../components/CustomInput ";
 import { CiSearch } from "react-icons/ci";
+import { useNavigate } from "react-router-dom";
 
 interface FilterOption {
   label: string;
@@ -112,6 +113,8 @@ const AcademySearch = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [selectedSearchType, setSelectedSearchType] = useState<string>("태그");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const navigate = useNavigate();
 
   const menu = (
     <Menu
@@ -276,6 +279,8 @@ const AcademySearch = () => {
       }
     });
   };
+  const id = 123;
+  const path = `/academy/detail?id=${id}`;
 
   return (
     <div className="flex flex-row justify-between w-full gap-[12px]">
@@ -365,6 +370,7 @@ const AcademySearch = () => {
             <div
               key={index}
               className="flex flex-row h-[72px] border-t border-[#DBE3E6]"
+              onClick={() => navigate(path)}
             >
               <div className="flex justify-center items-center min-w-[10%]">
                 <div
