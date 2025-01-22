@@ -1,18 +1,43 @@
-import { Checkbox, Form } from "antd";
-import { useState } from "react";
+import { Checkbox, Form, Input } from "antd";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import CustomInput from "../../components/CustomInput ";
 import MainButton from "../../components/button/MainButton";
 import { SecondaryButton } from "../../components/modal/Modal";
+import { removeCookie, setCookie } from "../../utils/cookie";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import userInfo from "../../atoms/userInfo";
 
 function LoginPage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const setUserInfo = useSetRecoilState(userInfo);
+  // const currentUserInfo = useRecoilValue(userInfo); // 현재 userInfo 값을 가져옴
 
-  const onFinish = (values: any) => {
-    console.log(values);
+  const onFinish = async (values: any) => {
+    try {
+      const response = await axios.post("/api/user/sign-in", values);
+      const { name, roleId, userId } = response.data.resultData;
+
+      setCookie("accessToken", response.data.resultData.accessToken);
+
+      navigate("/");
+      setUserInfo({
+        name,
+        roleId: String(roleId),
+        userId: String(userId),
+      });
+      console.log(response.data.resultData.accessToken);
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+      removeCookie("accessToken");
+    }
   };
+  // useEffect(() => {
+  //   console.log("Current userInfo:", currentUserInfo);
+  // }, [currentUserInfo]); // userInfo가 변경될 때마다 로그 출력
 
   return (
     <div>
@@ -48,18 +73,48 @@ function LoginPage() {
                 이메일 &nbsp;
                 <label className="text-[#D9534F]">*</label>
               </label>
-              <CustomInput placeholder="이메일을 입력해주세요" width="480px" />
+              <Form.Item
+                name="email"
+                rules={[
+                  { required: true, message: "이메일을 입력해주세요" },
+                  {
+                    pattern: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
+                    message: "올바른 이메일 형식이 아닙니다",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="이메일을 입력해주세요"
+                  style={{ width: "480px", height: "56px" }}
+                />
+              </Form.Item>
 
               {/* 비밀번호 */}
               <label className="flex text-[16px] w-[120px] font-[500] my-[8px]">
                 비밀번호 &nbsp;
                 <label className="text-[#D9534F]">*</label>
               </label>
-              <CustomInput
-                type="password"
-                placeholder="비밀번호를 입력해주세요"
-                width="480px"
-              />
+              <Form.Item
+                name="upw"
+                rules={[
+                  {
+                    required: true,
+                    message: "비밀번호는 필수 입력 항목입니다.",
+                  },
+                  {
+                    pattern:
+                      /^(?=.*[A-Za-z])(?=.*\d|.*\W)|(?=.*\d)(?=.*\W)[A-Za-z\d\W]{8,16}$/,
+                    message:
+                      "8~16자 이내이며, 영문자와 숫자 또는 특수문자를 조합해야 합니다.",
+                  },
+                ]}
+              >
+                <Input.Password
+                  type="password"
+                  placeholder="비밀번호를 입력해주세요"
+                  style={{ width: "480px", height: "56px" }}
+                />
+              </Form.Item>
 
               {/* 아이디 기억하기 */}
               <div className="flex items-center justify-between mt-[8px]">
@@ -116,9 +171,8 @@ function LoginPage() {
               {/* 로그인 버튼 */}
               <MainButton
                 type="primary"
-                onClick={() => {
-                  navigate("/");
-                }}
+                htmlType="submit"
+                onClick={() => {}}
                 className={`px-4 py-2 w-[480px] h-[40px]`}
               >
                 로그인
