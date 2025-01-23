@@ -8,6 +8,8 @@ import styled from "@emotion/styled";
 import CustomInput from "../components/CustomInput ";
 import { CiSearch } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
+import LocationModal from "../components/modal/LocationModal";
+import axios from "axios";
 
 interface FilterOption {
   label: string;
@@ -113,8 +115,22 @@ const AcademySearch = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [selectedSearchType, setSelectedSearchType] = useState<string>("태그");
   const [currentPage, setCurrentPage] = useState(1);
+  // const [visible, setVisible] = useState(false);
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const navigate = useNavigate();
+
+  // const handleOpenModal = () => {
+  //   setVisible(true);
+  // };
+  // const handleCloseModal = () => {
+  //   setVisible(false);
+  // };
+
+  const handleButton1Click = () => {
+    setIsModalVisible(false);
+  };
 
   const menu = (
     <Menu
@@ -242,6 +258,15 @@ const AcademySearch = () => {
     setTotalItems(10);
   };
 
+  const fetchCityData = async () => {
+    try {
+      const response = await axios.get("/api/academy/getCity");
+      setResultData(response.data); // API 응답 데이터를 상태에 저장
+    } catch (error) {
+      console.error("Failed to fetch city data:", error);
+    }
+  };
+
   // 페이지 변경 핸들러
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -340,7 +365,10 @@ const AcademySearch = () => {
             />
             <CiSearch className="text-[24px] font-bold  text-brand-placeholder absolute right-[10px] bottom-[15px] " />
           </div>
-          <div className="flex items-center text-brand-placeholder pl-[11px] w-[460px] h-[56px] bg-[#ffffff] border border-[#DBE3E6] rounded-[12px] justify-between pr-[10px]">
+          <div
+            className="flex items-center text-brand-placeholder pl-[11px] w-[460px] h-[56px] bg-[#ffffff] border border-[#DBE3E6] rounded-[12px] justify-between pr-[10px] cursor-pointer"
+            onClick={() => setIsModalVisible(true)}
+          >
             <span>지역 검색</span>
             <SlArrowDown />
           </div>
@@ -421,6 +449,12 @@ const AcademySearch = () => {
           />
         </div>
       </div>
+      {isModalVisible && (
+        <LocationModal
+          visible={isModalVisible}
+          handleCloseModal={() => handleButton1Click()}
+        />
+      )}
     </div>
   );
 };
