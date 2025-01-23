@@ -1,7 +1,12 @@
-import { useNavigate } from "react-router-dom";
-import MainButton from "../button/MainButton";
-import { useState } from "react";
 import styled from "@emotion/styled";
+import { useEffect, useState } from "react";
+import { Cookies } from "react-cookie";
+import { useNavigate } from "react-router-dom";
+import { getCookie, removeCookie } from "../../utils/cookie";
+import MainButton from "../button/MainButton";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import userInfo from "../../atoms/userInfo";
+import axios from "axios";
 
 const SecondaryButton = styled(MainButton)`
   &:hover {
@@ -22,6 +27,43 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ className }) => {
+  const setUserInfo = useSetRecoilState(userInfo);
+  const cookies = new Cookies();
+  const currentUserInfo = useRecoilValue(userInfo);
+
+  useEffect(() => {
+    const accessToken = cookies.get("accessToken");
+
+    if (accessToken) {
+      const fetchUserData = async () => {
+        try {
+          const response = await axios.get("/api/user", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          console.log(response.data.resultData);
+
+          // 서버에서 받은 데이터 매핑
+          const userData = {
+            name: response.data.resultData.name, // 서버에서 받은 name
+            roleId: response.data.resultData.roleId, // roleId를 문자열로 변환
+            userId: response.data.resultData.userId, // userId를 문자열로 변환
+          };
+
+          setUserInfo(userData); // Recoil 상태 업데이트
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+        }
+      };
+
+      fetchUserData();
+    }
+  }, [setUserInfo]);
+  useEffect(() => {
+    console.log("Current userInfo:", currentUserInfo);
+  }, [currentUserInfo]); // userInfo가 변경될 때마다 로그 출력
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const navigate = useNavigate();
 
@@ -57,7 +99,44 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
               </li>
             ))}
           </ul>
+          {/* const accessToken = cookies.get('accessToken'); */}
           <div className="flex items-center gap-[15px]">
+            {getCookie("accessToken") ? ( // 쿠키에 accessToken이 있는지 확인
+              <div className="flex w-[185px] justify-end">
+                <MainButton
+                  onClick={() => {
+                    // 로그아웃 처리 로직 추가
+                    removeCookie("accessToken");
+                    navigate("/");
+                  }}
+                  className={`px-4 py-2 w-[85px] h-[40px]`}
+                >
+                  로그아웃
+                </MainButton>
+              </div>
+            ) : (
+              <>
+                <MainButton
+                  type="primary"
+                  onClick={() => {
+                    navigate("/signup");
+                  }}
+                  className={`px-4 py-2 w-[85px] h-[40px]`}
+                >
+                  회원가입
+                </MainButton>
+                <SecondaryButton
+                  onClick={() => {
+                    navigate("/login");
+                  }}
+                  className={`px-4 py-2 w-[85px] h-[40px]`}
+                >
+                  로그인
+                </SecondaryButton>
+              </>
+            )}
+          </div>
+          {/* <div className="flex items-center gap-[15px]">
             <MainButton
               type="primary"
               onClick={() => {
@@ -75,7 +154,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
             >
               로그인
             </SecondaryButton>
-          </div>
+          </div> */}
         </div>
       </div>
     </header>
