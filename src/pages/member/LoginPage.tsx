@@ -1,15 +1,13 @@
 import { Checkbox, Form, Input } from "antd";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
+import userInfo from "../../atoms/userInfo";
 import MainButton from "../../components/button/MainButton";
 import { SecondaryButton } from "../../components/modal/Modal";
 import { removeCookie, setCookie } from "../../utils/cookie";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import userInfo from "../../atoms/userInfo";
 
 function LoginPage() {
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const setUserInfo = useSetRecoilState(userInfo);

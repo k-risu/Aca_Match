@@ -19,7 +19,7 @@ const beforeReq = (config: InternalAxiosRequestConfig) => {
 
   if (!accessToken) {
     return Promise.reject({
-      response: { data: { error: "Login 하셔서 인증하세요." } },
+      response: { data: { error: "Login 이 되어있지 않습니다." } },
     });
   }
 
@@ -75,7 +75,6 @@ const failRes = async (error: AxiosError) => {
 
 jwtAxios.interceptors.response.use(beforeRes, failRes);
 
-// API 요청 함수들
 export const jwtApiRequest = {
   get: <T>(url: string, config = {}) => {
     return jwtAxios.get<T>(url, config);
