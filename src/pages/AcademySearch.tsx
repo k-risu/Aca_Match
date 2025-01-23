@@ -1,4 +1,4 @@
-import { Checkbox, Dropdown, Menu, MenuProps, Pagination } from "antd";
+import { Checkbox, Dropdown, Input, Menu, MenuProps, Pagination } from "antd";
 import { useState } from "react";
 import { SlArrowDown } from "react-icons/sl";
 import Pages from "../components/page/Pages";
@@ -243,28 +243,9 @@ const AcademySearch = () => {
       rating: "4.7",
     },
   ];
-  const searchTypeItems: MenuProps["items"] = [
-    {
-      key: "tag",
-      label: "태그",
-    },
-    {
-      key: "search",
-      label: "검색어",
-    },
-  ];
   const fetchData = (page: number) => {
     //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
     setTotalItems(10);
-  };
-
-  const fetchCityData = async () => {
-    try {
-      const response = await axios.get("/api/academy/getCity");
-      setResultData(response.data); // API 응답 데이터를 상태에 저장
-    } catch (error) {
-      console.error("Failed to fetch city data:", error);
-    }
   };
 
   // 페이지 변경 핸들러
@@ -304,6 +285,19 @@ const AcademySearch = () => {
       }
     });
   };
+  const SearchInput = styled(Input.Search)`
+    .ant-input {
+      height: 56px !important;
+    }
+
+    .ant-input-search-button {
+      height: 56px !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  `;
+
   const id = 123;
   const path = `/academy/detail?id=${id}`;
 
@@ -357,13 +351,12 @@ const AcademySearch = () => {
             </div>
           </div>
           <div className="relative">
-            <CustomInput
+            <SearchInput
               placeholder={`${selectedSearchType}를 입력해주세요`}
-              width="395px"
-              focusOutline="none"
-              focusBorder="none"
+              className="border-none w-[395px] h-[56px]"
+              size="large"
             />
-            <CiSearch className="text-[24px] font-bold  text-brand-placeholder absolute right-[10px] bottom-[15px] " />
+            {/* <CiSearch className="text-[24px] font-bold  text-brand-placeholder absolute right-[10px] bottom-[15px] " /> */}
           </div>
           <div
             className="flex items-center text-brand-placeholder pl-[11px] w-[460px] h-[56px] bg-[#ffffff] border border-[#DBE3E6] rounded-[12px] justify-between pr-[10px] cursor-pointer"
