@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
+import { useRecoilValue } from "recoil";
 import Pages from "../../components/page/Pages";
 import SideBar from "../../components/SideBar";
 import CustomModal from "../../components/modal/Modal";
+import userInfo from "../../atoms/userInfo";
+import { getCookie } from "../../utils/cookie";
+import axios from "axios";
 
 const menuItems = [
   { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
@@ -14,6 +18,23 @@ const menuItems = [
 function MyPage() {
   const [totalItems, setTotalItems] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const currentUserInfo = useRecoilValue(userInfo);
+
+  console.log(currentUserInfo);
+  const accessToken = getCookie("accessToken");
+  console.log(accessToken);
+
+  /*
+  const memberInfo = async () => {
+    const res = await axios.get("/api/user", {
+      headers: {
+        Authorization: `Bearer ${getCookie("accessToken")}`,
+      },
+    });
+    console.log(res.data.resultData);
+  };
+  memberInfo();
+  */
 
   const handleButton1Click = () => {
     setIsModalVisible(false);

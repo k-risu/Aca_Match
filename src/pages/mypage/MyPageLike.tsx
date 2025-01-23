@@ -3,6 +3,10 @@ import Pages from "../../components/page/Pages";
 import SideBar from "../../components/SideBar";
 import { FaHeartCircleMinus } from "react-icons/fa6";
 import CustomModal from "../../components/modal/Modal";
+import { getCookie } from "../../utils/cookie";
+import axios from "axios";
+import { useRecoilValue } from "recoil";
+import userInfo from "../../atoms/userInfo";
 
 const menuItems = [
   { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
@@ -13,8 +17,10 @@ const menuItems = [
 ];
 
 function MyPageLike() {
+  const [likeList, setLikeList] = useState([]); //좋아요 목록
   const [totalItems, setTotalItems] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const currentUserInfo = useRecoilValue(userInfo);
 
   const handleButton1Click = () => {
     setIsModalVisible(false);
@@ -24,9 +30,28 @@ function MyPageLike() {
     setIsModalVisible(false);
   };
 
-  const fetchData = (page: number) => {
-    //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
-    setTotalItems(10);
+  const fetchData = async (page: number) => {
+    try {
+      //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
+      const accessToken = getCookie("accessToken");
+
+      //좋아요 목록 호출
+      const res = await axios.get(
+        `/api/like/user?userId=${currentUserInfo.userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+      console.log(res.data.resultData);
+      setLikeList(res.data.resultData);
+      //좋아요 목록 호출
+
+      setTotalItems(10);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {

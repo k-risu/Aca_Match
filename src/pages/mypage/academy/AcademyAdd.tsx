@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import { Button, Form, Image, Input, TimePicker, Upload } from "antd";
+import {
+  Button,
+  Form,
+  Image,
+  Input,
+  TimePicker,
+  Upload,
+  UploadFile,
+  UploadProps,
+} from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import SideBar from "../../../components/SideBar";
@@ -101,6 +110,7 @@ function AcademyAdd() {
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const handleAddressSearch = () => {
     new window.daum.Postcode({
@@ -132,6 +142,11 @@ function AcademyAdd() {
   };
 
   console.log(initialValues.aca_zipcode, initialValues.aca_addr);
+
+  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
+    setFileList(newFileList);
+    console.log(newFileList);
+  };
 
   const onFinished = (values: any) => {
     alert("학원 등록 완료");
@@ -334,6 +349,7 @@ function AcademyAdd() {
                     action="/upload.do"
                     listType="picture-card"
                     maxCount={1}
+                    onChange={handleChange}
                     showUploadList={{ showPreviewIcon: false }}
                   >
                     <button
