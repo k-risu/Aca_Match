@@ -77,14 +77,14 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
   return (
     <header className={className}>
       <div className="w-[1280px] flex items-center justify-between mx-auto  ">
-        <div
-          className="w-[210px] h-[40px] cursor-pointer mr-[full]"
+        <img
+          src="/public/logo.png"
+          className="w-[210px] h-[48px] cursor-pointer mr-[full]"
           onClick={() => {
             navigate("/");
           }}
-        >
-          로고
-        </div>
+        />
+
         <div className="flex items-center gap-[30px]">
           <ul className="flex items-center gap-[30px]">
             {menuItems.map((item, index) => (

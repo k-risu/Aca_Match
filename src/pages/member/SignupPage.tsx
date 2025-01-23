@@ -4,6 +4,7 @@ import {
   Button,
   Checkbox,
   CheckboxChangeEvent,
+  DatePicker,
   Divider,
   Form,
   Input,
@@ -15,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import CustomInput from "../../components/CustomInput ";
 import { SecondaryButton } from "../../components/modal/Modal";
 import axios from "axios";
+import dayjs from "dayjs";
 
 function SignupPage() {
   const [value, setValue] = useState<number | null>(null); // 초기값을 1로 설정
@@ -66,12 +68,21 @@ function SignupPage() {
   };
 
   const onFinish = async (values: Record<string, unknown>) => {
-    const { confirmPassword, ...restValues } = values;
-    console.log("Form values:", restValues);
+    const { birthday } = values as { birthday: string }; // Type assertion to ensure birthday is a string
+    const formattedBirthday = dayjs(birthday).format("YYYY-MM-DD");
+    const { confirmPassword, ...restValues } = values as {
+      confirmPassword?: string;
+      [key: string]: unknown;
+    };
+    console.log("Form values:", { ...restValues, birthday: formattedBirthday }); // Include formatted birthday in the logged values
     try {
-      await axios.post("/api/user/sign-up", restValues);
-      console.log("Form values:", restValues);
-      navigate("/signup/end");
+      const res = await axios.post("/api/user/sign-up", {
+        ...restValues,
+        birthday: formattedBirthday,
+        signUpType: 0,
+      }); // Send formatted birthday in the request
+      console.log("Form values:", res);
+      // navigate("/signup/end");
     } catch (error) {
       console.error(error);
     }
@@ -110,6 +121,7 @@ function SignupPage() {
               password: "",
               confirmPassword: "",
               name: "",
+              birthday: "",
               nickname: "",
               phoneNumber: "",
             }}
@@ -213,7 +225,7 @@ function SignupPage() {
                   },
                   ({ getFieldValue }) => ({
                     validator(_, value) {
-                      if (!value || getFieldValue("password") === value) {
+                      if (!value || getFieldValue("upw") === value) {
                         return Promise.resolve();
                       }
                       return Promise.reject(
@@ -259,21 +271,39 @@ function SignupPage() {
                 </div>
               </Form.Item>
             </div>
+            {/* 생일 */}
             <div className="flex gap-[12px] h-[80px]">
               <label className="flex text-[16px] w-[120px] h-[56px] items-center font-[500]">
-                이름 &nbsp;
+                생일 &nbsp;
+                <label className="text-[#D9534F]">*</label>
+              </label>
+              <Form.Item
+                name="birthday"
+                rules={[{ required: true, message: "생일을 선택해 주세요!" }]}
+                style={{ width: "448px", height: "56px" }}
+              >
+                <DatePicker
+                  format="YYYY-MM-DD" // 원하는 날짜 형식
+                  placeholder="생일을 선택하세요"
+                  style={{ width: "100%", height: "56px" }} // 스타일 조정
+                />
+              </Form.Item>
+            </div>
+            {/* <div className="flex gap-[12px] h-[80px]">
+              <label className="flex text-[16px] w-[120px] h-[56px] items-center font-[500]">
+                생일 &nbsp;
                 <label className="text-[#D9534F]">*</label>
               </label>
               <Form.Item
                 name="birth"
                 className="mb-0"
-                rules={[{ required: true, message: "이름을 입력해주세요." }]}
+                rules={[{ required: true, message: "생일을 입력해주세요." }]}
               >
                 <div className="flex items-center w-full gap-[12px]">
-                  <CustomInput placeholder="이름을 입력해 주세요" />
+                  <CustomInput placeholder="생일을 입력해 주세요" />
                 </div>
               </Form.Item>
-            </div>
+            </div> */}
             <div className="flex gap-[12px] h-[80px]">
               <label className="flex text-[16px] w-[120px] h-[56px] items-center font-[500]">
                 닉네임 &nbsp;
