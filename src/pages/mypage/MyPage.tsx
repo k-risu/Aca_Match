@@ -1,40 +1,43 @@
 import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
-import Pages from "../../components/page/Pages";
 import SideBar from "../../components/SideBar";
 import CustomModal from "../../components/modal/Modal";
 import userInfo from "../../atoms/userInfo";
 import { getCookie } from "../../utils/cookie";
-import axios from "axios";
-
-const menuItems = [
-  { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
-  { label: "나의 학원정보", isActive: true, link: "/mypage" },
-  { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
-  { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
-  { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
-];
+import { Pagination } from "antd";
 
 function MyPage() {
-  const [totalItems, setTotalItems] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const currentUserInfo = useRecoilValue(userInfo);
-
-  console.log(currentUserInfo);
   const accessToken = getCookie("accessToken");
-  console.log(accessToken);
 
-  /*
-  const memberInfo = async () => {
-    const res = await axios.get("/api/user", {
-      headers: {
-        Authorization: `Bearer ${getCookie("accessToken")}`,
-      },
-    });
-    console.log(res.data.resultData);
-  };
-  memberInfo();
-  */
+  let menuItems = [];
+  switch (currentUserInfo.roleId) {
+    case 3: //학원 관계자
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "학원정보 관리", isActive: true, link: "/mypage" },
+        { label: "리뷰 목록", isActive: false, link: "/mypage/academy/review" },
+        { label: "좋아요 목록", isActive: false, link: "/mypage/academy/like" },
+      ];
+      break;
+    case 2: //학부모
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "학원정보 관리", isActive: true, link: "/mypage" },
+        { label: "리뷰 목록", isActive: false, link: "/mypage/review" },
+        { label: "학생 관리", isActive: false, link: "/mypage/child" },
+      ];
+      break;
+    default: //일반학생
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "나의 학원정보", isActive: true, link: "/mypage" },
+        { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
+        { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
+        { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
+      ];
+  }
 
   const handleButton1Click = () => {
     setIsModalVisible(false);
@@ -45,26 +48,20 @@ function MyPage() {
   };
 
   const fetchData = (page: number) => {
+    console.log(page);
     //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
-    setTotalItems(10);
   };
 
   useEffect(() => {
     fetchData(1);
   }, []);
 
-  const handlePageChange = (page: number) => {
-    fetchData(page);
-  };
-
   return (
     <div className="flex gap-5 w-full justify-center align-top">
       <SideBar menuItems={menuItems} />
 
       <div className="w-full">
-        <h2 className="flex items-center justify-between pb-3 text-3xl font-bold">
-          나의 학원정보
-        </h2>
+        <h1 className="title-font">나의 학원정보</h1>
         <div className="w-full gap-0 border border-b-0 rounded-lg overflow-hidden">
           <div className="flex justify-between align-middle p-4 border-b">
             <div className="flex items-center justify-center w-full">
@@ -121,11 +118,9 @@ function MyPage() {
           </div>
         </div>
 
-        <Pages
-          perPage={5}
-          totalPage={10}
-          onPageChange={() => handlePageChange(1)}
-        />
+        <div className="flex justify-center items-center m-6 mb-10">
+          <Pagination defaultCurrent={1} total={100} showSizeChanger={false} />
+        </div>
 
         <CustomModal
           visible={isModalVisible}

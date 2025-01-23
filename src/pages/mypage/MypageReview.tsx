@@ -1,40 +1,58 @@
-import { useEffect, useState } from "react";
-import Pages from "../../components/page/Pages";
-import SideBar from "../../components/SideBar";
+import { Pagination } from "antd";
+import { useEffect } from "react";
 import { FaStar } from "react-icons/fa";
-
-const menuItems = [
-  { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
-  { label: "나의 학원정보", isActive: false, link: "/mypage" },
-  { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
-  { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
-  { label: "나의 리뷰 목록", isActive: true, link: "/mypage/review" },
-];
+import SideBar from "../../components/SideBar";
+import { getCookie } from "../../utils/cookie";
+import { useRecoilValue } from "recoil";
+import userInfo from "../../atoms/userInfo";
 
 function MypageReview() {
-  const [totalItems, setTotalItems] = useState(0);
+  const currentUserInfo = useRecoilValue(userInfo);
+  const accessToken = getCookie("accessToken");
+
+  let menuItems = [];
+  switch (currentUserInfo.roleId) {
+    case 3: //학원 관계자
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "학원정보 관리", isActive: false, link: "/mypage" },
+        { label: "리뷰 목록", isActive: true, link: "/mypage/academy/review" },
+        { label: "좋아요 목록", isActive: false, link: "/mypage/academy/like" },
+      ];
+      break;
+    case 2: //학부모
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "학원정보 관리", isActive: false, link: "/mypage" },
+        { label: "리뷰 목록", isActive: true, link: "/mypage/review" },
+        { label: "학생 관리", isActive: false, link: "/mypage/child" },
+      ];
+      break;
+    default: //일반학생
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "나의 학원정보", isActive: false, link: "/mypage" },
+        { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
+        { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
+        { label: "나의 리뷰 목록", isActive: true, link: "/mypage/review" },
+      ];
+  }
 
   const fetchData = (page: number) => {
     //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
-    setTotalItems(10);
+    console.log(page);
   };
 
   useEffect(() => {
     fetchData(1);
   }, []);
 
-  const handlePageChange = (page: number) => {
-    fetchData(page);
-  };
-
   return (
     <div className="flex gap-5 w-full justify-center align-top">
       <SideBar menuItems={menuItems} />
 
       <div className="w-full">
-        <h2 className="flex items-center justify-between pb-3 text-3xl font-bold">
-          나의 리뷰 목록
-        </h2>
+        <h1 className="title-font">나의 리뷰 목록</h1>
         <div className="w-full border border-b-0 rounded-lg overflow-hidden">
           <div className="flex justify-between align-middle p-4 border-b">
             <div className="flex items-center justify-center w-full">
@@ -117,11 +135,9 @@ function MypageReview() {
           </div>
         </div>
 
-        <Pages
-          perPage={5}
-          totalPage={10}
-          onPageChange={() => handlePageChange(1)}
-        />
+        <div className="flex justify-center items-center m-6 mb-10">
+          <Pagination defaultCurrent={1} total={100} showSizeChanger={false} />
+        </div>
       </div>
     </div>
   );

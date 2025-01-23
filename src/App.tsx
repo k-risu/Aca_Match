@@ -18,6 +18,9 @@ import AcademyList from "./pages/mypage/academy/AcademyList";
 import AcademyAdd from "./pages/mypage/academy/AcademyAdd";
 import AcademyClassAdd from "./pages/mypage/academy/AcademyClassAdd";
 import { RecoilRoot } from "recoil";
+import AcademyLike from "./pages/mypage/academy/AcademyLike";
+import AcademyReview from "./pages/mypage/academy/AcademyReview";
+import MypageChild from "./pages/mypage/MypageChild";
 
 function App() {
   return (
@@ -52,6 +55,7 @@ function App() {
                 <Route path="/mypage/like" element={<MyPageLike />} />
                 <Route path="/mypage/user" element={<MyPageUserInfo />} />
                 <Route path="/mypage/review" element={<MypageReview />} />
+                <Route path="/mypage/child" element={<MypageChild />} />
               </Route>
               <Route path="/mypage/academy">
                 <Route index element={<AcademyList />} />
@@ -59,6 +63,11 @@ function App() {
                 <Route
                   path="/mypage/academy/classAdd"
                   element={<AcademyClassAdd />}
+                />
+                <Route path="/mypage/academy/like" element={<AcademyLike />} />
+                <Route
+                  path="/mypage/academy/review"
+                  element={<AcademyReview />}
                 />
               </Route>
               <Route path="/academy">

@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import Pages from "../../components/page/Pages";
+import { useEffect } from "react";
 import SideBar from "../../components/SideBar";
+import { Pagination } from "antd";
 
 const menuItems = [
   { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
@@ -11,29 +11,21 @@ const menuItems = [
 ];
 
 function MyPageRecord() {
-  const [totalItems, setTotalItems] = useState(0);
-
   const fetchData = (page: number) => {
+    console.log(page);
     //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
-    setTotalItems(10);
   };
 
   useEffect(() => {
     fetchData(1);
   }, []);
 
-  const handlePageChange = (page: number) => {
-    fetchData(page);
-  };
-
   return (
     <div className="flex gap-5 w-full justify-center align-top">
       <SideBar menuItems={menuItems} />
 
       <div className="w-full">
-        <h2 className="flex items-center justify-between pb-3 text-3xl font-bold">
-          나의 성적확인
-        </h2>
+        <h1 className="title-font">나의 성적확인</h1>
         <div className="w-full border border-b-0 rounded-lg overflow-hidden">
           <div className="flex justify-between align-middle p-4 border-b">
             <div className="flex items-center justify-center w-full">
@@ -87,11 +79,9 @@ function MyPageRecord() {
           </div>
         </div>
 
-        <Pages
-          perPage={5}
-          totalPage={10}
-          onPageChange={() => handlePageChange(1)}
-        />
+        <div className="flex justify-center items-center m-6 mb-10">
+          <Pagination defaultCurrent={1} total={100} showSizeChanger={false} />
+        </div>
       </div>
     </div>
   );
