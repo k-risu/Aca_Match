@@ -3,7 +3,6 @@ import { PlusOutlined } from "@ant-design/icons";
 
 import {
   Button,
-  Checkbox,
   Form,
   Image,
   Input,
@@ -13,17 +12,34 @@ import {
 } from "antd";
 import styled from "@emotion/styled";
 import SideBar from "../../components/SideBar";
-import { useState } from "react";
-
-const menuItems = [
-  { label: "회원정보 관리", isActive: true, link: "/mypage/user" },
-  { label: "나의 학원정보", isActive: false, link: "/mypage" },
-  { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
-  { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
-  { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
-];
+import { useEffect, useState } from "react";
+import { getCookie } from "../../utils/cookie";
+import userInfo from "../../atoms/userInfo";
+import { useRecoilValue } from "recoil";
+import CustomModal from "../../components/modal/Modal";
+import jwtAxios from "../../apis/jwt";
 
 const MemberInfo = styled.div`
+  .ant-form-item-label {
+    display: flex;
+    justify-content: flex-start;
+    padding-top: 14px;
+  }
+  .ant-form-item-label label {
+    min-width: 130px !important;
+  }
+  .ant-form-item-required::before {
+    content: "" !important;
+  }
+  .ant-form-item-required::after {
+    content: "*" !important;
+    font-size: 1.25rem;
+    color: #ff3300;
+  }
+  .ant-form-item-label label::after {
+    content: "";
+  }
+
   .ant-form-item-control-input-content {
     .input-wrap {
       display: flex;
@@ -31,11 +47,14 @@ const MemberInfo = styled.div`
       gap: 15px;
       align-items: center;
     }
-
+    .flex-start {
+      align-items: flex-start;
+    }
     label {
       display: flex;
       align-items: center;
-      min-width: 130px;
+      justify-content: center;
+      min-width: 130px !important;
     }
     label span {
       height: 24px;
@@ -43,12 +62,14 @@ const MemberInfo = styled.div`
       color: #ff3300;
       font-size: 1.25rem;
     }
-    input[type="text"],
-    input[type="password"] {
+    input {
       height: 56px;
     }
+    textarea {
+      padding: 15px 12px;
+    }
 
-    input,
+    .input,
     .ant-input-password {
       border-radius: 12px;
     }
@@ -64,14 +85,15 @@ const MemberInfo = styled.div`
       font-size: 0.9rem;
     }
   }
-  .ant-input-affix-wrapper {
+  .ant-input-affix-wrapper,
+  .ant-picker {
     padding: 0px 11px;
   }
   .ant-input-status-error {
     border: 1px solid #3b77d8 !important;
   }
   .ant-form-item-explain-error {
-    padding-left: 155px;
+    padding-left: 12px;
     color: #3b77d8;
     font-size: 0.85rem;
   }
@@ -82,9 +104,54 @@ const MemberInfo = styled.div`
 
 function MyPageUserInfo() {
   const [form] = Form.useForm();
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [nickNameCheck, setNickNameCheck] = useState<number>(0);
+  const [editMember, setEditMember] = useState({});
+  const currentUserInfo = useRecoilValue(userInfo);
+  const accessToken = getCookie("accessToken");
+
+  let menuItems = [];
+  switch (currentUserInfo.roleId) {
+    case 3: //학원 관계자
+      menuItems = [
+        { label: "회원정보 관리", isActive: true, link: "/mypage/user" },
+        { label: "학원정보 관리", isActive: false, link: "/mypage" },
+        { label: "리뷰 목록", isActive: false, link: "/mypage/academy/review" },
+        { label: "좋아요 목록", isActive: false, link: "/mypage/academy/like" },
+      ];
+      break;
+    case 2: //학부모
+      menuItems = [
+        { label: "회원정보 관리", isActive: true, link: "/mypage/user" },
+        { label: "학원정보 관리", isActive: false, link: "/mypage" },
+        { label: "리뷰 목록", isActive: false, link: "/mypage/review" },
+        { label: "학생 관리", isActive: false, link: "/mypage/child" },
+      ];
+      break;
+    default: //일반학생
+      menuItems = [
+        { label: "회원정보 관리", isActive: true, link: "/mypage/user" },
+        { label: "나의 학원정보", isActive: false, link: "/mypage" },
+        { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
+        { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
+        { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
+      ];
+  }
+
+  //회원정보 조회
+  const memberInfo = async () => {
+    try {
+      const res = await jwtAxios.get(`/api/user`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      setEditMember(res.data.resultData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   // 비밀번호와 비밀번호 확인이 일치하는지 검사하는 커스텀 유효성 검사 함수
-  const validateConfirmPassword = (_, value) => {
+  const validateConfirmPassword = (_, value: string) => {
     const password = form.getFieldValue("new_upw"); // 'password' 필드의 값 가져오기
     if (value && value !== password) {
       return Promise.reject(new Error("비밀번호가 일치하지 않습니다."));
@@ -92,47 +159,89 @@ function MyPageUserInfo() {
     return Promise.resolve();
   };
 
-  const initialValues: {
-    user_id: string;
-    name: string;
-    nick_name: string;
-    phone: string;
-    birth: string;
-    user_pic: string;
-  } = {
-    user_id: "test@test.com",
-    name: "고길동",
-    nick_name: "김수한무",
-    phone: "010-1234-5678",
-    birth: "2025-01-01",
-    user_pic: "",
+  //console.log(editMember);
+
+  const { email, name, nickName, phone, birth, userPic } = editMember;
+  console.log(email, name, nickName, phone, birth, userPic);
+
+  const initialValues = {
+    user_id: email,
+    name: name,
+    nick_name: nickName,
+    phone: phone,
+    birth: birth,
+    user_pic: userPic,
   };
+
+  //console.log(initialValues);
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([
     {
       uid: "1",
-      name: "image.png",
+      name: editMember.userPic,
       status: "done",
-      url: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+      url: `http://112.222.157.156:5223/pic/user/${editMember.userId}/${editMember.userPic}`,
     },
   ]);
 
   const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) =>
     setFileList(newFileList);
 
+  const handleButton1Click = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleButton2Click = () => {
+    setIsModalVisible(false);
+  };
+
   const onFinished = (values: any) => {
+    if (nickNameCheck === 2) {
+      //닉네임 체크 필요
+      setIsModalVisible(true);
+      return;
+    }
+    if (nickNameCheck === 0) {
+      //닉네임 중복
+      setIsModalVisible(true);
+      return;
+    }
+    console.log(fileList);
     console.log(values);
   };
 
-  const sameCheck = async () => {
-    //console.log("닉네임 중복확인");
-    const res = await axios.get(
-      "/api/user/check-duplicate/nick-name?text=%EC%95%BC%EC%98%B9%EC%84%A0%EC%83%9D",
-    );
-    console.log(res);
+  //닉네임 중복확인
+  const sameCheck = async (nickName: string) => {
+    if (!nickName) {
+      setIsModalVisible(true);
+      setNickNameCheck(3);
+      return;
+    }
+
+    try {
+      const res = await axios.get(
+        `/api/user/check-duplicate/nick-name?text=${nickName}`,
+      );
+
+      if (res.data.resultData === 1) {
+        setIsModalVisible(true);
+        setNickNameCheck(res.data.resultData);
+      } else {
+        setIsModalVisible(true);
+        setNickNameCheck(0);
+      }
+    } catch (error) {
+      setIsModalVisible(true);
+      setNickNameCheck(0);
+      console.log(error);
+    }
   };
+
+  useEffect(() => {
+    memberInfo();
+  }, []);
 
   return (
     <MemberInfo className="flex gap-5 w-full justify-center align-top">
@@ -146,18 +255,17 @@ function MyPageUserInfo() {
             onFinish={values => onFinished(values)}
             initialValues={initialValues}
           >
-            <Form.Item name="user_id">
-              <div className="input-wrap">
-                <label>
-                  이메일<span>*</span>
-                </label>
-                <span className="readonly w-full">test@test.com</span>
-                <Input type="hidden" />
-              </div>
+            <Form.Item
+              name="user_id"
+              label="이메일"
+              rules={[{ required: true, message: "이메일을 입력해 주세요." }]}
+            >
+              <Input type="text" className="input readonly" readOnly />
             </Form.Item>
 
             <Form.Item
               name="upw"
+              label="현재 비밀번호"
               rules={[
                 { required: true, message: "비밀번호를 입력해 주세요." },
                 {
@@ -168,21 +276,17 @@ function MyPageUserInfo() {
                 },
               ]}
             >
-              <div className="input-wrap">
-                <label htmlFor="upw">
-                  현재 비밀번호<span>*</span>
-                </label>
-                <Input.Password
-                  className="input"
-                  id="upw"
-                  maxLength={20}
-                  placeholder="비밀번호를 입력해 주세요."
-                />
-              </div>
+              <Input.Password
+                className="input"
+                id="upw"
+                maxLength={20}
+                placeholder="비밀번호를 입력해 주세요."
+              />
             </Form.Item>
 
             <Form.Item
               name="new_upw"
+              label="신규 비밀번호"
               rules={[
                 {
                   pattern:
@@ -192,140 +296,139 @@ function MyPageUserInfo() {
                 },
               ]}
             >
-              <div className="input-wrap">
-                <label htmlFor="new_upw">신규 비밀번호</label>
-                <Input.Password
-                  className="input"
-                  id="new_upw"
-                  placeholder="신규 비밀번호를 입력해 주세요."
-                />
-              </div>
+              <Input.Password
+                className="input"
+                id="new_upw"
+                placeholder="신규 비밀번호를 입력해 주세요."
+              />
             </Form.Item>
 
             <Form.Item
               name="new_upw_check"
+              label="신규 비밀번호 확인"
               rules={[
                 { validator: validateConfirmPassword }, // 커스텀 검증 함수
               ]}
             >
-              <div className="input-wrap">
-                <label htmlFor="new_upw_check">비밀번호 확인</label>
-                <Input.Password
-                  className="input"
-                  id="new_upw_check"
-                  placeholder="신규 비밀번호를 다시 입력해 주세요."
-                />
-              </div>
-            </Form.Item>
-
-            <Form.Item name="name">
-              <div className="input-wrap">
-                <label htmlFor="name">
-                  이름<span>*</span>
-                </label>
-                <span className="readonly w-full">고길동</span>
-                <Input type="hidden" />
-              </div>
+              <Input.Password
+                className="input"
+                id="new_upw_check"
+                placeholder="신규 비밀번호를 다시 입력해 주세요."
+              />
             </Form.Item>
 
             <Form.Item
-              name="nick_name"
-              rules={[{ required: true, message: "닉네임을 입력해 주세요." }]}
+              name="name"
+              label="이름"
+              rules={[{ required: true, message: "이름을 입력해 주세요." }]}
             >
-              <div className="input-wrap">
-                <label htmlFor="nick_name">
-                  닉네임<span>*</span>
-                </label>
+              <Input type="text" className="input readonly" readOnly />
+            </Form.Item>
+
+            <div className="flex gap-3 w-full">
+              <Form.Item
+                name="nick_name"
+                label="닉네임"
+                className="w-full"
+                rules={[{ required: true, message: "닉네임을 입력해 주세요." }]}
+              >
                 <Input
                   className="input"
                   id="nick_name"
                   maxLength={20}
-                  defaultValue={initialValues.nick_name}
                   placeholder="닉네임을 입력해 주세요."
+                  onChange={() => setNickNameCheck(2)}
                 />
+              </Form.Item>
+
+              <Form.Item>
                 <button
                   type="button"
                   className="min-w-[84px] h-14 bg-[#E8EEF3] rounded-xl font-bold text-sm"
-                  onClick={() => sameCheck()}
+                  onClick={() => sameCheck(form.getFieldValue("nick_name"))}
                 >
                   중복확인
                 </button>
-              </div>
-            </Form.Item>
+              </Form.Item>
+            </div>
 
             <Form.Item
               name="phone"
+              label="휴대폰 번호"
               rules={[
                 { required: true, message: "휴대폰 번호를 입력해 주세요." },
               ]}
             >
-              <div className="input-wrap">
-                <label htmlFor="phone">
-                  휴대폰 번호<span>*</span>
-                </label>
-                <Input
-                  className="input"
-                  id="phone"
-                  maxLength={13}
-                  defaultValue={initialValues.phone}
-                  placeholder="휴대폰 번호를 입력해 주세요."
+              <Input
+                className="input"
+                id="phone"
+                maxLength={13}
+                placeholder="휴대폰 번호를 입력해 주세요."
+              />
+            </Form.Item>
+
+            <Form.Item name="birth" label="생년월일">
+              <span className="readonly w-full">{initialValues.birth}</span>
+            </Form.Item>
+
+            <Form.Item name="user_pic" label="프로필 이미지">
+              <Upload
+                action="/upload.do"
+                listType="picture-card"
+                maxCount={1}
+                showUploadList={{ showPreviewIcon: false }}
+                fileList={fileList}
+                onChange={handleChange}
+              >
+                <button style={{ border: 0, background: "none" }} type="button">
+                  <PlusOutlined />
+                </button>
+              </Upload>
+
+              {previewImage && (
+                <Image
+                  wrapperStyle={{ display: "none" }}
+                  preview={{
+                    visible: previewOpen,
+                    onVisibleChange: visible => setPreviewOpen(visible),
+                    afterOpenChange: visible => !visible && setPreviewImage(""),
+                  }}
+                  src={previewImage}
                 />
-              </div>
-            </Form.Item>
-
-            <Form.Item name="birth">
-              <div className="input-wrap">
-                <label htmlFor="birth">
-                  생년월일<span>*</span>
-                </label>
-                <span className="readonly w-full">{initialValues.birth}</span>
-              </div>
-            </Form.Item>
-
-            <Form.Item name="user_pic">
-              <div className="input-wrap">
-                <label>프로필 이미지</label>
-                <Upload
-                  action="/upload.do"
-                  listType="picture-card"
-                  maxCount={1}
-                  showUploadList={{ showPreviewIcon: false }}
-                  fileList={fileList}
-                  onChange={handleChange}
-                >
-                  <button
-                    style={{ border: 0, background: "none" }}
-                    type="button"
-                  >
-                    <PlusOutlined />
-                  </button>
-                </Upload>
-
-                {previewImage && (
-                  <Image
-                    wrapperStyle={{ display: "none" }}
-                    preview={{
-                      visible: previewOpen,
-                      onVisibleChange: visible => setPreviewOpen(visible),
-                      afterOpenChange: visible =>
-                        !visible && setPreviewImage(""),
-                    }}
-                    src={previewImage}
-                  />
-                )}
-              </div>
+              )}
             </Form.Item>
 
             <Form.Item>
-              <div>
-                <Button htmlType="submit" className="w-full h-14 ml-36">
-                  회원정보 수정
-                </Button>
-              </div>
+              <Button
+                htmlType="submit"
+                className="w-full h-14 bg-[#E8EEF3] font-bold text-sm"
+              >
+                회원정보 수정
+              </Button>
             </Form.Item>
           </Form>
         </div>
       </div>
+
+      <CustomModal
+        visible={isModalVisible}
+        title={"닉네임 중복체크"}
+        content={
+          nickNameCheck === 1
+            ? "사용가능한 닉네임입니다."
+            : nickNameCheck === 2
+              ? "닉네임 중복확인해 주세요."
+              : nickNameCheck === 3
+                ? "닉네임을 입력해 주세요."
+                : "닉네임이 중복되었습니다."
+        }
+        onButton1Click={handleButton1Click}
+        onButton2Click={handleButton2Click}
+        button1Text={"취소"}
+        button2Text={"확인"}
+        modalWidth={400}
+        modalHeight={244}
+      />
     </MemberInfo>
   );
 }
