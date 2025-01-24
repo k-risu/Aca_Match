@@ -55,6 +55,7 @@ const beforeRes = async (response: AxiosResponse) => {
 };
 
 const failRes = async (error: AxiosError) => {
+  // if (error.response?.status === 401) {
   try {
     const result = await axios.get<AccessTokenResponse>(
       "/api/user/access-token",
@@ -71,6 +72,7 @@ const failRes = async (error: AxiosError) => {
     console.log("Token Refresh Error:", refreshError);
     return Promise.reject(error);
   }
+  // }
 };
 
 jwtAxios.interceptors.response.use(beforeRes, failRes);

@@ -85,7 +85,7 @@ function CustomInput({
         </InputStyle>
       ) : (
         <Input
-          maxLength={20}
+          maxLength={24}
           className={inputClassName}
           placeholder={placeholder}
           style={{
@@ -93,6 +93,7 @@ function CustomInput({
             height,
             borderRadius,
             padding,
+            fontSize: "14px",
           }}
         />
       )}

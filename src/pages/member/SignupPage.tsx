@@ -74,7 +74,8 @@ function SignupPage() {
       confirmPassword?: string;
       [key: string]: unknown;
     };
-    console.log("Form values:", { ...restValues, birthday: formattedBirthday }); // Include formatted birthday in the logged values
+    console.log("Form values:", { ...restValues, birth: formattedBirthday }); // Include formatted birthday in the logged values
+
     try {
       const res = await axios.post("/api/user/sign-up", {
         ...restValues,
@@ -87,6 +88,22 @@ function SignupPage() {
       console.error(error);
     }
   };
+  // const onFinish = async values => {
+  //   const formattedData = {
+  //     ...values,
+  //     roleId: Number(values.roleId), // roleId를 숫자로 변환
+  //     signUpType: Number(values.signUpType), // signUpType을 숫자로 변환
+  //     birth: dayjs(values.birthday).format("YYYY-MM-DD"), // 생일 포맷팅
+  //   };
+  //   console.log("Response:", formattedData);
+
+  //   try {
+  //     const res = await axios.post("/api/user/sign-up", formattedData);
+  //     console.log("Response:", res.data);
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // };
 
   return (
     <>
@@ -124,8 +141,10 @@ function SignupPage() {
               birthday: "",
               nickname: "",
               phoneNumber: "",
+              signUpType: "0", // 초기값 설정 (예: 1)
             }}
           >
+            <Form.Item name="signUpType"></Form.Item>
             {/* 회원 타입 선택 */}
             <Form.Item name="roleId" className="mb-[12px] h-[50px]">
               <div className="flex items-center w-full gap-[12px]">
@@ -278,7 +297,7 @@ function SignupPage() {
                 <label className="text-[#D9534F]">*</label>
               </label>
               <Form.Item
-                name="birthday"
+                name="birth"
                 rules={[{ required: true, message: "생일을 선택해 주세요!" }]}
                 style={{ width: "448px", height: "56px" }}
               >
@@ -289,21 +308,6 @@ function SignupPage() {
                 />
               </Form.Item>
             </div>
-            {/* <div className="flex gap-[12px] h-[80px]">
-              <label className="flex text-[16px] w-[120px] h-[56px] items-center font-[500]">
-                생일 &nbsp;
-                <label className="text-[#D9534F]">*</label>
-              </label>
-              <Form.Item
-                name="birth"
-                className="mb-0"
-                rules={[{ required: true, message: "생일을 입력해주세요." }]}
-              >
-                <div className="flex items-center w-full gap-[12px]">
-                  <CustomInput placeholder="생일을 입력해 주세요" />
-                </div>
-              </Form.Item>
-            </div> */}
             <div className="flex gap-[12px] h-[80px]">
               <label className="flex text-[16px] w-[120px] h-[56px] items-center font-[500]">
                 닉네임 &nbsp;
@@ -349,14 +353,22 @@ function SignupPage() {
             {/* 약관 동의 */}
             <div className="flex flex-col items-end mt-[4px]">
               <div className="flex flex-col border border-[#DBE0E5] rounded-xl w-[448px] ">
-                <div className="border-b border-[#DBE0E5] p-4">
-                  <Checkbox
-                    indeterminate={indeterminate}
-                    onChange={onCheckAllChange}
-                    checked={checkAll}
+                <div className="border-b border-[#DBE0E5] p-2 pl-4">
+                  <Form.Item
+                    valuePropName="checked"
+                    className="h-[32px] flex"
+                    rules={[
+                      { required: true, message: "전체 약관 동의를 해주세요." },
+                    ]} // 약관 동의 유효성 검사 추가
                   >
-                    약관 전체 동의
-                  </Checkbox>
+                    <Checkbox
+                      indeterminate={indeterminate}
+                      onChange={onCheckAllChange}
+                      checked={checkAll}
+                    >
+                      약관 전체 동의
+                    </Checkbox>
+                  </Form.Item>
                 </div>
                 <div className="p-4">
                   <Checkbox.Group

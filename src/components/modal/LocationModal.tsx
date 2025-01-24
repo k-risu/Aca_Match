@@ -90,18 +90,18 @@ const LocationModal: React.FC<LocationModalProps> = ({
     <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 cursor-default text-brand-default">
       <div className="w-[576px] h-[700px] flex justify-center items-center">
         <div className="bg-white rounded-3xl p-6 w-[576px] h-[700px]">
-          <h2 className="text-2xl font-bold text-left mb-[15px] ml-[55px]">
+          <h2 className="text-2xl font-bold text-left mb-[15px] ml-[25px]">
             지역선택
           </h2>
           <div className="border-b mb-[15px]"></div>
           <div className="flex gap-[24px] justify-center ">
-            <CustomScrollbar className="flex flex-col w-[135px] h-[528px] overflow-y-auto">
+            <CustomScrollbar className="flex flex-col w-[145px] h-[528px] overflow-y-auto pr-[10px]">
               {resultData.map(data => (
                 <p
                   key={data.cityId}
-                  className={`flex items-center justify-center text-base text-left mb-[10px] h-[48px] leading-[48px] cursor-pointer ${
+                  className={`flex items-center pl-[15px] text-base text-left mb-[10px] h-[48px] leading-[48px] cursor-pointer rounded-[12px] ${
                     selectedCityId === data.cityId
-                      ? "text-blue-500 font-bold"
+                      ? "text-white bg-brand-BTBlue font-bold"
                       : ""
                   }`}
                   onClick={() => {
@@ -116,13 +116,13 @@ const LocationModal: React.FC<LocationModalProps> = ({
                 </p>
               ))}
             </CustomScrollbar>
-            <CustomScrollbar className="flex flex-col w-[135px] h-[528px] overflow-y-auto">
+            <CustomScrollbar className="flex flex-col w-[145px] h-[528px] overflow-y-auto pr-[10px]">
               {streetData.map(street => (
                 <p
                   key={street.streetId}
-                  className={` text-base text-center mb-[10px] h-[48px] leading-[48px] cursor-pointer ${
+                  className={` text-base pl-[15px] text-left mb-[10px] h-[48px] leading-[48px] cursor-pointer rounded-[12px] ${
                     selectedStreetId === street.streetId
-                      ? "text-blue-500 font-bold"
+                      ? "text-white bg-brand-BTBlue font-bold"
                       : ""
                   }`}
                   onClick={() => {
@@ -136,7 +136,7 @@ const LocationModal: React.FC<LocationModalProps> = ({
                 </p>
               ))}
             </CustomScrollbar>
-            <CustomScrollbar className="flex flex-col w-[135px] h-[528px] overflow-y-auto">
+            <CustomScrollbar className="flex flex-col w-[135px] h-[528px] overflow-y-auto pr-[10px]">
               <Radio.Group
                 value={selectedDongId}
                 onChange={e => setSelectedDongId(e.target.value)}
@@ -145,7 +145,7 @@ const LocationModal: React.FC<LocationModalProps> = ({
                   <Radio
                     key={`dong-${dong.dongId}`}
                     value={dong.dongId}
-                    className={`flex items-center justify-center w-[135px] text-base mb-[10px] h-[48px] leading-[48px] ${
+                    className={`flex items-center w-[145px] text-base mb-[10px] h-[48px] leading-[48px] ${
                       selectedDongId === dong.dongId
                         ? "text-blue-500 font-bold"
                         : ""
@@ -180,42 +180,33 @@ const LocationModal: React.FC<LocationModalProps> = ({
 
 export default LocationModal;
 
+const CustomScrollbar = styled.div`
+  &::-webkit-scrollbar {
+    width: 7px; /* 세로 스크롤바의 너비 */
+  }
+
+  &::-webkit-scrollbar-track {
+    /* background: #f1f1f1;  */
+    background: none;
+    border-radius: 10px; /* 스크롤바 트랙의 둥근 모서리 */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #eee; /* 스크롤바 핸들의 색 */
+    border-radius: 10px; /* 핸들의 둥근 모서리 */
+    /* border: 3px solid #888; */
+  }
+`;
 // const CustomScrollbar = styled.div`
+//   overflow-y: auto;
+
+//   /* 항상 스크롤바 숨기기 */
 //   &::-webkit-scrollbar {
-//     width: 7px;
-//     display: none;
-//   }
-
-//   &::-webkit-scrollbar-track {
-//     background: none;
-//     border-radius: 10px;
-//   }
-
-//   &::-webkit-scrollbar-thumb {
-//     background: #888;
-//     border-radius: 10px;
+//     width: 0;
+//     background: transparent;
 //   }
 
 //   /* Firefox를 위한 스타일 */
 //   scrollbar-width: none;
-//   scrollbar-color: #888 transparent;
-
-//   &:active::-webkit-scrollbar,
-//   &:focus::-webkit-scrollbar,
-//   &:hover::-webkit-scrollbar {
-//     display: block;
-//   }
+//   -ms-overflow-style: none;
 // `;
-const CustomScrollbar = styled.div`
-  overflow-y: auto;
-
-  /* 항상 스크롤바 숨기기 */
-  &::-webkit-scrollbar {
-    width: 0;
-    background: transparent;
-  }
-
-  /* Firefox를 위한 스타일 */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-`;

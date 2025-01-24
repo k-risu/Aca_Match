@@ -1,12 +1,12 @@
 import styled from "@emotion/styled";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { Cookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
-import { getCookie, removeCookie } from "../../utils/cookie";
-import MainButton from "../button/MainButton";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import userInfo from "../../atoms/userInfo";
-import axios from "axios";
+import { getCookie, removeCookie } from "../../utils/cookie";
+import MainButton from "../button/MainButton";
 
 const SecondaryButton = styled(MainButton)`
   &:hover {
@@ -17,7 +17,7 @@ const SecondaryButton = styled(MainButton)`
 `;
 const menuItems = [
   { label: "학원 검색", link: "/academy" },
-  { label: "화재의 학원", link: "/fire-academy" },
+  { label: "화제의 학원", link: "/fire-academy" },
   { label: "고객지원", link: "/support" },
   { label: "마이페이지", link: "/mypage" },
 ];
@@ -107,6 +107,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                   onClick={() => {
                     // 로그아웃 처리 로직 추가
                     removeCookie("accessToken");
+                    // 리코일 정보 삭제 아직 안함
                     navigate("/");
                   }}
                   className={`px-4 py-2 w-[85px] h-[40px]`}
