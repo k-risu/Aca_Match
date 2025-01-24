@@ -14,6 +14,11 @@ import styled from "@emotion/styled";
 import SideBar from "../../../components/SideBar";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import axios from "axios";
+import userInfo from "../../../atoms/userInfo";
+import { useRecoilValue } from "recoil";
+import dayjs from "dayjs";
+import CustomModal from "../../../components/modal/Modal";
 
 const AcademyInfo = styled.div`
   .ant-form-item-label {
@@ -98,6 +103,25 @@ const AcademyInfo = styled.div`
   }
 `;
 
+const TagListSelect = styled.div`
+  input[type="checkbox"] {
+    display: none;
+  }
+  input[type="checkbox"] + label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eee;
+    padding: 4px 15px 6px 15px;
+    border-radius: 50px;
+    cursor: pointer;
+  }
+  input[type="checkbox"]:checked + label {
+    background-color: #666;
+    color: #fff;
+  }
+`;
+
 const menuItems = [
   { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
   { label: "학원정보 관리", isActive: true, link: "/mypage/academy" },
@@ -107,50 +131,144 @@ const menuItems = [
 
 function AcademyAdd() {
   const [form] = Form.useForm();
-
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [tagList, setTagList] = useState([]); //태그목록
+  const [tagKeyword, setTagKeyword] = useState(""); //태그검색 키워드
+
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+
+  const currentUserInfo = useRecoilValue(userInfo);
+  //console.log(currentUserInfo);
 
   const handleAddressSearch = () => {
     new window.daum.Postcode({
       oncomplete: (data: any) => {
         // 우편번호와 기본주소 입력
-        form.setFieldsValue({ aca_zipcode: data.zonecode }); // Form의 값도 업데이트
-        form.setFieldsValue({ aca_addr: data.address }); // Form의 값도 업데이트
+        form.setFieldsValue({ postNum: data.zonecode }); // Form의 값도 업데이트
+        form.setFieldsValue({ address: data.address }); // Form의 값도 업데이트
       },
     }).open();
   };
 
-  const handleTagSearch = () => {
-    console.log("태그 검색");
+  const handleButton1Click = () => {
+    setIsModalVisible(false);
   };
 
+  const handleButton2Click = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleTagSearch = () => {
+    console.log("태그 검색");
+    setIsModalVisible(true);
+  };
+
+  //태그목록 가져오기
+  const getTagList = async () => {
+    try {
+      const res = await axios.get("/api/tag");
+      setTagList(res.data.resultData.selTagList);
+      console.log(res.data.resultData.selTagList);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //태그검색
+  const handleTagSearchForm = (data: any) => {
+    data.preventDefault();
+    console.log(data.target.value);
+  };
+
+  //input 값 변경 처리
+  const handleChangeTag = (e: any) => {
+    setTagKeyword(e.target.value);
+  };
+
+  const tagAllList = tagList.map((item: any, index: number) => (
+    <li key={index}>
+      <input
+        type="checkbox"
+        name="tag"
+        value={item.tagId}
+        id={`tag_${item.tagId}`}
+      />
+      <label htmlFor={`tag_${item.tagId}`}>{item.tagName}</label>
+    </li>
+  ));
+
   const initialValues = {
-    aca_name: "",
-    aca_phone: "",
-    open_time: "",
-    close_time: "",
-    teacher_num: "",
-    aca_zipcode: "",
-    aca_addr: "",
-    aca_addr2: "",
-    tag_id: "",
-    aca_pic: "",
-    user_id: "test@test.com",
+    acaName: "",
+    acaPhone: "",
+    openTime: dayjs("10:00", "HH:mm"),
+    closeTime: dayjs("20:00", "HH:mm"),
+    teacherNum: "",
+    postNum: "",
+    address: "",
+    detailAddress: "",
+    tagIdList: "",
+    pic: "",
+    userId: 2,
+    dongId: 0,
     comment: "",
   };
 
-  console.log(initialValues.aca_zipcode, initialValues.aca_addr);
-
   const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
     setFileList(newFileList);
-    console.log(newFileList);
+    //console.log(newFileList);
   };
 
-  const onFinished = (values: any) => {
-    alert("학원 등록 완료");
-    console.log(values);
+  const onFinished = async values => {
+    try {
+      console.log(values);
+      console.log(fileList[0]);
+      const startTimes = dayjs(values.openTime.$d).format("HH:mm");
+      const endTimes = dayjs(values.closeTime.$d).format("HH:mm");
+
+      const formData = new FormData();
+
+      if (fileList[0]) {
+        formData.append("pic", fileList[0]); // 파일일 경우
+      } else {
+        formData.append("pic", null); // 파일이 없을 경우
+      }
+
+      const reqData = {
+        userId: values.userId,
+        dongId: 3,
+        acaName: values.acaName,
+        acaPhone: values.acaPhone,
+        comment: values.comment,
+        teacherNum: values.teacherNum,
+        openTime: startTimes,
+        closeTime: endTimes,
+        addressDto: {
+          address: values.address,
+          detailAddress: values.detailAddress,
+          postNum: values.postNum,
+        },
+        tagIdList: [1, 3],
+      };
+
+      //JSON 형태로 데이터를 만들어 formData에 추가
+      formData.append(
+        "req",
+        new Blob([JSON.stringify(reqData)], { type: "application/json" }),
+      );
+
+      const header = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
+      const res = await axios.post("/api/academy", formData, header);
+      console.log(res.data.resultData);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
@@ -165,6 +283,10 @@ function AcademyAdd() {
     return () => {
       document.body.removeChild(script);
     };
+  }, []);
+
+  useEffect(() => {
+    getTagList(); //태그목록 가져오기
   }, []);
 
   return (
@@ -183,15 +305,15 @@ function AcademyAdd() {
               initialValues={initialValues}
             >
               <Form.Item
-                name="user_id"
-                label="이메일"
-                rules={[{ required: true, message: "이메일을 입력해 주세요." }]}
+                name="userId"
+                label="아이디"
+                rules={[{ required: true, message: "아이디를 입력해 주세요." }]}
               >
-                <Input type="text" className="input" value="test@test.com" />
+                <Input type="text" className="input" value="2" />
               </Form.Item>
 
               <Form.Item
-                name="aca_name"
+                name="acaName"
                 label="학원 이름"
                 rules={[
                   { required: true, message: "학원 이름을 입력해 주세요." },
@@ -207,7 +329,7 @@ function AcademyAdd() {
 
               <div className="flex gap-3 w-full">
                 <Form.Item
-                  name="aca_zipcode"
+                  name="postNum"
                   label="학원 주소"
                   className="w-full"
                   rules={[
@@ -234,7 +356,7 @@ function AcademyAdd() {
               </div>
 
               <Form.Item
-                name="aca_addr"
+                name="address"
                 className="ml-[130px]"
                 rules={[
                   { required: true, message: "학원 주소를 입력해 주세요." },
@@ -249,7 +371,7 @@ function AcademyAdd() {
               </Form.Item>
 
               <Form.Item
-                name="aca_addr2"
+                name="detailAddress"
                 className="ml-[130px]"
                 rules={[
                   { required: true, message: "학원 주소를 입력해 주세요." },
@@ -264,7 +386,7 @@ function AcademyAdd() {
               </Form.Item>
 
               <Form.Item
-                name="aca_phone"
+                name="acaPhone"
                 label="학원 전화번호"
                 rules={[
                   { required: true, message: "학원 전화번호를 입력해 주세요." },
@@ -280,7 +402,7 @@ function AcademyAdd() {
 
               <div className="flex gap-3">
                 <Form.Item
-                  name="open_time"
+                  name="openTime"
                   label="영업 시간"
                   rules={[
                     { required: true, message: "시작 시간을 선택해 주세요." },
@@ -293,7 +415,7 @@ function AcademyAdd() {
                   />
                 </Form.Item>
                 <Form.Item
-                  name="close_time"
+                  name="closeTime"
                   label=""
                   rules={[
                     { required: true, message: "종료 시간을 선택해 주세요." },
@@ -307,7 +429,7 @@ function AcademyAdd() {
                 </Form.Item>
               </div>
 
-              <Form.Item name="teacher_num" label="강사 인원수">
+              <Form.Item name="teacherNum" label="강사 인원수">
                 <Input
                   className="input"
                   id="teacherNum"
@@ -324,7 +446,11 @@ function AcademyAdd() {
               </Form.Item>
 
               <div className="flex gap-3 w-full">
-                <Form.Item name="tag_id" label="태그 등록" className="w-full">
+                <Form.Item
+                  name="tagIdList"
+                  label="태그 등록"
+                  className="w-full"
+                >
                   <Input
                     className="input"
                     id="academyTag"
@@ -332,7 +458,7 @@ function AcademyAdd() {
                   />
                 </Form.Item>
 
-                <Form.Item name="tag_id">
+                <Form.Item>
                   <button
                     type="button"
                     className="min-w-[84px] h-14 bg-[#E8EEF3] rounded-xl font-bold text-sm"
@@ -343,10 +469,10 @@ function AcademyAdd() {
                 </Form.Item>
               </div>
 
-              <Form.Item name="aca_pic" label="프로필 이미지">
+              <Form.Item name="pic" label="프로필 이미지">
                 <div>
                   <Upload
-                    action="/upload.do"
+                    action="{`/pic/academy/0/`}"
                     listType="picture-card"
                     maxCount={1}
                     onChange={handleChange}
@@ -385,6 +511,42 @@ function AcademyAdd() {
           </div>
         </div>
       </div>
+
+      <CustomModal
+        visible={isModalVisible}
+        title={"태그 검색"}
+        content={
+          <TagListSelect>
+            <form onSubmit={handleTagSearchForm}>
+              <div className="flex justify-center items-center mb-5 gap-3">
+                <input
+                  type="text"
+                  name="tagSearch"
+                  value={tagKeyword}
+                  placeholder="태그를 입력해 주세요."
+                  className="w-full h-14 pl-3 border rounded-xl text-sm"
+                  onChange={handleChangeTag}
+                />
+                <button
+                  type="submit"
+                  className="h-14 w-24 bg-[#E8EEF3] rounded-xl"
+                >
+                  검색
+                </button>
+              </div>
+
+              <ul className="flex w-full flex-wrap gap-2 overflow-y-auto max-h-32">
+                {tagAllList}
+              </ul>
+            </form>
+          </TagListSelect>
+        }
+        onButton1Click={handleButton1Click}
+        onButton2Click={handleButton2Click}
+        button1Text={"취소하기"}
+        button2Text={"선택완료"}
+        modalWidth={400}
+      />
     </AcademyInfo>
   );
 }

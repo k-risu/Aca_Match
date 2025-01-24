@@ -5,13 +5,16 @@ import CustomModal from "../../components/modal/Modal";
 import userInfo from "../../atoms/userInfo";
 import { getCookie } from "../../utils/cookie";
 import { Pagination } from "antd";
+import { useNavigate } from "react-router-dom";
 
 function MyPage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const currentUserInfo = useRecoilValue(userInfo);
   const accessToken = getCookie("accessToken");
+  const navigate = useNavigate();
 
   let menuItems = [];
+  let mypageUrl = "";
   switch (currentUserInfo.roleId) {
     case 3: //학원 관계자
       menuItems = [
@@ -20,6 +23,7 @@ function MyPage() {
         { label: "리뷰 목록", isActive: false, link: "/mypage/academy/review" },
         { label: "좋아요 목록", isActive: false, link: "/mypage/academy/like" },
       ];
+      mypageUrl = "/mypage/academy";
       break;
     case 2: //학부모
       menuItems = [
@@ -28,6 +32,7 @@ function MyPage() {
         { label: "리뷰 목록", isActive: false, link: "/mypage/review" },
         { label: "학생 관리", isActive: false, link: "/mypage/child" },
       ];
+      mypageUrl = "/mypage";
       break;
     default: //일반학생
       menuItems = [
@@ -37,6 +42,8 @@ function MyPage() {
         { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
         { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
       ];
+      mypageUrl = "/mypage";
+      break;
   }
 
   const handleButton1Click = () => {
@@ -53,6 +60,7 @@ function MyPage() {
   };
 
   useEffect(() => {
+    navigate(mypageUrl); //학원 관계자는 마이페이지 메인 리다이렉션
     fetchData(1);
   }, []);
 
