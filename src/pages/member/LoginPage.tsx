@@ -33,6 +33,26 @@ function LoginPage() {
       removeCookie("accessToken");
     }
   };
+  // const on = async (values: any) => {
+  //   try {
+  //     const response = await axios.post("/api/user/access-token", values);
+  //     const { name, roleId, userId } = response.data.resultData;
+
+  //     setCookie("accessToken", response.data.resultData.accessToken);
+
+  //     navigate("/");
+  //     setUserInfo({
+  //       name,
+  //       roleId: String(roleId),
+  //       userId: String(userId),
+  //     });
+  //     console.log(response.data.resultData.accessToken);
+  //     console.log(response);
+  //   } catch (error) {
+  //     console.error(error);
+  //     removeCookie("accessToken");
+  //   }
+  // };
   // useEffect(() => {
   //   console.log("Current userInfo:", currentUserInfo);
   // }, [currentUserInfo]); // userInfo가 변경될 때마다 로그 출력
@@ -130,7 +150,7 @@ function LoginPage() {
                     navigate("/");
                   }}
                 >
-                  이메일 / 비밀번호를 잊으셨나요?
+                  비밀번호를 잊으셨나요?
                 </span>
               </div>
             </div>

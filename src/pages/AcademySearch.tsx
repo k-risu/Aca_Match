@@ -1,4 +1,12 @@
-import { Checkbox, Dropdown, Input, Menu, MenuProps, Pagination } from "antd";
+import {
+  Checkbox,
+  Dropdown,
+  Form,
+  Input,
+  Menu,
+  MenuProps,
+  Pagination,
+} from "antd";
 import { useState } from "react";
 import { SlArrowDown } from "react-icons/sl";
 import Pages from "../components/page/Pages";
@@ -74,7 +82,7 @@ const FilterBox = ({
 
   return (
     <div
-      className="w-[288px] border border-brand-BTWhite rounded-xl p-[12px]"
+      className="w-[288px] border border-brand-BTWhite rounded-xl p-[12px] mb-[12px]"
       style={style}
     >
       {/* Header 부분 */}
@@ -116,17 +124,11 @@ const AcademySearch = () => {
   const [selectedSearchType, setSelectedSearchType] = useState<string>("태그");
   const [currentPage, setCurrentPage] = useState(1);
   // const [visible, setVisible] = useState(false);
+  const [form] = Form.useForm();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const navigate = useNavigate();
-
-  // const handleOpenModal = () => {
-  //   setVisible(true);
-  // };
-  // const handleCloseModal = () => {
-  //   setVisible(false);
-  // };
 
   const handleButton1Click = () => {
     setIsModalVisible(false);
@@ -264,6 +266,19 @@ const AcademySearch = () => {
     level: [],
   });
 
+  const fetchDongData = async (cityId: number, streetId: number) => {
+    try {
+      const response = await axios.get(`/api/academy/`, {
+        params: {
+          cityId: cityId,
+        },
+      });
+      console.log(response.data.resultData);
+    } catch (error) {
+      console.error("검색 결과 조회 실패:", error);
+    }
+  };
+
   // 개별 필터 값 변경 핸들러
   const handleFilterChange = (
     sectionId: string,
@@ -301,154 +316,168 @@ const AcademySearch = () => {
   const id = 123;
   const path = `/academy/detail?id=${id}`;
 
+  const onFinish = (values: any) => {
+    console.log("Submitted values:", values);
+    // 여기에 제출 후 처리할 로직을 추가합니다.
+  };
+
   return (
-    <div className="flex flex-row justify-between w-full gap-[12px]">
-      <div className="flex mt-[160px] ">
-        <div className="flex-col-start gap-4 w-[288px] h-[916px]">
-          <div className="flex items-start pb-5 pl-[15px] ">
-            <h2 className="text-[24px] font-bold leading-[21px] text-brand-default">
-              카테고리
-            </h2>
-          </div>
+    <Form form={form} onFinish={onFinish}>
+      <div className="flex flex-row justify-between w-full gap-[12px]">
+        <div className="flex mt-[160px] ">
+          <div className="flex-col-start gap-4 w-[288px] h-[916px]">
+            <div className="flex items-start pb-5 pl-[15px] ">
+              <h2 className="text-[24px] font-bold leading-[21px] text-brand-default">
+                카테고리
+              </h2>
+            </div>
 
-          <div className="flex flex-col gap-[8px]">
-            {filterSections.map((section, index) => (
-              <FilterBox
-                key={section.id}
-                title={section.title}
-                options={section.options}
-                selectedValues={selectedFilters[section.id] || []}
-                onValueChange={(value, checked) =>
-                  handleFilterChange(section.id, value, checked)
-                }
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-col items-start gap-3 w-full mt-[65px]">
-        {/* 상단 검색 영역 */}
-        <div className="flex flex-row flex-wrap justify-between items-start gap-3 w-full h-[72px]">
-          <div className="flex flex-col w-[288px] min-w-[288px] h-10">
-            <h1 className="font-bold text-3xl text-brand-default">학원 검색</h1>
-          </div>
-        </div>
-
-        {/* 검색 필터 */}
-        <div className="flex flex-row gap-3 w-full h-14">
-          {/* 태그 검색 */}
-          <div>
-            <div className="flex justify-center items-center">
-              {/* Dropdown 컴포넌트 */}
-              <Dropdown overlay={menu} trigger={["click"]}>
-                <DropdownButton
-                  onClick={() => {}}
-                  className="w-[100px] h-[56px] border-none flex items-center px-4 text-brand-default"
-                >
-                  {selectedSearchType} <DownOutlined />
-                </DropdownButton>
-              </Dropdown>
+            <div className="flex flex-col gap-[8px]">
+              <Form.Item name="filter">
+                {filterSections.map((section, index) => (
+                  <FilterBox
+                    key={section.id}
+                    title={section.title}
+                    options={section.options}
+                    selectedValues={selectedFilters[section.id] || []}
+                    onValueChange={(value, checked) =>
+                      handleFilterChange(section.id, value, checked)
+                    }
+                  />
+                ))}
+              </Form.Item>
             </div>
           </div>
-          <div className="relative">
-            <SearchInput
-              placeholder={`${selectedSearchType}를 입력해주세요`}
-              className="border-none w-[395px] h-[56px]"
-              size="large"
-            />
-            {/* <CiSearch className="text-[24px] font-bold  text-brand-placeholder absolute right-[10px] bottom-[15px] " /> */}
-          </div>
-          <div
-            className="flex items-center text-brand-placeholder pl-[11px] w-[460px] h-[56px] bg-[#ffffff] border border-[#DBE3E6] rounded-[12px] justify-between pr-[10px] cursor-pointer"
-            onClick={() => setIsModalVisible(true)}
-          >
-            <span>지역 검색</span>
-            <SlArrowDown />
-          </div>
-          {/* <div className="w-5 h-5 bg-brand-default" /> */}
         </div>
-
-        {/* 학원 목록 테이블 */}
-        <div className="flex flex-col w-full border border-[#DBE3E6] rounded-xl">
-          {/* 테이블 헤더 */}
-          <div className="flex flex-row h-[46px] items-center justify-center">
-            <span className="flex-row-center text-[14px] text-brand-default text-center w-full">
-              학원
-            </span>
-            <span className="flex-row-center text-[14px] text-brand-default text-center min-w-[15%]">
-              태그
-            </span>
-            <span className="flex-row-center text-[14px] text-brand-default text-center  min-w-[15%]">
-              지역
-            </span>
-            <span className="flex-row-center text-[14px] text-brand-default text-center  min-w-[15%]">
-              별점
-            </span>
+        <div className="flex flex-col items-start gap-3 w-full mt-[65px]">
+          {/* 상단 검색 영역 */}
+          <div className="flex flex-row flex-wrap justify-between items-start gap-3 w-full h-[72px]">
+            <div className="flex flex-col w-[288px] min-w-[288px] h-10">
+              <h1 className="font-bold text-3xl text-brand-default">
+                학원 검색
+              </h1>
+            </div>
           </div>
 
-          {/* 학원 목록 아이템 */}
-          {academyData.map((academy, index) => (
-            <div
-              key={index}
-              className="flex flex-row h-[72px] border-t border-[#DBE3E6]"
-              onClick={() => navigate(path)}
-            >
-              <div className="flex justify-center items-center min-w-[10%]">
-                <div
-                  className="w-[60px] h-[60px] rounded-[20px] bg-cover"
-                  style={{ backgroundColor: "#F0F2F5" }}
-                  // style={{ backgroundImage: `url(${academy.image})` }}
+          {/* 검색 필터 */}
+          <div className="flex flex-row gap-3 w-full h-14">
+            {/* 태그 검색 */}
+            <div>
+              <div className="flex justify-center items-center">
+                {/* Dropdown 컴포넌트 */}
+                <Dropdown overlay={menu} trigger={["click"]}>
+                  <DropdownButton
+                    onClick={() => {}}
+                    className="w-[100px] h-[56px] border-none flex items-center px-4 text-brand-default"
+                  >
+                    {selectedSearchType} <DownOutlined />
+                  </DropdownButton>
+                </Dropdown>
+              </div>
+            </div>
+            <div className="relative">
+              <Form.Item name="serch">
+                <SearchInput
+                  placeholder={`${selectedSearchType}를 입력해주세요`}
+                  className="border-none w-[395px] h-[56px]"
+                  size="large"
+                  enterButton
                 />
-              </div>
-              <div className="flex items-center p-4 w-full text-start">
-                <span className="text-[14px] text-brand-default">
-                  {academy.name}
-                </span>
-              </div>
-              <div className="flex min-w-[15%] justify-center items-center p-4">
-                <span className="text-[14px] text-brand-placeholder">
-                  {academy.tag}
-                </span>
-              </div>
-              <div className="flex min-w-[15%] justify-center items-center p-4">
-                <span className="text-[14px] text-brand-placeholder">
-                  {academy.location}
-                </span>
-              </div>
-              <div className="flex min-w-[15%] justify-center items-center p-4">
-                <div className="flex justify-center items-center px-4 h-8 bg-[#F0F2F5] rounded-xl">
-                  <span className="text-[14px] font-medium text-brand-default">
-                    {academy.rating}
+              </Form.Item>
+              {/* <CiSearch className="text-[24px] font-bold  text-brand-placeholder absolute right-[10px] bottom-[15px] " /> */}
+            </div>
+            <div
+              className="flex items-center text-brand-placeholder pl-[11px] w-[460px] h-[56px] bg-[#ffffff] border border-[#DBE3E6] rounded-[12px] justify-between pr-[10px] cursor-pointer"
+              onClick={() => setIsModalVisible(true)}
+            >
+              <span>지역 검색</span>
+              <SlArrowDown />
+            </div>
+            {/* <div className="w-5 h-5 bg-brand-default" /> */}
+          </div>
+
+          {/* 학원 목록 테이블 */}
+          <div className="flex flex-col w-full border border-[#DBE3E6] rounded-xl">
+            {/* 테이블 헤더 */}
+            <div className="flex flex-row h-[46px] items-center justify-center">
+              <span className="flex-row-center text-[14px] text-brand-default text-center w-full">
+                학원
+              </span>
+              <span className="flex-row-center text-[14px] text-brand-default text-center min-w-[15%]">
+                태그
+              </span>
+              <span className="flex-row-center text-[14px] text-brand-default text-center  min-w-[15%]">
+                지역
+              </span>
+              <span className="flex-row-center text-[14px] text-brand-default text-center  min-w-[15%]">
+                별점
+              </span>
+            </div>
+
+            {/* 학원 목록 아이템 */}
+            {academyData.map((academy, index) => (
+              <div
+                key={index}
+                className="flex flex-row h-[72px] border-t border-[#DBE3E6]"
+                onClick={() => navigate(path)}
+              >
+                <div className="flex justify-center items-center min-w-[10%]">
+                  <div
+                    className="w-[60px] h-[60px] rounded-[20px] bg-cover"
+                    style={{ backgroundColor: "#F0F2F5" }}
+                    // style={{ backgroundImage: `url(${academy.image})` }}
+                  />
+                </div>
+                <div className="flex items-center p-4 w-full text-start">
+                  <span className="text-[14px] text-brand-default">
+                    {academy.name}
                   </span>
                 </div>
+                <div className="flex min-w-[15%] justify-center items-center p-4">
+                  <span className="text-[14px] text-brand-placeholder">
+                    {academy.tag}
+                  </span>
+                </div>
+                <div className="flex min-w-[15%] justify-center items-center p-4">
+                  <span className="text-[14px] text-brand-placeholder">
+                    {academy.location}
+                  </span>
+                </div>
+                <div className="flex min-w-[15%] justify-center items-center p-4">
+                  <div className="flex justify-center items-center px-4 h-8 bg-[#F0F2F5] rounded-xl">
+                    <span className="text-[14px] font-medium text-brand-default">
+                      {academy.rating}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <div className="flex w-full justify-center items-center my-4">
+            <Pagination
+              current={currentPage}
+              total={500} // 전체 아이템 수
+              pageSize={10} // 페이지당 아이템 수
+              onChange={handlePageChange}
+              showSizeChanger={false} // 페이지 사이즈 변경 옵션 숨김
+            />
+          </div>
+          <div className="flex w-full justify-center items-center">
+            <Pages
+              perPage={5}
+              totalPage={10}
+              onPageChange={() => handlePageChange(1)}
+            />
+          </div>
         </div>
-        <div className="flex w-full justify-center items-center my-4">
-          <Pagination
-            current={currentPage}
-            total={500} // 전체 아이템 수
-            pageSize={10} // 페이지당 아이템 수
-            onChange={handlePageChange}
-            showSizeChanger={false} // 페이지 사이즈 변경 옵션 숨김
+        {isModalVisible && (
+          <LocationModal
+            visible={isModalVisible}
+            handleCloseModal={() => handleButton1Click()}
           />
-        </div>
-        <div className="flex w-full justify-center items-center">
-          <Pages
-            perPage={5}
-            totalPage={10}
-            onPageChange={() => handlePageChange(1)}
-          />
-        </div>
+        )}
       </div>
-      {isModalVisible && (
-        <LocationModal
-          visible={isModalVisible}
-          handleCloseModal={() => handleButton1Click()}
-        />
-      )}
-    </div>
+    </Form>
   );
 };
 
