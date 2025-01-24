@@ -50,7 +50,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
   button1Text = "취소하기",
   button2Text = "확인하기",
   modalWidth = 400,
-  modalHeight = 244,
+  modalHeight,
 }) => {
   if (!visible) return null; // visible이 false일 경우 렌더링하지 않음
 
@@ -67,11 +67,9 @@ const CustomModal: React.FC<CustomModalProps> = ({
           ${visible ? "opacity-100 animate-fade-in animate-scale-up" : "opacity-0"}`}
         style={{
           width: `${modalWidth}px`, // 동적 width 적용
-          height: `${modalHeight}px`, // 동적 height 적용
+          height: modalHeight ? `${modalHeight}px` : "auto", // 동적 height 적용
         }}
       >
-        <h2 className="text-2xl font-bold text-left mb-[30px]">{title}</h2>
-        <p className="text-base text-left mb-[52px]">{content}</p>
         <div className="flex justify-end space-x-[10px]">
           <CancelButton
             onClick={onButton1Click}

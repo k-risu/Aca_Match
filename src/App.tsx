@@ -39,6 +39,7 @@ function App() {
           token: {
             colorError: "#3b77d8", // 오류 색상
             fontSizeSM: 14, // 작은 텍스트 크기
+            fontSize: 14,
           },
         }}
       >
