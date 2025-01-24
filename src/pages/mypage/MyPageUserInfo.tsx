@@ -159,10 +159,14 @@ function MyPageUserInfo() {
     return Promise.resolve();
   };
 
-  //console.log(editMember);
+  console.log(editMember);
 
   const { email, name, nickName, phone, birth, userPic } = editMember;
   console.log(email, name, nickName, phone, birth, userPic);
+
+  if (!editMember) {
+    return <div>Loading...</div>; // 데이터가 없으면 로딩 화면 표시
+  }
 
   const initialValues = {
     user_id: email,
@@ -180,7 +184,7 @@ function MyPageUserInfo() {
   const [fileList, setFileList] = useState<UploadFile[]>([
     {
       uid: "1",
-      name: editMember.userPic,
+      name: userPic,
       status: "done",
       url: `http://112.222.157.156:5223/pic/user/${editMember.userId}/${editMember.userPic}`,
     },
