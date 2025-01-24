@@ -164,18 +164,40 @@ function MyPageUserInfo() {
   const { email, name, nickName, phone, birth, userPic } = editMember;
   console.log(email, name, nickName, phone, birth, userPic);
 
-  if (!editMember) {
-    return <div>Loading...</div>; // 데이터가 없으면 로딩 화면 표시
-  }
+  useEffect(() => {
+    memberInfo();
+  }, []);
 
-  const initialValues = {
-    user_id: email,
-    name: name,
-    nick_name: nickName,
-    phone: phone,
-    birth: birth,
-    user_pic: userPic,
-  };
+  useEffect(() => {
+    // editMember가 존재할 때만 상태를 업데이트
+    if (editMember) {
+      setInitialValues({
+        user_id: editMember.email,
+        name: editMember.name,
+        nick_name: editMember.nickName,
+        phone: editMember.phone,
+        birth: editMember.birth,
+        user_pic: editMember.userPic,
+      });
+    }
+  }, [editMember]);
+
+  // const initialValues = {
+  //   user_id: email,
+  //   name: name,
+  //   nick_name: nickName,
+  //   phone: phone,
+  //   birth: birth,
+  //   user_pic: userPic,
+  // };
+  const [initialValues, setInitialValues] = useState({
+    user_id: "",
+    name: "",
+    nick_name: "",
+    phone: "",
+    birth: "",
+    user_pic: "",
+  });
 
   //console.log(initialValues);
 
@@ -201,10 +223,11 @@ function MyPageUserInfo() {
     setIsModalVisible(false);
   };
 
-  const onFinished = (values: any) => {
+  const onFinished = async (values: any) => {
     if (nickNameCheck === 2) {
       //닉네임 체크 필요
       setIsModalVisible(true);
+
       return;
     }
     if (nickNameCheck === 0) {
@@ -212,8 +235,15 @@ function MyPageUserInfo() {
       setIsModalVisible(true);
       return;
     }
-    console.log(fileList);
-    console.log(values);
+    try {
+      const res = await axios.put(`/api/user/`, values);
+      console.log(res);
+      if (res.data.resultCode === 200) {
+        console.log("회원정보 수정 완료");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   //닉네임 중복확인
@@ -243,9 +273,9 @@ function MyPageUserInfo() {
     }
   };
 
-  useEffect(() => {
-    memberInfo();
-  }, []);
+  if (!editMember) {
+    return <div>Loading...</div>; // 데이터가 없으면 로딩 화면 표시
+  }
 
   return (
     <MemberInfo className="flex gap-5 w-full justify-center align-top">

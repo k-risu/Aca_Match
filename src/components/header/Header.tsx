@@ -99,7 +99,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
               </li>
             ))}
           </ul>
-          {/* const accessToken = cookies.get('accessToken'); */}
+          const accessToken = cookies.get('accessToken');
           <div className="flex items-center gap-[15px]">
             {getCookie("accessToken") ? ( // 쿠키에 accessToken이 있는지 확인
               <div className="flex w-[185px] justify-end">

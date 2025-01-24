@@ -88,14 +88,14 @@ const LocationModal: React.FC<LocationModalProps> = ({
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 cursor-default text-brand-default">
-      <div className="w-[576px] h-[700px] flex justify-center items-center">
-        <div className="bg-white rounded-3xl p-6 w-[576px] h-[700px]">
+      <div className=" h-[700px] flex justify-center items-center">
+        <div className="bg-white rounded-3xl p-6 w-[600px] h-[700px]">
           <h2 className="text-2xl font-bold text-left mb-[15px] ml-[25px]">
             지역선택
           </h2>
           <div className="border-b mb-[15px]"></div>
           <div className="flex gap-[24px] justify-center ">
-            <CustomScrollbar className="flex flex-col w-[145px] h-[528px] overflow-y-auto pr-[10px]">
+            <CustomScrollbar className="flex flex-col w-[150px] h-[528px] overflow-y-auto pr-[10px]">
               {resultData.map(data => (
                 <p
                   key={data.cityId}
@@ -116,7 +116,7 @@ const LocationModal: React.FC<LocationModalProps> = ({
                 </p>
               ))}
             </CustomScrollbar>
-            <CustomScrollbar className="flex flex-col w-[145px] h-[528px] overflow-y-auto pr-[10px]">
+            <CustomScrollbar className="flex flex-col w-[150px] h-[528px] overflow-y-auto pr-[10px]">
               {streetData.map(street => (
                 <p
                   key={street.streetId}
@@ -136,7 +136,7 @@ const LocationModal: React.FC<LocationModalProps> = ({
                 </p>
               ))}
             </CustomScrollbar>
-            <CustomScrollbar className="flex flex-col w-[135px] h-[528px] overflow-y-auto pr-[10px]">
+            <CustomScrollbar className="flex flex-col w-[150px] h-[528px] overflow-y-auto pr-[10px]">
               <Radio.Group
                 value={selectedDongId}
                 onChange={e => setSelectedDongId(e.target.value)}
@@ -157,7 +157,7 @@ const LocationModal: React.FC<LocationModalProps> = ({
               </Radio.Group>
             </CustomScrollbar>
           </div>
-          <div className="flex justify-center gap-[12px] w-[490px] items-center mx-auto">
+          <div className="flex justify-center gap-[12px] w-[490px] items-center mx-auto mt-[20px]">
             <MainButton
               onClick={handleCloseModal}
               className="px-4 py-2 w-[144px] h-[32px]"
@@ -181,6 +181,7 @@ const LocationModal: React.FC<LocationModalProps> = ({
 export default LocationModal;
 
 const CustomScrollbar = styled.div`
+  overflow-x: hidden;
   &::-webkit-scrollbar {
     width: 7px; /* 세로 스크롤바의 너비 */
   }

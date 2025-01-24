@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Children } from "react";
 import MainButton from "../button/MainButton";
 import styled from "@emotion/styled";
 
@@ -50,7 +50,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
   button1Text = "취소하기",
   button2Text = "확인하기",
   modalWidth = 400,
-  modalHeight,
+  modalHeight = 244,
 }) => {
   if (!visible) return null; // visible이 false일 경우 렌더링하지 않음
 
@@ -70,6 +70,8 @@ const CustomModal: React.FC<CustomModalProps> = ({
           height: modalHeight ? `${modalHeight}px` : "auto", // 동적 height 적용
         }}
       >
+        <h2 className="text-2xl font-bold text-left mb-[30px]">{title}</h2>
+        <p className="text-base text-left mb-[52px]">{content}</p>
         <div className="flex justify-end space-x-[10px]">
           <CancelButton
             onClick={onButton1Click}

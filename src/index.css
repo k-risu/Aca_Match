@@ -23,7 +23,7 @@
   @apply flex flex-col items-start;
 }
 .title-font {
-  @apply font-bold text-3xl text-brand-default mt-[65px];
+  @apply font-bold text-3xl text-brand-default mt-[65px] mb-[36px];
 }
 
 .small_line_button {
