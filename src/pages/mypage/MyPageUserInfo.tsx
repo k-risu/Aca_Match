@@ -145,6 +145,16 @@ function MyPageUserInfo() {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setEditMember(res.data.resultData);
+
+      // 데이터를 받아온 즉시 form 값 설정
+      form.setFieldsValue({
+        user_id: res.data.resultData.email,
+        name: res.data.resultData.name,
+        nick_name: res.data.resultData.nickName,
+        phone: res.data.resultData.phone,
+        birth: res.data.resultData.birth,
+        user_pic: res.data.resultData.userPic,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -152,7 +162,7 @@ function MyPageUserInfo() {
 
   // 비밀번호와 비밀번호 확인이 일치하는지 검사하는 커스텀 유효성 검사 함수
   const validateConfirmPassword = (_, value: string) => {
-    const password = form.getFieldValue("new_upw"); // 'password' 필드의 값 가져오기
+    const password = form.getFieldValue("newPw"); // 'password' 필드의 값 가져오기
     if (value && value !== password) {
       return Promise.reject(new Error("비밀번호가 일치하지 않습니다."));
     }
@@ -169,18 +179,17 @@ function MyPageUserInfo() {
   }, []);
 
   useEffect(() => {
-    // editMember가 존재할 때만 상태를 업데이트
-    if (editMember) {
-      setInitialValues({
+    if (editMember && Object.keys(editMember).length > 0) {
+      form.setFieldsValue({
         user_id: editMember.email,
         name: editMember.name,
-        nick_name: editMember.nickName,
+        nickName: editMember.nickName,
         phone: editMember.phone,
         birth: editMember.birth,
         user_pic: editMember.userPic,
       });
     }
-  }, [editMember]);
+  }, [editMember, form]);
 
   // const initialValues = {
   //   user_id: email,
@@ -193,7 +202,7 @@ function MyPageUserInfo() {
   const [initialValues, setInitialValues] = useState({
     user_id: "",
     name: "",
-    nick_name: "",
+    nickName: "",
     phone: "",
     birth: "",
     user_pic: "",
@@ -225,24 +234,35 @@ function MyPageUserInfo() {
 
   const onFinished = async (values: any) => {
     if (nickNameCheck === 2) {
-      //닉네임 체크 필요
       setIsModalVisible(true);
+      console.log("닉네임 확인이 필요합니다.");
+      return;
+    }
 
-      return;
-    }
-    if (nickNameCheck === 0) {
-      //닉네임 중복
-      setIsModalVisible(true);
-      return;
-    }
     try {
-      const res = await axios.put(`/api/user/`, values);
-      console.log(res);
+      const payload = {
+        req: {
+          name: values.name,
+          phone: values.phone,
+          currentPw: values.currentPw,
+          newPw: values.newPw,
+          birth: values.birth,
+          nickName: values.nickName,
+        },
+        pic: values.user_pic || "", // 프로필 이미지를 처리하는 로직 추가 필요
+      };
+
+      const res = await jwtAxios.put(`/api/user/`, payload, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      console.log("응답 결과:", res.data);
       if (res.data.resultCode === 200) {
         console.log("회원정보 수정 완료");
       }
     } catch (error) {
-      console.log(error);
+      console.log("응답 결과:", values);
+      console.error("에러 발생:", error);
     }
   };
 
@@ -287,7 +307,7 @@ function MyPageUserInfo() {
           <Form
             form={form}
             onFinish={values => onFinished(values)}
-            initialValues={initialValues}
+            // initialValues={initialValues}
           >
             <Form.Item
               name="user_id"
@@ -298,10 +318,10 @@ function MyPageUserInfo() {
             </Form.Item>
 
             <Form.Item
-              name="upw"
+              name="currentPw"
               label="현재 비밀번호"
               rules={[
-                { required: true, message: "비밀번호를 입력해 주세요." },
+                // { required: true, message: "비밀번호를 입력해 주세요." },
                 {
                   pattern:
                     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
@@ -312,14 +332,14 @@ function MyPageUserInfo() {
             >
               <Input.Password
                 className="input"
-                id="upw"
+                id="newPw"
                 maxLength={20}
                 placeholder="비밀번호를 입력해 주세요."
               />
             </Form.Item>
 
             <Form.Item
-              name="new_upw"
+              // name="new_upw"
               label="신규 비밀번호"
               rules={[
                 {
@@ -338,7 +358,7 @@ function MyPageUserInfo() {
             </Form.Item>
 
             <Form.Item
-              name="new_upw_check"
+              // name="new_upw_check"
               label="신규 비밀번호 확인"
               rules={[
                 { validator: validateConfirmPassword }, // 커스텀 검증 함수
@@ -361,7 +381,7 @@ function MyPageUserInfo() {
 
             <div className="flex gap-3 w-full">
               <Form.Item
-                name="nick_name"
+                name="nickName"
                 label="닉네임"
                 className="w-full"
                 rules={[{ required: true, message: "닉네임을 입력해 주세요." }]}
@@ -379,7 +399,7 @@ function MyPageUserInfo() {
                 <button
                   type="button"
                   className="min-w-[84px] h-14 bg-[#E8EEF3] rounded-xl font-bold text-sm"
-                  onClick={() => sameCheck(form.getFieldValue("nick_name"))}
+                  onClick={() => sameCheck(form.getFieldValue("nickName"))}
                 >
                   중복확인
                 </button>
@@ -402,7 +422,7 @@ function MyPageUserInfo() {
             </Form.Item>
 
             <Form.Item name="birth" label="생년월일">
-              <span className="readonly w-full">{initialValues.birth}</span>
+              <span className="readonly w-full">{editMember.birth}</span>
             </Form.Item>
 
             <Form.Item name="user_pic" label="프로필 이미지">

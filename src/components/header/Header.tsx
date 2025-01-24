@@ -7,6 +7,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import userInfo from "../../atoms/userInfo";
 import { getCookie, removeCookie } from "../../utils/cookie";
 import MainButton from "../button/MainButton";
+import jwtAxios from "../../apis/jwt";
 
 const SecondaryButton = styled(MainButton)`
   &:hover {
@@ -37,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
     if (accessToken) {
       const fetchUserData = async () => {
         try {
-          const response = await axios.get("/api/user", {
+          const response = await jwtAxios.get("/api/user", {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
@@ -99,7 +100,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
               </li>
             ))}
           </ul>
-          const accessToken = cookies.get('accessToken');
+          {/* const accessToken = cookies.get('accessToken'); */}
           <div className="flex items-center gap-[15px]">
             {getCookie("accessToken") ? ( // 쿠키에 accessToken이 있는지 확인
               <div className="flex w-[185px] justify-end">
