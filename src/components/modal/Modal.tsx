@@ -1,5 +1,5 @@
-import React from "react";
-import MainButton from "../button/Mainbutton";
+import React, { Children } from "react";
+import MainButton from "../button/MainButton";
 import styled from "@emotion/styled";
 
 interface CustomModalProps {
@@ -67,7 +67,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
           ${visible ? "opacity-100 animate-fade-in animate-scale-up" : "opacity-0"}`}
         style={{
           width: `${modalWidth}px`, // 동적 width 적용
-          height: `${modalHeight}px`, // 동적 height 적용
+          height: modalHeight ? `${modalHeight}px` : "auto", // 동적 height 적용
         }}
       >
         <h2 className="text-2xl font-bold text-left mb-[30px]">{title}</h2>
@@ -93,3 +93,10 @@ const CustomModal: React.FC<CustomModalProps> = ({
 };
 
 export default CustomModal;
+export const SecondaryButton = styled(MainButton)`
+  &:hover {
+    background-color: #c4d9e9 !important;
+    border-color: #c4d9e9 !important;
+    color: #000 !important;
+  }
+`;
