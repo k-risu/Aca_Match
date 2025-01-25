@@ -125,8 +125,19 @@ const TagListSelect = styled.div`
 const menuItems = [
   { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
   { label: "학원정보 관리", isActive: true, link: "/mypage/academy" },
-  { label: "리뷰 목록", isActive: false, link: "/mypage/academy/review" },
-  { label: "학생관리", isActive: false, link: "/mypage/academy/student" },
+  /*
+  {
+    label: "학원학생 관리",
+    isActive: false,
+    link: "/mypage/academy/student",
+  },
+  */
+  {
+    label: "학원리뷰 목록",
+    isActive: false,
+    link: "/mypage/academy/review",
+  },
+  { label: "좋아요 목록", isActive: false, link: "/mypage/academy/like" },
 ];
 
 function AcademyAdd() {
@@ -136,6 +147,7 @@ function AcademyAdd() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [tagList, setTagList] = useState([]); //태그목록
   const [tagKeyword, setTagKeyword] = useState(""); //태그검색 키워드
+  const [selectedTag, setSelectedTag] = useState([]); //선택한 태그값
 
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
@@ -145,9 +157,8 @@ function AcademyAdd() {
   const handleAddressSearch = () => {
     new window.daum.Postcode({
       oncomplete: (data: any) => {
-        // 우편번호와 기본주소 입력
-        form.setFieldsValue({ postNum: data.zonecode }); // Form의 값도 업데이트
-        form.setFieldsValue({ address: data.address }); // Form의 값도 업데이트
+        form.setFieldsValue({ postNum: data.zonecode });
+        form.setFieldsValue({ address: data.address });
       },
     }).open();
   };
@@ -160,44 +171,73 @@ function AcademyAdd() {
     setIsModalVisible(false);
   };
 
+  //모달창에서 태그 검색하기
   const handleTagSearch = () => {
-    console.log("태그 검색");
     setIsModalVisible(true);
   };
 
-  //태그목록 가져오기
+  //태그 전체목록 가져오기
   const getTagList = async () => {
     try {
       const res = await axios.get("/api/tag");
       setTagList(res.data.resultData.selTagList);
-      console.log(res.data.resultData.selTagList);
     } catch (error) {
       console.log(error);
     }
   };
 
   //태그검색
-  const handleTagSearchForm = (data: any) => {
-    data.preventDefault();
-    console.log(data.target.value);
+  const handleTagSearchForm = e => {
+    e.preventDefault();
+
+    const tagSearch = async () => {
+      try {
+        const res = await axios.get(`/api/tag?searchTag=${tagKeyword}`);
+        setTagList(res.data.resultData.selTagList);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    tagSearch();
+  };
+
+  //선택한 태그값 전달
+  const handleCheckboxChange = (e, item) => {
+    if (e.target.checked) {
+      setSelectedTag(prev => [...prev, item]);
+    } else {
+      setSelectedTag(prev => prev.filter(i => i !== item));
+    }
+  };
+
+  //선택한 태그값 삭제
+  const handleDeleteItem = item => {
+    setSelectedTag(prev => prev.filter(i => i !== item));
   };
 
   //input 값 변경 처리
-  const handleChangeTag = (e: any) => {
+  const handleChangeTag = e => {
     setTagKeyword(e.target.value);
   };
 
-  const tagAllList = tagList.map((item: any, index: number) => (
-    <li key={index}>
-      <input
-        type="checkbox"
-        name="tag"
-        value={item.tagId}
-        id={`tag_${item.tagId}`}
-      />
-      <label htmlFor={`tag_${item.tagId}`}>{item.tagName}</label>
-    </li>
-  ));
+  const tagAllList = tagList.map((item, index) => {
+    const isSelected = selectedTag.includes(item);
+    //const isRemoved = removedItems.includes(item);
+
+    return (
+      <li key={index}>
+        <input
+          type="checkbox"
+          name="tag"
+          value={item.tagId}
+          id={`tag_${item.tagId}`}
+          onChange={e => handleCheckboxChange(e, item.tagId)}
+          disabled={selectedTag.some(selected => selected.id === item.tagId)}
+        />
+        <label htmlFor={`tag_${item.tagId}`}>{item.tagName}</label>
+      </li>
+    );
+  });
 
   const initialValues = {
     acaName: "",
@@ -291,13 +331,13 @@ function AcademyAdd() {
 
   return (
     <AcademyInfo className="w-full">
-      <div className="flex gap-5 w-full justify-center align-top">
+      <div className="flex gap-5 w-full justify-center pb-10">
         <SideBar menuItems={menuItems} />
 
         <div className="w-full">
-          <h2 className="flex items-center justify-between pb-3 text-3xl font-bold">
+          <h1 className="title-font flex justify-between align-middle">
             학원 등록
-          </h2>
+          </h1>
           <div className="w-3/4">
             <Form
               form={form}
@@ -446,15 +486,13 @@ function AcademyAdd() {
               </Form.Item>
 
               <div className="flex gap-3 w-full">
-                <Form.Item
-                  name="tagIdList"
-                  label="태그 등록"
-                  className="w-full"
-                >
+                <Form.Item label="태그 등록" className="w-full">
                   <Input
                     className="input"
                     id="academyTag"
                     placeholder="태그를 입력해 주세요."
+                    onClick={() => handleTagSearch()}
+                    readOnly
                   />
                 </Form.Item>
 
@@ -469,10 +507,31 @@ function AcademyAdd() {
                 </Form.Item>
               </div>
 
+              {selectedTag && (
+                <div className="w-full">
+                  <ul className="flex flex-wrap gap-2">
+                    {selectedTag.map(item => (
+                      <li key={item}>
+                        {item}{" "}
+                        <button onClick={() => handleDeleteItem(item)}>
+                          &times;
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <input
+                    type="hidden"
+                    name="tagIdList"
+                    value={selectedTag.join(", ")}
+                    id="hiddenItems"
+                  />
+                </div>
+              )}
+
               <Form.Item name="pic" label="프로필 이미지">
                 <div>
                   <Upload
-                    action="{`/pic/academy/0/`}"
                     listType="picture-card"
                     maxCount={1}
                     onChange={handleChange}
@@ -536,7 +595,11 @@ function AcademyAdd() {
               </div>
 
               <ul className="flex w-full flex-wrap gap-2 overflow-y-auto max-h-32">
-                {tagAllList}
+                {tagAllList.length > 0 ? (
+                  tagAllList
+                ) : (
+                  <li className="w-full text-center">검색 결과가 없습니다.</li>
+                )}
               </ul>
             </form>
           </TagListSelect>

@@ -116,16 +116,29 @@ function MyPageUserInfo() {
       menuItems = [
         { label: "회원정보 관리", isActive: true, link: "/mypage/user" },
         { label: "학원정보 관리", isActive: false, link: "/mypage" },
-        { label: "리뷰 목록", isActive: false, link: "/mypage/academy/review" },
+        /*
+        {
+          label: "학원학생 관리",
+          isActive: false,
+          link: "/mypage/academy/student",
+        },
+        */
+        {
+          label: "학원리뷰 목록",
+          isActive: false,
+          link: "/mypage/academy/review",
+        },
         { label: "좋아요 목록", isActive: false, link: "/mypage/academy/like" },
       ];
       break;
     case 2: //학부모
       menuItems = [
         { label: "회원정보 관리", isActive: true, link: "/mypage/user" },
-        { label: "학원정보 관리", isActive: false, link: "/mypage" },
-        { label: "리뷰 목록", isActive: false, link: "/mypage/review" },
-        { label: "학생 관리", isActive: false, link: "/mypage/child" },
+        { label: "자녀 관리", isActive: false, link: "/mypage/child" },
+        { label: "자녀 학원정보", isActive: false, link: "/mypage" },
+        { label: "자녀 성적확인", isActive: false, link: "/mypage/record" },
+        { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
+        { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
       ];
       break;
     default: //일반학생
@@ -169,10 +182,7 @@ function MyPageUserInfo() {
     return Promise.resolve();
   };
 
-  console.log(editMember);
-
   const { email, name, nickName, phone, birth, userPic } = editMember;
-  console.log(email, name, nickName, phone, birth, userPic);
 
   useEffect(() => {
     memberInfo();
@@ -181,7 +191,7 @@ function MyPageUserInfo() {
   useEffect(() => {
     if (editMember && Object.keys(editMember).length > 0) {
       form.setFieldsValue({
-        user_id: editMember.email,
+        userId: editMember.email,
         name: editMember.name,
         nickName: editMember.nickName,
         phone: editMember.phone,
@@ -200,7 +210,7 @@ function MyPageUserInfo() {
   //   user_pic: userPic,
   // };
   const [initialValues, setInitialValues] = useState({
-    user_id: "",
+    userId: "",
     name: "",
     nickName: "",
     phone: "",
@@ -240,21 +250,38 @@ function MyPageUserInfo() {
     }
 
     try {
+      const formData = new FormData();
+
+      if (fileList[0]) {
+        formData.append("pic", fileList[0]); // 파일일 경우
+      } else {
+        formData.append("pic", null); // 파일이 없을 경우
+      }
+
       const payload = {
-        req: {
-          name: values.name,
-          phone: values.phone,
-          currentPw: values.currentPw,
-          newPw: values.newPw,
-          birth: values.birth,
-          nickName: values.nickName,
-        },
-        pic: values.user_pic || "", // 프로필 이미지를 처리하는 로직 추가 필요
+        name: values.name,
+        phone: values.phone,
+        currentPw: values.currentPw,
+        newPw: values.newPw,
+        birth: values.birth,
+        nickName: values.nickName,
       };
 
-      const res = await jwtAxios.put(`/api/user/`, payload, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      //JSON 형태로 데이터를 만들어 formData에 추가
+      formData.append(
+        "req",
+        new Blob([JSON.stringify(payload)], { type: "application/json" }),
+      );
+
+      const header = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      };
+
+      //api url을 엄한걸로 넣고 테스트해봐도 403 에러가 발생되는걸로 봐서는 put 처리에 대한 권한 문제가 있어 보임
+      const res = await axios.put("/api/user", formData, header);
 
       console.log("응답 결과:", res.data);
       if (res.data.resultCode === 200) {
@@ -310,7 +337,7 @@ function MyPageUserInfo() {
             // initialValues={initialValues}
           >
             <Form.Item
-              name="user_id"
+              name="userId"
               label="이메일"
               rules={[{ required: true, message: "이메일을 입력해 주세요." }]}
             >

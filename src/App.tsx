@@ -21,6 +21,11 @@ import { RecoilRoot } from "recoil";
 import AcademyLike from "./pages/mypage/academy/AcademyLike";
 import AcademyReview from "./pages/mypage/academy/AcademyReview";
 import MypageChild from "./pages/mypage/MypageChild";
+import IssueAcademy from "./pages/IssueAcademy";
+import AcademyClassList from "./pages/mypage/academy/AcademyClassList";
+import AcademyTestList from "./pages/mypage/academy/AcademyTestList";
+import AcademyTestAdd from "./pages/mypage/academy/AcademyTestAdd";
+import AcademyRecord from "./pages/mypage/academy/AcademyRecord";
 
 function App() {
   return (
@@ -60,10 +65,26 @@ function App() {
               </Route>
               <Route path="/mypage/academy">
                 <Route index element={<AcademyList />} />
+                <Route
+                  path="/mypage/academy/class"
+                  element={<AcademyClassList />}
+                />
                 <Route path="/mypage/academy/add" element={<AcademyAdd />} />
                 <Route
                   path="/mypage/academy/classAdd"
                   element={<AcademyClassAdd />}
+                />
+                <Route
+                  path="/mypage/academy/testList"
+                  element={<AcademyTestList />}
+                />
+                <Route
+                  path="/mypage/academy/testAdd"
+                  element={<AcademyTestAdd />}
+                />
+                <Route
+                  path="/mypage/academy/record"
+                  element={<AcademyRecord />}
                 />
                 <Route path="/mypage/academy/like" element={<AcademyLike />} />
                 <Route
@@ -75,6 +96,7 @@ function App() {
                 <Route index element={<AcademySearch />} />
                 <Route path="detail" element={<AcademyDetail />} />
               </Route>
+              <Route path="/hit-academy" element={<IssueAcademy />} />
               <Route path="/support" element={<Support />} />
               {/* <Route path="/support/faq" element={<SupportFaq />} /> */}
               <Route path="*" element={<NotFoundPage />} />
