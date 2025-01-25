@@ -5,20 +5,32 @@ import { useSetRecoilState } from "recoil";
 import userInfo from "../../atoms/userInfo";
 import MainButton from "../../components/button/MainButton";
 import { SecondaryButton } from "../../components/modal/Modal";
-import { removeCookie, setCookie } from "../../utils/cookie";
+import { removeCookie, setCookie, getCookie } from "../../utils/cookie";
 
 function LoginPage() {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const setUserInfo = useSetRecoilState(userInfo);
-  // const currentUserInfo = useRecoilValue(userInfo); // 현재 userInfo 값을 가져옴
 
   const onFinish = async (values: any) => {
     try {
-      const response = await axios.post("/api/user/sign-in", values);
+      const { remember, ...loginData } = values; // remember 값을 분리
+
+      const response = await axios.post("/api/user/sign-in", loginData);
       const { name, roleId, userId } = response.data.resultData;
 
       setCookie("accessToken", response.data.resultData.accessToken);
+
+      // 아이디 기억하기가 체크되어 있으면 이메일 쿠키 저장
+      if (remember) {
+        setCookie("email", values.email, {
+          path: "/",
+          maxAge: 30 * 24 * 60 * 60,
+        }); // 30일 유지
+      } else {
+        // 체크 해제되어 있으면 이메일 쿠키 삭제
+        removeCookie("email");
+      }
 
       navigate("/");
       setUserInfo({
@@ -26,46 +38,19 @@ function LoginPage() {
         roleId: String(roleId),
         userId: String(userId),
       });
-      console.log(response.data.resultData.accessToken);
-      console.log(response);
     } catch (error) {
       console.error(error);
       removeCookie("accessToken");
     }
   };
-  // const on = async (values: any) => {
-  //   try {
-  //     const response = await axios.post("/api/user/access-token", values);
-  //     const { name, roleId, userId } = response.data.resultData;
-
-  //     setCookie("accessToken", response.data.resultData.accessToken);
-
-  //     navigate("/");
-  //     setUserInfo({
-  //       name,
-  //       roleId: String(roleId),
-  //       userId: String(userId),
-  //     });
-  //     console.log(response.data.resultData.accessToken);
-  //     console.log(response);
-  //   } catch (error) {
-  //     console.error(error);
-  //     removeCookie("accessToken");
-  //   }
-  // };
-  // useEffect(() => {
-  //   console.log("Current userInfo:", currentUserInfo);
-  // }, [currentUserInfo]); // userInfo가 변경될 때마다 로그 출력
 
   return (
     <div>
       <header className="sticky top-0 left-0 right-0 z-50 flex items-center h-[64px] bg-white border-b border-brand-BTWhite">
-        <div className="w-[1280px] flex items-center justify-between mx-auto  ">
+        <div className="w-[1280px] flex items-center justify-between mx-auto">
           <div
             className="w-[210px] h-[40px] cursor-pointer mr-[full]"
-            onClick={() => {
-              navigate("/");
-            }}
+            onClick={() => navigate("/")}
           >
             로고
           </div>
@@ -74,7 +59,11 @@ function LoginPage() {
       <Form
         form={form}
         onFinish={onFinish}
-        className="flex flex-col justify-center mx-auto "
+        className="flex flex-col justify-center mx-auto"
+        initialValues={{
+          email: getCookie("email"),
+          remember: Boolean(getCookie("email")), // 이메일 쿠키 존재하면 체크박스 체크
+        }}
       >
         <main className="flex justify-center items-center">
           <div className="flex flex-col items-center px-5 py-6 w-full max-w-[960px]">
@@ -136,19 +125,16 @@ function LoginPage() {
 
               {/* 아이디 기억하기 */}
               <div className="flex items-center justify-between mt-[8px]">
-                <Checkbox value="remember" id="remember-checkbox">
-                  <label
-                    htmlFor="remember-checkbox"
-                    className="text-[14px] text-brand-default whitespace-nowrap"
-                  >
-                    아이디 기억하기
-                  </label>
-                </Checkbox>
+                <Form.Item name="remember" valuePropName="checked" noStyle>
+                  <Checkbox>
+                    <span className="text-[14px] text-brand-default">
+                      아이디 기억하기
+                    </span>
+                  </Checkbox>
+                </Form.Item>
                 <span
                   className="text-right text-text-gray text-sm mt-2 whitespace-nowrap cursor-pointer"
-                  onClick={() => {
-                    navigate("/");
-                  }}
+                  onClick={() => navigate("/forgotPw")}
                 >
                   비밀번호를 잊으셨나요?
                 </span>
@@ -158,9 +144,7 @@ function LoginPage() {
             <div className="flex flex-col items-center gap-[8px]">
               {/* 회원가입 버튼 */}
               <SecondaryButton
-                onClick={() => {
-                  navigate("/signup");
-                }}
+                onClick={() => navigate("/signup")}
                 className={`px-4 py-2 w-[480px] h-[40px]`}
               >
                 회원가입
@@ -168,9 +152,7 @@ function LoginPage() {
 
               {/* SNS 로그인 */}
               <SecondaryButton
-                onClick={() => {
-                  navigate("/");
-                }}
+                onClick={() => navigate("/")}
                 className={`px-4 py-2 w-[480px] h-[40px]`}
               >
                 Log in with kakao
@@ -178,9 +160,7 @@ function LoginPage() {
 
               {/* Google 로그인 */}
               <SecondaryButton
-                onClick={() => {
-                  navigate("/");
-                }}
+                onClick={() => navigate("/")}
                 className={`px-4 py-2 w-[480px] h-[40px]`}
               >
                 Log in with Google

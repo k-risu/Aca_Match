@@ -40,8 +40,13 @@ const LocationModal: React.FC<LocationModalProps> = ({
       const response = await axios.get("/api/academy/getCity");
       // API 응답 데이터가 배열인지 확인하고, 배열이 아니면 빈 배열로 설정
 
-      setResultData(response.data.resultData); // API 응답 데이터를 상태에 저장
-      console.log(response.data.resultData);
+      const dataWithAll = [
+        { cityId: "all", cityName: "전체" }, // 전체 항목 추가
+        ...response.data.resultData,
+      ];
+
+      setResultData(dataWithAll); // API 응답 데이터를 상태에 저장
+      console.log(dataWithAll);
     } catch (error) {
       console.error("Failed to fetch city data:", error);
       //   setResultData([]); // 오류 발생 시 빈 배열로 설정

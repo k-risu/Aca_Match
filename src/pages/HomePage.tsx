@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomInput from "../components/CustomInput ";
 import MainButton from "../components/button/MainButton";
 import { CiSearch } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Skeleton } from "antd";
 
 function HomePage() {
   const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true); // 로딩 상태 추가
+
   const popularSubjects = [
     { name: "수학", link: "/" },
     { name: "과학", link: "/" },
@@ -59,13 +64,14 @@ function HomePage() {
     },
   ];
 
-  const bestAcademyCards = [
+  const [bestAcademyCards, setBestAcademyCards] = useState([
     {
       subject: "수학 학원",
       description: "Math, Algebra, Calculus",
       reviews: "5.0 (123 reviews)",
       questionsAnswered: "12,000 questions answered",
       link: "/",
+      image: "/public/default-academy.png",
     },
     {
       subject: "과학 학원",
@@ -73,6 +79,7 @@ function HomePage() {
       reviews: "4.9 (87 reviews)",
       questionsAnswered: "9,000 questions answered",
       link: "/",
+      image: "/public/default-academy.png",
     },
     {
       subject: "영어 학원",
@@ -80,6 +87,7 @@ function HomePage() {
       reviews: "4.8 (56 reviews)",
       questionsAnswered: "7,500 questions answered",
       link: "/",
+      image: "/public/default-academy.png",
     },
     {
       subject: "외국어 학원",
@@ -87,8 +95,9 @@ function HomePage() {
       reviews: "4.7 (34 reviews)",
       questionsAnswered: "6,000 questions answered",
       link: "/",
+      image: "/public/default-academy.png",
     },
-  ];
+  ]);
 
   const serviceStats = [
     {
@@ -114,10 +123,68 @@ function HomePage() {
     setIsModalVisible(false);
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true); // 데이터 로딩 시작
+      try {
+        const response = await axios.get("/api/academy/best", {
+          params: { page: 1, size: 4 },
+        });
+
+        // API 응답 데이터를 카드 형식으로 변환
+        const updatedCards = response.data.resultData.map((item: any) => ({
+          ...bestAcademyCards[0], // 기존 데이터 구조 유지
+          reviews: `${item.starCount.toFixed(1)} (${item.reviewCount} reviews)`,
+          questionsAnswered: `${item.likeCount} likes`,
+          link: `/academy/detail?acaId=${item.acaId}`,
+          image: item.pic ? item.pic : "/default_academy.jpg",
+        }));
+        console.log(response.data.resultData);
+        console.log(updatedCards);
+
+        setBestAcademyCards(updatedCards);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false); // 데이터 로딩 완료
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const SkeletonCard = () => (
+    <div className="flex flex-col gap-4">
+      <Skeleton.Image
+        active
+        style={{
+          width: "100%",
+          height: "224px", // h-56과 동일
+          borderRadius: "12px",
+        }}
+      />
+      <div className="flex flex-col gap-3">
+        <Skeleton.Input active style={{ width: "60%" }} />
+        <div className="flex flex-col gap-1">
+          <Skeleton.Input active size="small" style={{ width: "80%" }} />
+          <Skeleton.Input active size="small" style={{ width: "40%" }} />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col items-center px-4 py-[36px] gap-8 mx-auto">
       {/* 메인 베너 */}
-      <div className="w-full h-[480px] bg-gradient-to-b from-black/10 to-black/40 rounded-xl relative">
+      <div
+        className="w-full h-[480px] bg-gradient-to-b from-black/10 to-black/40 rounded-xl relative"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4)), url(/main_banner.jpg)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          opacity: 0.8,
+        }}
+      >
         <div className="absolute left-10 top-[216px] text-white">
           <h1 className="text-5xl font-black font-lexend mb-4">
             원하는 학원을 찾아보세요
@@ -216,27 +283,40 @@ function HomePage() {
           화제가 되고 있는 학원
         </h2>
         <div className="grid grid-cols-4 gap-6">
-          {bestAcademyCards.map((card, index) => (
-            <div
-              key={index}
-              className="flex flex-col gap-4 cursor-pointer"
-              onClick={() => navigate(card.link)}
-            >
-              <div className="h-56 bg-gray-200 rounded-xl">
-                {/* 실제 이미지로 교체 필요 */}
-              </div>
-              <div className="flex flex-col gap-3">
-                <h3 className="font-medium text-base text-[#0E161B]">
-                  {card.subject}
-                </h3>
-                <div className="text-sm text-[#507A95]">
-                  <p>{card.description}</p>
-                  <p>{card.reviews}</p>
-                  <p>{card.questionsAnswered}</p>
+          {loading ? (
+            // 로딩 중일 때 스켈레톤 표시
+            <>
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </>
+          ) : (
+            // 데이터 로딩 완료 시 실제 카드 표시
+            bestAcademyCards.map((card, index) => (
+              <div
+                key={index}
+                className="flex flex-col gap-4 cursor-pointer"
+                onClick={() => navigate(card.link)}
+              >
+                <img
+                  className="h-56 bg-gray-200 rounded-xl object-cover"
+                  src={card.image}
+                  alt="academy-image"
+                />
+                <div className="flex flex-col gap-3">
+                  <h3 className="font-medium text-base text-[#0E161B]">
+                    {card.subject}
+                  </h3>
+                  <div className="text-sm text-[#507A95]">
+                    <p>{card.description}</p>
+                    <p>{card.reviews}</p>
+                    {/* <p>{card.questionsAnswered}</p> */}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

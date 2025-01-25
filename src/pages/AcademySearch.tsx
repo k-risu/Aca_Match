@@ -1,15 +1,12 @@
-import { Checkbox, Dropdown, Input, Menu, MenuProps, Pagination } from "antd";
-import { useState } from "react";
-import { SlArrowDown } from "react-icons/sl";
-import Pages from "../components/page/Pages";
-import MainButton from "../components/button/MainButton";
 import { DownOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
-import CustomInput from "../components/CustomInput ";
-import { CiSearch } from "react-icons/ci";
+import { Checkbox, Dropdown, Input, Menu, Pagination } from "antd";
+import { useState } from "react";
+import { SlArrowDown } from "react-icons/sl";
 import { useNavigate } from "react-router-dom";
+import MainButton from "../components/button/MainButton";
 import LocationModal from "../components/modal/LocationModal";
-import axios from "axios";
+import Pages from "../components/page/Pages";
 
 interface FilterOption {
   label: string;
@@ -303,10 +300,10 @@ const AcademySearch = () => {
 
   return (
     <div className="flex flex-row justify-between w-full gap-[12px]">
-      <div className="flex mt-[160px] ">
+      <div className="flex mt-[77px] ">
         <div className="flex-col-start gap-4 w-[288px] h-[916px]">
           <div className="flex items-start pb-5 pl-[15px] ">
-            <h2 className="text-[24px] font-bold leading-[21px] text-brand-default">
+            <h2 className="text-[24px] font-[500] leading-[21px] text-brand-default mb-[15px]">
               카테고리
             </h2>
           </div>
