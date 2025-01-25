@@ -6,6 +6,7 @@ import {
   Form,
   Image,
   Input,
+  message,
   Upload,
   UploadFile,
   UploadProps,
@@ -240,7 +241,8 @@ function MyPageUserInfo() {
     }
 
     try {
-      const payload = {
+      // 백엔드 API 스펙에 맞게 데이터 구조화
+      const requestData = {
         req: {
           name: values.name,
           phone: values.phone,
@@ -249,20 +251,22 @@ function MyPageUserInfo() {
           birth: values.birth,
           nickName: values.nickName,
         },
-        pic: values.user_pic || "", // 프로필 이미지를 처리하는 로직 추가 필요
+        pic: null, // 파일이 없는 경우 null로 설정
       };
 
-      const res = await jwtAxios.put(`/api/user/`, payload, {
-        headers: { Authorization: `Bearer ${accessToken}` },
+      const response = await jwtAxios.put("/api/user", requestData, {
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+        },
       });
 
-      console.log("응답 결과:", res.data);
-      if (res.data.resultCode === 200) {
-        console.log("회원정보 수정 완료");
+      if (response.data.resultData) {
+        message.success("회원정보가 수정되었습니다.");
       }
     } catch (error) {
-      console.log("응답 결과:", values);
-      console.error("에러 발생:", error);
+      console.error("Update failed:", error);
+      message.error("회원정보 수정에 실패했습니다.");
     }
   };
 
@@ -339,7 +343,7 @@ function MyPageUserInfo() {
             </Form.Item>
 
             <Form.Item
-              // name="new_upw"
+              name="newPw"
               label="신규 비밀번호"
               rules={[
                 {
@@ -352,7 +356,7 @@ function MyPageUserInfo() {
             >
               <Input.Password
                 className="input"
-                id="new_upw"
+                id="newPw"
                 placeholder="신규 비밀번호를 입력해 주세요."
               />
             </Form.Item>
@@ -425,7 +429,7 @@ function MyPageUserInfo() {
               <span className="readonly w-full">{editMember.birth}</span>
             </Form.Item>
 
-            <Form.Item name="user_pic" label="프로필 이미지">
+            <Form.Item name="pic" label="프로필 이미지">
               <Upload
                 action="/upload.do"
                 listType="picture-card"

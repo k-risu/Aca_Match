@@ -24,7 +24,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Header className="sticky top-0 left-0 right-0 z-50 flex items-center h-[64px] bg-white border-b border-brand-BTWhite" />
       )}
       {isLayoutVisible ? (
-        <main className={"flex min-w-[990px] mx-auto max-w-[1280px]"}>
+        <main
+          className={"flex min-w-[990px] mx-auto max-w-[1280px]"}
+          style={{ minHeight: "calc(100vh - 164px)" }}
+        >
           {children}
         </main>
       ) : (

@@ -1,22 +1,19 @@
-import { PlusOutlined } from "@ant-design/icons";
-import styled from "@emotion/styled";
 import {
   Button,
   Checkbox,
   CheckboxChangeEvent,
   DatePicker,
-  Divider,
   Form,
   Input,
+  message,
   Radio,
-  Upload,
 } from "antd";
+import axios from "axios";
+import dayjs from "dayjs";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomInput from "../../components/CustomInput ";
 import { SecondaryButton } from "../../components/modal/Modal";
-import axios from "axios";
-import dayjs from "dayjs";
 
 function SignupPage() {
   const [value, setValue] = useState<number | null>(null); // 초기값을 1로 설정
@@ -25,6 +22,10 @@ function SignupPage() {
 
   const [checkedList, setCheckedList] = useState<string[]>([]);
   const [form] = Form.useForm();
+
+  const [emailCheck, setEmailCheck] = useState<number>(0); // 0: 미확인, 1: 중복, 2: 사용가능
+  const [nickNameCheck, setNickNameCheck] = useState<number>(0);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const plainOptions: { label: string; value: string }[] = [
     // 타입을 명시
@@ -74,7 +75,23 @@ function SignupPage() {
       confirmPassword?: string;
       [key: string]: unknown;
     };
-    console.log("Form values:", { ...restValues, birth: formattedBirthday }); // Include formatted birthday in the logged values
+    if (!checkAll) {
+      // 또는 checkedList.length !== plainOptions.length
+      message.error("전체 약관에 동의해주세요.");
+      return;
+    }
+
+    if (emailCheck !== 2) {
+      message.error("이메일 중복 확인이 필요합니다.");
+      return;
+    }
+
+    if (nickNameCheck !== 2) {
+      message.error("닉네임 중복 확인이 필요합니다.");
+      return;
+    }
+
+    // console.log("Form values:", { ...restValues, birth: formattedBirthday }); // Include formatted birthday in the logged values
 
     try {
       const res = await axios.post("/api/user/sign-up", {
@@ -86,6 +103,76 @@ function SignupPage() {
       // navigate("/signup/end");
     } catch (error) {
       console.error(error);
+    }
+  };
+  // 이메일 중복 체크 함수
+  // 닉네임 중복 체크 함수
+  const checkNickName = async () => {
+    const nickName = form.getFieldValue("nickName");
+
+    if (!nickName) {
+      message.error("닉네임을 입력해주세요.");
+      return;
+    }
+
+    try {
+      const res = await axios.get(
+        `/api/user/check-duplicate/nick-name?text=${nickName}`,
+      );
+      console.log("닉네임 중복 체크 응답:", res.data); // 응답 데이터 확인
+
+      if (res.data.resultData === 1) {
+        console.log("사용 가능한 닉네임입니다"); // 조건 확인
+        message.success("사용 가능한 닉네임입니다.");
+        setNickNameCheck(2);
+      } else {
+        console.log("이미 사용중인 닉네임입니다"); // 조건 확인
+        message.error("이미 사용중인 닉네임입니다.");
+        setNickNameCheck(1);
+      }
+
+      console.log("닉네임 체크 상태:", nickNameCheck); // 상태 변경 확인
+    } catch (error) {
+      console.error("에러 발생:", error);
+      // message.error("닉네임 중복 확인 중 오류가 발생했습니다.");
+      message.error("이미 사용중인 닉네임입니다.");
+    }
+  };
+
+  // 이메일 중복 체크 함수도 동일하게 수정
+  const checkEmail = async () => {
+    const email = form.getFieldValue("email");
+
+    if (!email) {
+      message.error("이메일을 입력해주세요.");
+      return;
+    }
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!emailRegex.test(email)) {
+      message.error("유효한 이메일을 입력해주세요.");
+      return;
+    }
+
+    try {
+      const res = await axios.get(
+        `/api/user/check-duplicate/email?text=${email}`,
+      );
+      console.log("이메일 중복 체크 응답:", res.data);
+
+      if (res.data.resultData === 1) {
+        console.log("사용 가능한 이메일입니다");
+        message.success("사용 가능한 이메일입니다.");
+        setEmailCheck(2);
+      } else {
+        console.log("이미 사용중인 이메일입니다");
+        message.error("이미 사용중인 이메일입니다.");
+        setEmailCheck(1);
+      }
+
+      console.log("이메일 체크 상태:", emailCheck);
+    } catch (error) {
+      console.error("에러 발생:", error);
+      message.error("이메일 중복 확인 중 오류가 발생했습니다.");
     }
   };
   // const onFinish = async values => {
@@ -144,23 +231,30 @@ function SignupPage() {
               signUpType: "0", // 초기값 설정 (예: 1)
             }}
           >
-            <Form.Item name="signUpType"></Form.Item>
+            <Form.Item name="signUpType" className="mb-0 h-[0]"></Form.Item>
             {/* 회원 타입 선택 */}
-            <Form.Item name="roleId" className="mb-[12px] h-[50px]">
-              <div className="flex items-center w-full gap-[12px]">
-                <label className="flex text-[16px] text-brand-default w-[120px] font-[500]">
-                  회원타입 &nbsp;
-                  <label className="text-[#D9534F]">*</label>
-                </label>
-                <Radio.Group
-                  options={[
-                    { value: 1, label: "학생" },
-                    { value: 2, label: "학부모" },
-                    { value: 3, label: "학생관계자" },
-                  ]}
-                />
-              </div>
-            </Form.Item>
+            <div className="flex gap-[12px] h-[80px] items-center">
+              <label className="flex text-[16px] w-[120px] h-[56px] font-[500]">
+                회원타입 &nbsp;
+                <label className="text-[#D9534F]">*</label>
+              </label>
+              <Form.Item
+                name="roleId"
+                rules={[
+                  { required: true, message: "회원타입을 선택해주세요." },
+                ]}
+              >
+                <div className="flex items-center w-full gap-[12px] h-[56px]">
+                  <Radio.Group
+                    options={[
+                      { value: 1, label: "학생" },
+                      { value: 2, label: "학부모" },
+                      { value: 3, label: "학생관계자" },
+                    ]}
+                  />
+                </div>
+              </Form.Item>
+            </div>
 
             {/* 입력 필드들 */}
             <div className="flex gap-[12px] h-[80px]">
@@ -180,11 +274,12 @@ function SignupPage() {
                   <CustomInput
                     placeholder="이메일을 입력해주세요"
                     width="351px"
+                    onChange={() => setEmailCheck(0)} // 입력값 변경시 체크 초기화
                   />
                 </div>
               </Form.Item>
               <SecondaryButton
-                onClick={handleButton1Click}
+                onClick={checkEmail}
                 className="w-[84px] h-[56px]"
               >
                 중복확인
@@ -322,11 +417,12 @@ function SignupPage() {
                   <CustomInput
                     placeholder="한글자 이상의 닉네임을 입력해주세요"
                     width="351px"
+                    onChange={() => setNickNameCheck(0)} // 입력값 변경시 체크 초기화
                   />
                 </div>
               </Form.Item>
               <SecondaryButton
-                onClick={handleButton1Click}
+                onClick={checkNickName}
                 className="w-[84px] h-[56px]"
               >
                 중복확인
@@ -356,10 +452,11 @@ function SignupPage() {
                 <div className="border-b border-[#DBE0E5] p-2 pl-4">
                   <Form.Item
                     valuePropName="checked"
-                    className="h-[32px] flex"
-                    rules={[
-                      { required: true, message: "전체 약관 동의를 해주세요." },
-                    ]} // 약관 동의 유효성 검사 추가
+                    // className="h-[32px] flex"
+                    className="h-[10px] flex"
+                    // rules={[
+                    //   { required: true, message: "전체 약관 동의를 해주세요." },
+                    // ]} // 약관 동의 유효성 검사 추가
                   >
                     <Checkbox
                       indeterminate={indeterminate}

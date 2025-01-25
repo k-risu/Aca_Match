@@ -1,6 +1,6 @@
 import Layout from "./components/Layout";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, message } from "antd";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/member/LoginPage";
 import SignupPage from "./pages/member/SignupPage";
@@ -21,8 +21,53 @@ import { RecoilRoot } from "recoil";
 import AcademyLike from "./pages/mypage/academy/AcademyLike";
 import AcademyReview from "./pages/mypage/academy/AcademyReview";
 import MypageChild from "./pages/mypage/MypageChild";
+import ForgotPw from "./pages/member/ForgotPw";
+import { useEffect } from "react";
+import HotAcademy from "./pages/hotAcademy";
+import Inquiry from "./pages/Inquiry";
 
 function App() {
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.innerHTML = `
+      .ant-message {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 40px !important;
+        right: 20px !important;
+        transform: none !important;
+        left: auto !important;
+      }
+      .ant-message .ant-message-notice {
+        text-align: right !important;
+        margin-inline: 0 !important;
+      }
+      .ant-message .ant-message-notice-content {
+        display: inline-block !important;
+        margin-inline: 0 !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    message.config({
+      duration: 2,
+      maxCount: 3,
+      getContainer: () => {
+        const container = document.createElement("div");
+        container.style.position = "fixed";
+        container.style.bottom = "20px";
+        container.style.right = "20px";
+        container.style.transform = "none";
+        container.style.zIndex = "1000";
+        container.style.display = "flex";
+        container.style.flexDirection = "column-reverse";
+        container.style.alignItems = "flex-end";
+        container.style.pointerEvents = "none";
+        document.body.appendChild(container);
+        return container;
+      },
+    });
+  }, []);
   return (
     <RecoilRoot>
       <ConfigProvider
@@ -34,6 +79,14 @@ function App() {
               colorPrimary: "#3B77D8",
               colorPrimaryHover: "#2F5FB5",
               algorithm: true, // Enable algorithm
+            },
+            Message: {
+              zIndexPopup: 1000,
+            },
+            Pagination: {
+              itemActiveColorDisabled: "#ffffff",
+              colorPrimary: "#3B77D8",
+              colorPrimaryHover: "#2F5FB5",
             },
           },
           token: {
@@ -48,6 +101,7 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/forgotPw" element={<ForgotPw />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/signup/end" element={<SignupEnd />} />
               <Route path="/mypage">
@@ -75,8 +129,11 @@ function App() {
                 <Route index element={<AcademySearch />} />
                 <Route path="detail" element={<AcademyDetail />} />
               </Route>
-              <Route path="/support" element={<Support />} />
-              {/* <Route path="/support/faq" element={<SupportFaq />} /> */}
+              <Route path="/hotAcademy" element={<HotAcademy />} />
+              <Route path="/support">
+                <Route index element={<Support />} />
+                <Route path="inquiry" element={<Inquiry />} />
+              </Route>
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Layout>
