@@ -6,8 +6,27 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Skeleton } from "antd";
 
+interface Academy {
+  acaId: number;
+  acaPic: string;
+  acaName: string;
+  address: string;
+  star: number;
+  tagName: string | null;
+}
+interface BestAcademy {
+  acaId: number; // acaId 추가
+  subject: string;
+  description: string;
+  reviews: string;
+  image: string;
+}
+
 function HomePage() {
   const navigate = useNavigate();
+
+  const [defaultAcademies, setDefaultAcademies] = useState<Academy[]>([]);
+  const [isDefaultLoading, setIsDefaultLoading] = useState(true);
 
   const [loading, setLoading] = useState(true); // 로딩 상태 추가
 
@@ -64,7 +83,7 @@ function HomePage() {
     },
   ];
 
-  const [bestAcademyCards, setBestAcademyCards] = useState([
+  const [bestAcademyCards, setBestAcademyCards] = useState<BestAcademy[]>([
     {
       subject: "수학 학원",
       description: "Math, Algebra, Calculus",
@@ -123,6 +142,35 @@ function HomePage() {
     setIsModalVisible(false);
   };
 
+  const getAcademyImageUrl = (acaId: number, pic: string) => {
+    console.log(acaId, pic);
+    if (pic === "default.jpg" || pic === undefined || pic === null) {
+      return "/default_academy.jpg";
+    }
+    return `/pic/academy/${acaId}/${pic}`;
+  };
+
+  const handleAcademyClick = (acaId: number) => {
+    navigate(`/academy/detail?id=${acaId}`);
+  };
+
+  useEffect(() => {
+    const fetchDefaultAcademies = async () => {
+      setIsDefaultLoading(true);
+      try {
+        const response = await axios.get("/api/academy/AcademyDefault");
+        setDefaultAcademies(response.data.resultData);
+      } catch (error) {
+        console.error("Error fetching default academies:", error);
+      } finally {
+        setIsDefaultLoading(false);
+      }
+    };
+
+    fetchDefaultAcademies();
+  }, []);
+
+  //화제의 학원
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true); // 데이터 로딩 시작
@@ -132,15 +180,28 @@ function HomePage() {
         });
 
         // API 응답 데이터를 카드 형식으로 변환
-        const updatedCards = response.data.resultData.map((item: any) => ({
-          ...bestAcademyCards[0], // 기존 데이터 구조 유지
-          reviews: `${item.starCount.toFixed(1)} (${item.reviewCount} reviews)`,
-          questionsAnswered: `${item.likeCount} likes`,
-          link: `/academy/detail?acaId=${item.acaId}`,
-          image: item.pic ? item.pic : "/default_academy.jpg",
-        }));
-        console.log(response.data.resultData);
-        console.log(updatedCards);
+        // const updatedCards: BestAcademy[] = response.data.resultData.map(
+        //   (item: any) => ({
+        //     ...bestAcademyCards[0], // 기존 데이터 구조 유지
+        //     acaId: item.acaId, // acaId 추가
+        //     reviews: `${item.starCount.toFixed(1)} (${item.reviewCount} reviews)`,
+        //     questionsAnswered: `${item.likeCount} likes`,
+        //     image: item.pic
+        //       ? `/pic/academy/${item.acaId}/${item.pic}`
+        //       : "/default-academy.png",
+        //   }),
+        // );
+        // console.log(response.data.resultData);
+        // console.log(updatedCards);
+        const updatedCards: BestAcademy[] = response.data.resultData.map(
+          (item: any) => ({
+            acaId: item.acaId,
+            subject: item.acaName || "학원명",
+            description: item.description || "",
+            reviews: `${item.starCount.toFixed(1)} (${item.reviewCount} reviews)`,
+            image: getAcademyImageUrl(item.acaId, item.acaPic), // 이미지 경로 처리 수정
+          }),
+        );
 
         setBestAcademyCards(updatedCards);
       } catch (error) {
@@ -234,7 +295,7 @@ function HomePage() {
       </div>
 
       {/* 이 학원은 어떠신가요? */}
-      <div className="w-full max-w-[990px]">
+      {/* <div className="w-full max-w-[990px]">
         <h2 className="text-2xl font-bold mb-6">이 학원 어떠신가요?</h2>
         <div className="grid grid-cols-5 gap-[6]">
           {pickAcademyCards.map((card, index) => (
@@ -248,6 +309,44 @@ function HomePage() {
                 <h3 className="font-medium text-base">{card.subject}</h3>
                 <p className="text-sm text-[#507A95]">{card.description}</p>
                 <p className="text-sm text-[#507A95]">{card.reviews}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div> */}
+      <div className="w-full max-w-[990px]">
+        <h2 className="text-2xl font-bold mb-6">이 학원 어떠신가요?</h2>
+        <div className="grid grid-cols-4 gap-6">
+          {defaultAcademies.map(academy => (
+            <div
+              key={academy.acaId}
+              className="flex flex-col gap-4 cursor-pointer"
+              onClick={() => {
+                handleAcademyClick(academy.acaId);
+                console.log(academy.acaId);
+              }}
+            >
+              <img
+                src={getAcademyImageUrl(academy.acaId, academy.acaPic)}
+                alt={academy.acaName}
+                // effect="blur"
+                className="w-full h-[230px] rounded-xl object-cover"
+                // placeholderSrc="/image-placeholder.jpg" // 로딩 중 표시될 저해상도 이미지
+                // wrapperClassName="w-full h-[186px]"
+              />
+              <div>
+                <h3 className="font-medium text-base text-[#0E161B] truncate">
+                  {academy.acaName}
+                </h3>
+                <p className="text-sm text-[#507A95] truncate">
+                  {academy.address}
+                </p>
+                <p className="text-sm text-[#507A95]">
+                  {academy.star.toFixed(1)}
+                </p>
+                {academy.tagName && (
+                  <p className="text-sm text-[#507A95]">{academy.tagName}</p>
+                )}
               </div>
             </div>
           ))}
@@ -297,7 +396,7 @@ function HomePage() {
               <div
                 key={index}
                 className="flex flex-col gap-4 cursor-pointer"
-                onClick={() => navigate(card.link)}
+                onClick={() => handleAcademyClick(card.acaId)}
               >
                 <img
                   className="h-56 bg-gray-200 rounded-xl object-cover"

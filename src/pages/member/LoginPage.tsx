@@ -48,12 +48,13 @@ function LoginPage() {
     <div>
       <header className="sticky top-0 left-0 right-0 z-50 flex items-center h-[64px] bg-white border-b border-brand-BTWhite">
         <div className="w-[1280px] flex items-center justify-between mx-auto">
-          <div
-            className="w-[210px] h-[40px] cursor-pointer mr-[full]"
-            onClick={() => navigate("/")}
-          >
-            로고
-          </div>
+          <img
+            src="/public/logo.png"
+            className="w-[210px] h-[48px] cursor-pointer mr-[full]"
+            onClick={() => {
+              navigate("/");
+            }}
+          />
         </div>
       </header>
       <Form

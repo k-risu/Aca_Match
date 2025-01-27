@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { Button, Pagination } from "antd";
 import SideBar from "../components/SideBar";
 
 function Inquiry() {
@@ -92,7 +92,7 @@ function Inquiry() {
     <div className="flex gap-5 w-full justify-center align-top">
       <SideBar menuItems={menuItems} />
       <div className="flex flex-col w-full">
-        <h1 className="title-font">나의 학원정보</h1>
+        <h1 className="title-font">1:1 학원별 문의</h1>
         <div className="flex flex-col w-full border border-[#DBE3E6] rounded-xl">
           {/* 테이블 헤더 */}
           <div className="flex flex-row h-[46px] items-center justify-center">
@@ -154,6 +154,15 @@ function Inquiry() {
               </div>
             </div>
           ))}
+        </div>
+        <div className="flex w-full justify-center items-center my-4">
+          <Pagination
+            // current={currentPage}
+            total={500} // 전체 아이템 수
+            pageSize={10} // 페이지당 아이템 수
+            // onChange={handlePageChange}
+            showSizeChanger={false} // 페이지 사이즈 변경 옵션 숨김
+          />
         </div>
       </div>
     </div>
