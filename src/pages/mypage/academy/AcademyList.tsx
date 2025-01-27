@@ -116,7 +116,9 @@ function AcademyList() {
               <div className="flex items-center justify-center w-40">
                 <button
                   className="small_line_button"
-                  onClick={() => setIsModalVisible(true)}
+                  onClick={() =>
+                    navigate(`/mypage/academy/edit?acaid=${item.acaId}`)
+                  }
                 >
                   수정하기
                 </button>

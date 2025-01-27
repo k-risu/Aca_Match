@@ -29,6 +29,7 @@ import AcademyClassList from "./pages/mypage/academy/AcademyClassList";
 import AcademyTestList from "./pages/mypage/academy/AcademyTestList";
 import AcademyTestAdd from "./pages/mypage/academy/AcademyTestAdd";
 import AcademyRecord from "./pages/mypage/academy/AcademyRecord";
+import AcademyClassEdit from "./pages/mypage/academy/AcademyClassEdit";
 
 function App() {
   useEffect(() => {
@@ -123,6 +124,10 @@ function App() {
                   element={<AcademyClassList />}
                 />
                 <Route path="/mypage/academy/add" element={<AcademyAdd />} />
+                <Route
+                  path="/mypage/academy/edit"
+                  element={<AcademyClassEdit />}
+                />
                 <Route
                   path="/mypage/academy/classAdd"
                   element={<AcademyClassAdd />}

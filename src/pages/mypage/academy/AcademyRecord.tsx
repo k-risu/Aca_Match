@@ -6,10 +6,14 @@ import SideBar from "../../../components/SideBar";
 import { Pagination } from "antd";
 import { useNavigate } from "react-router-dom";
 import { FaPlusCircle } from "react-icons/fa";
+import CustomModal from "../../../components/modal/Modal";
 
 function AcademyRecord() {
   const currentUserInfo = useRecoilValue(userInfo);
   const [myAcademyList, setMyAcademyList] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalVisible2, setIsModalVisible2] = useState(false);
+  const [isModalVisible3, setIsModalVisible3] = useState(false);
   const navigate = useNavigate();
 
   const menuItems = [
@@ -29,6 +33,42 @@ function AcademyRecord() {
     },
     { label: "좋아요 목록", isActive: false, link: "/mypage/academy/like" },
   ];
+
+  const handleButton1Click = () => {
+    setIsModalVisible(false);
+  };
+  const handleButton2Click = () => {
+    setIsModalVisible(false);
+  };
+
+  const handle2Button1Click = () => {
+    setIsModalVisible2(false);
+  };
+  const handle2Button2Click = () => {
+    setIsModalVisible2(false);
+  };
+
+  const handle3Button1Click = () => {
+    setIsModalVisible3(false);
+  };
+  const handle3Button2Click = () => {
+    setIsModalVisible3(false);
+  };
+
+  //점수 수정하기 모달창 오픈
+  const handleRecordEdit = () => {
+    setIsModalVisible(true);
+  };
+
+  //수강생 다운로드 모달창 오픈
+  const handleStudentDownload = () => {
+    setIsModalVisible2(true);
+  };
+
+  //점수 일괄 업로드 모달창 오픈
+  const handleScoreUpload = () => {
+    setIsModalVisible3(true);
+  };
 
   const academyList = async () => {
     try {
@@ -61,14 +101,14 @@ function AcademyRecord() {
           <div className="flex items-center gap-1">
             <button
               className="flex items-center gap-1 mr-5 text-sm font-normal"
-              onClick={() => navigate("/mypage/academy/classAdd")}
+              onClick={() => handleStudentDownload()}
             >
               수강생 엑셀 다운로드
               <FaPlusCircle />
             </button>
             <button
               className="flex items-center gap-1 mr-5 text-sm font-normal"
-              onClick={() => navigate("/mypage/academy/classAdd")}
+              onClick={() => handleScoreUpload()}
             >
               테스트 결과 일괄등록
               <FaPlusCircle />
@@ -78,13 +118,15 @@ function AcademyRecord() {
         <div className="w-full gap-0 border border-b-0 rounded-lg overflow-hidden">
           <div className="flex justify-between align-middle p-4 border-b">
             <div className="flex items-center justify-center w-full">
-              테스트 명
+              수강생 명
             </div>
-            <div className="flex items-center justify-center w-60">등록일</div>
             <div className="flex items-center justify-center w-60">
-              처리상태
+              테스트 일
             </div>
-            <div className="flex items-center justify-center w-40">삭제</div>
+            <div className="flex items-center justify-center w-60">점수</div>
+            <div className="flex items-center justify-center w-40">
+              수정하기
+            </div>
           </div>
 
           {myAcademyList.map((item: never, index: number) => (
@@ -100,24 +142,19 @@ function AcademyRecord() {
                   }
                 >
                   <img src="/aca_image_1.png" alt="" />
-                  <div>
-                    <h4 className="font-bold">1월 학원 모의고사</h4>
-                    <p className="text-sm text-gray-500">[채점방식 : 점수]</p>
-                  </div>
+                  김수한무
                 </div>
               </div>
               <div className="flex items-center justify-center w-60">
                 2025-01-01
               </div>
-              <div className="flex items-center justify-center w-60">
-                채점 전/완료
-              </div>
+              <div className="flex items-center justify-center w-60">85점</div>
               <div className="flex items-center justify-center w-40">
                 <button
                   className="small_line_button"
-                  onClick={() => navigate("/mypage/academy/testList")}
+                  onClick={() => handleRecordEdit()}
                 >
-                  삭제하기
+                  수정하기
                 </button>
               </div>
             </div>
@@ -132,6 +169,59 @@ function AcademyRecord() {
           />
         </div>
       </div>
+
+      <CustomModal
+        visible={isModalVisible}
+        title={"점수 수정"}
+        content={
+          <div>
+            <input
+              type="text"
+              name="record"
+              placeholder="점수를 입력해 주세요."
+              className="w-full h-14 pl-3 border rounded-xl text-sm"
+            />
+          </div>
+        }
+        onButton1Click={handleButton1Click}
+        onButton2Click={handleButton2Click}
+        button1Text={"취소하기"}
+        button2Text={"수정하기"}
+        modalWidth={400}
+      />
+
+      <CustomModal
+        visible={isModalVisible2}
+        title={"수강생 다운로드"}
+        content={"수강생 목록을 다운로드 받으시겠습니까?"}
+        onButton1Click={handle2Button1Click}
+        onButton2Click={handle2Button2Click}
+        button1Text={"취소하기"}
+        button2Text={"다운로드"}
+        modalWidth={400}
+      />
+
+      <CustomModal
+        visible={isModalVisible3}
+        title={"점수 일괄 업로드"}
+        content={
+          <div>
+            <h4 className="mb-2">업로드하실 파일을 선택해 주세요.</h4>
+            <div>
+              <input
+                type="file"
+                name="add-record"
+                className="w-full h-14 pl-3 border rounded-xl text-sm"
+              />
+            </div>
+          </div>
+        }
+        onButton1Click={handle3Button1Click}
+        onButton2Click={handle3Button2Click}
+        button1Text={"취소하기"}
+        button2Text={"업로드하기"}
+        modalWidth={400}
+      />
     </div>
   );
 }
