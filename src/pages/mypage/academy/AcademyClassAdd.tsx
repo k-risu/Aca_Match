@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
-import { Button, Checkbox, Form, Image, Input, TimePicker, Upload } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
-import SideBar from "../../../components/SideBar";
+import { DatePicker, Button, Checkbox, Form, Input, TimePicker } from "antd";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { useRecoilValue } from "recoil";
+import userInfo from "../../../atoms/userInfo";
+import SideBar from "../../../components/SideBar";
+import dayjs from "dayjs";
+const { RangePicker } = DatePicker;
 
 const AcademyInfo = styled.div`
   .ant-form-item-label {
     display: flex;
     justify-content: flex-start;
-    padding-top: 14px;
+    align-items: center;
   }
   .ant-form-item-label label {
     min-width: 130px !important;
@@ -37,13 +39,13 @@ const AcademyInfo = styled.div`
     .flex-start {
       align-items: flex-start;
     }
-    label {
+    .ant-form-item-label label {
       display: flex;
       align-items: center;
       justify-content: center;
       min-width: 130px !important;
     }
-    label span {
+    .ant-form-item-label label span {
       height: 24px;
       margin-left: 5px;
       color: #ff3300;
@@ -72,6 +74,9 @@ const AcademyInfo = styled.div`
       font-size: 0.9rem;
     }
   }
+  .ant-checkbox-wrapper {
+    margin-right: 25px;
+  }
   .ant-input-affix-wrapper,
   .ant-picker {
     padding: 0px 11px;
@@ -89,68 +94,62 @@ const AcademyInfo = styled.div`
   }
 `;
 
-const menuItems = [
-  { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
-  { label: "학원정보 관리", isActive: true, link: "/mypage/academy" },
-  { label: "리뷰 목록", isActive: false, link: "/mypage/academy/review" },
-  { label: "학생관리", isActive: false, link: "/mypage/academy/student" },
-];
-
 function AcademyClassAdd() {
   const [form] = Form.useForm();
+  const currentUserInfo = useRecoilValue(userInfo);
 
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-
-  const handleAddressSearch = () => {
-    new window.daum.Postcode({
-      oncomplete: (data: any) => {
-        // 우편번호와 기본주소 입력
-        form.setFieldsValue({ aca_zipcode: data.zonecode }); // Form의 값도 업데이트
-        form.setFieldsValue({ aca_addr: data.address }); // Form의 값도 업데이트
-      },
-    }).open();
-  };
-
-  const handleTagSearch = () => {
-    console.log("태그 검색");
-  };
+  let menuItems = [];
+  switch (currentUserInfo.roleId) {
+    case 3: //학원 관계자
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "학원정보 관리", isActive: true, link: "/mypage" },
+        {
+          label: "학원학생 관리",
+          isActive: false,
+          link: "/mypage/academy/student",
+        },
+        {
+          label: "학원리뷰 목록",
+          isActive: false,
+          link: "/mypage/academy/review",
+        },
+        { label: "좋아요 목록", isActive: false, link: "/mypage/academy/like" },
+      ];
+      break;
+    case 2: //학부모
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "학원정보 관리", isActive: false, link: "/mypage" },
+        { label: "나의 리뷰 목록", isActive: true, link: "/mypage/review" },
+        { label: "학생 관리", isActive: false, link: "/mypage/child" },
+      ];
+      break;
+    default: //일반학생
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "나의 학원정보", isActive: false, link: "/mypage" },
+        { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
+        { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
+        { label: "나의 리뷰 목록", isActive: true, link: "/mypage/review" },
+      ];
+  }
 
   const initialValues = {
-    aca_name: "",
-    aca_phone: "",
-    open_time: "",
-    close_time: "",
-    teacher_num: "",
-    aca_zipcode: "",
-    aca_addr: "",
-    aca_addr2: "",
-    tag_id: "",
-    aca_pic: "",
-    user_id: "test@test.com",
-    comment: "",
+    acaId: "",
+    className: "",
+    classComment: "",
+    startDate: "",
+    endDate: "",
+    startTime: dayjs("10:00", "HH:mm"),
+    endTime: dayjs("20:00", "HH:mm"),
+    price: "",
   };
-
-  console.log(initialValues.aca_zipcode, initialValues.aca_addr);
 
   const onFinished = (values: any) => {
-    alert("학원 등록 완료");
+    //alert("학원 등록 완료");
     console.log(values);
   };
-
-  useEffect(() => {
-    // Daum 우편번호 스크립트 로드
-    const script = document.createElement("script");
-    script.src =
-      "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
-    script.async = true;
-    document.body.appendChild(script);
-
-    // 컴포넌트 언마운트 시 스크립트 제거
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
 
   return (
     <AcademyInfo className="w-full">
@@ -158,9 +157,7 @@ function AcademyClassAdd() {
         <SideBar menuItems={menuItems} />
 
         <div className="w-full">
-          <h2 className="flex items-center justify-between pb-3 text-3xl font-bold">
-            강좌 등록
-          </h2>
+          <h1 className="title-font">강좌 등록</h1>
           <div className="w-3/4">
             <Form
               form={form}
@@ -168,39 +165,19 @@ function AcademyClassAdd() {
               initialValues={initialValues}
             >
               <Form.Item
-                name="upw"
-                rules={[
-                  { required: true, message: "비밀번호를 입력해 주세요." },
-                  {
-                    pattern:
-                      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
-                    message:
-                      "비밀번호는 영어/숫자/특수문자 포함 8자리 이상으로 입력해 주세요.",
-                  },
-                ]}
-              >
-                <div className="input-wrap">
-                  <label htmlFor="upw">
-                    현재 비밀번호<span>*</span>
-                  </label>
-                  <Input.Password
-                    className="input"
-                    id="upw"
-                    maxLength={20}
-                    placeholder="비밀번호를 입력해 주세요."
-                  />
-                </div>
-              </Form.Item>
-
-              <Form.Item
-                name="user_id"
+                name="className"
                 label="강좌 이름"
                 rules={[
                   { required: true, message: "강좌 이름을 입력해 주세요." },
                 ]}
               >
-                <Input type="text" className="input" value="test@test.com" />
+                <Input
+                  type="text"
+                  className="input"
+                  placeholder="강좌 이름을 입력해 주세요."
+                />
               </Form.Item>
+
               <Form.Item
                 name="aca_name"
                 label="강좌 기간"
@@ -208,13 +185,9 @@ function AcademyClassAdd() {
                   { required: true, message: "강좌 기간을 입력해 주세요." },
                 ]}
               >
-                <Input
-                  className="input"
-                  id="acaName"
-                  maxLength={20}
-                  placeholder="학원 이름을 입력해 주세요."
-                />
+                <RangePicker placeholder={["강좌 시작일", "강좌 종료일"]} />
               </Form.Item>
+
               <Form.Item
                 name="comment"
                 label="강좌 소개글"
@@ -230,7 +203,7 @@ function AcademyClassAdd() {
               </Form.Item>
               <div className="flex gap-3">
                 <Form.Item
-                  name="open_time"
+                  name="openTime"
                   label="강좌 시간"
                   rules={[
                     { required: true, message: "시작 시간을 선택해 주세요." },
@@ -243,7 +216,7 @@ function AcademyClassAdd() {
                   />
                 </Form.Item>
                 <Form.Item
-                  name="close_time"
+                  name="closeTime"
                   label=""
                   rules={[
                     { required: true, message: "종료 시간을 선택해 주세요." },
@@ -257,37 +230,44 @@ function AcademyClassAdd() {
                 </Form.Item>
               </div>
               <Form.Item
-                name="user_id"
+                name="age"
                 label="수강 연령대"
                 rules={[
                   { required: true, message: "수강 연령대를 선택해 주세요." },
                 ]}
               >
-                <Input type="text" className="input" value="test@test.com" />
+                <Checkbox>성인</Checkbox>
+                <Checkbox>청소년</Checkbox>
+                <Checkbox>초등학생</Checkbox>
+                <Checkbox>유아</Checkbox>
+                <Checkbox>기타</Checkbox>
               </Form.Item>
-              <Form.Item
-                label="수준"
-                name="disabled"
-                valuePropName="checked"
-                className="flex gap-3 justify-center align-middle"
-              >
-                <Checkbox>초급</Checkbox>
+
+              <Form.Item label="수준" name="disabled" valuePropName="checked">
+                <Checkbox>전문가</Checkbox>
+                <Checkbox>상급</Checkbox>
                 <Checkbox>중급</Checkbox>
-                <Checkbox>고급</Checkbox>
+                <Checkbox>초급</Checkbox>
+                <Checkbox>입문자</Checkbox>
               </Form.Item>
+
               <Form.Item
-                name="user_id"
+                name="price"
                 label="가격"
                 rules={[{ required: true, message: "가격을 입력해 주세요." }]}
               >
-                <Input type="text" className="input" value="test@test.com" />
+                <Input
+                  type="text"
+                  className="input"
+                  placeholder="가격을 입력해 주세요."
+                />
               </Form.Item>
               <Form.Item>
                 <Button
                   htmlType="submit"
                   className="w-full h-14 bg-[#E8EEF3] font-bold text-sm"
                 >
-                  학원 등록
+                  강좌 등록
                 </Button>
               </Form.Item>
             </Form>
