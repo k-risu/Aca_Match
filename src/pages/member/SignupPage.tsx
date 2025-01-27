@@ -98,9 +98,9 @@ function SignupPage() {
         ...restValues,
         birthday: formattedBirthday,
         signUpType: 0,
-      }); // Send formatted birthday in the request
+      });
       console.log("Form values:", res);
-      // navigate("/signup/end");
+      navigate("/signup/end");
     } catch (error) {
       console.error(error);
     }
@@ -196,14 +196,13 @@ function SignupPage() {
     <>
       <header className="sticky top-0 left-0 right-0 z-50 flex items-center h-[64px] bg-white border-b border-brand-BTWhite">
         <div className="w-[1280px] flex items-center justify-between mx-auto  ">
-          <div
-            className="w-[210px] h-[40px] cursor-pointer mr-[full]"
+          <img
+            src="/public/logo.png"
+            className="w-[210px] h-[48px] cursor-pointer mr-[full]"
             onClick={() => {
               navigate("/");
             }}
-          >
-            로고
-          </div>
+          />
         </div>
       </header>
       <div className="flex-col-start p-20 pt-[0] gap-10 w-[1280px] mx-auto">

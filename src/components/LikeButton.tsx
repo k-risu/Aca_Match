@@ -1,0 +1,122 @@
+import { useState, useEffect } from "react";
+import { FaHeartCircleMinus, FaHeartCirclePlus } from "react-icons/fa6";
+import axios from "axios";
+import { Cookies } from "react-cookie";
+import { message } from "antd";
+import { useNavigate } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import userInfo from "../atoms/userInfo";
+
+interface LikeButtonProps {
+  academyId: number;
+  initialIsLiked: boolean;
+  onLikeChange?: (isLiked: boolean) => void;
+}
+
+const LikeButton = ({
+  academyId,
+  initialIsLiked,
+  onLikeChange,
+}: LikeButtonProps) => {
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
+  const [isLoading, setIsLoading] = useState(false);
+  const cookies = new Cookies();
+  const navigate = useNavigate();
+  const { userId } = useRecoilValue(userInfo); // Recoil에서 userId 가져오기
+
+  useEffect(() => {
+    setIsLiked(initialIsLiked);
+  }, [initialIsLiked]);
+
+  const checkIsAuthenticated = () => {
+    const accessToken = cookies.get("accessToken");
+    return !!accessToken; // accessToken이 존재하면 true, 없으면 false
+  };
+
+  const handleLikeClick = async () => {
+    if (isLoading) return;
+
+    try {
+      setIsLoading(true);
+
+      if (!checkIsAuthenticated()) {
+        navigate("/login");
+        message.error("로그인이 필요한 서비스입니다.");
+        return;
+      }
+
+      console.log(userId, academyId);
+
+      if (isLiked) {
+        // 좋아요 삭제
+        const res = await axios.delete(
+          `/api/like?userId=${userId}&acaId=${academyId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${cookies.get("accessToken")}`,
+            },
+            data: {
+              userId: userId,
+              acaId: academyId,
+            },
+          },
+        );
+        console.log("좋아요 삭제 완료", res);
+      } else {
+        // 좋아요 등록
+        const res = await axios.post(
+          `/api/like`,
+          {
+            userId: userId,
+            acaId: academyId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${cookies.get("accessToken")}`,
+            },
+          },
+        );
+        console.log("좋아요 등록 완료", res);
+      }
+
+      // 상태 업데이트
+      setIsLiked(prev => !prev);
+
+      // 부모 컴포넌트에 변경 알림
+      if (onLikeChange) {
+        onLikeChange(!isLiked);
+      }
+    } catch (error) {
+      console.error("좋아요 처리 중 오류 발생:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        message.error("로그인이 만료되었습니다. 다시 로그인해주세요.");
+      } else {
+        message.error("처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleLikeClick}
+      disabled={isLoading}
+      className="px-2.5 py-0.5 border-0 rounded bg-gray-200 w-full flex justify-center items-center group"
+    >
+      {isLiked ? (
+        <FaHeartCircleMinus
+          className="text-[20px] focus:outline-none transition-transform duration-200 group-hover:scale-110"
+          color="#3b77d8"
+        />
+      ) : (
+        <FaHeartCirclePlus
+          className="text-[20px] focus:outline-none transition-transform duration-200 group-hover:scale-110"
+          color="#bbb"
+        />
+      )}
+    </button>
+  );
+};
+
+export default LikeButton;

@@ -431,13 +431,13 @@ const AcademySearch = () => {
             showSizeChanger={false} // 페이지 사이즈 변경 옵션 숨김
           />
         </div>
-        <div className="flex w-full justify-center items-center">
+        {/* <div className="flex w-full justify-center items-center">
           <Pages
             perPage={5}
             totalPage={10}
             onPageChange={() => handlePageChange(1)}
           />
-        </div>
+        </div> */}
       </div>
       {isModalVisible && (
         <LocationModal

@@ -19,6 +19,7 @@ import userInfo from "../../atoms/userInfo";
 import { useRecoilValue } from "recoil";
 import CustomModal from "../../components/modal/Modal";
 import jwtAxios from "../../apis/jwt";
+import { UploadChangeParam } from "antd/es/upload";
 
 const MemberInfo = styled.div`
   .ant-form-item-label {
@@ -102,6 +103,11 @@ const MemberInfo = styled.div`
     border: 1px solid #3b77d8 !important;
   }
 `;
+const PasswordLabel = styled.div`
+  .ant-form-item-label {
+    min-width: 120px !important;
+  }
+`;
 
 function MyPageUserInfo() {
   const [form] = Form.useForm();
@@ -146,6 +152,7 @@ function MyPageUserInfo() {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setEditMember(res.data.resultData);
+      console.log("res.data.resultData : ", res.data.resultData);
 
       // 데이터를 받아온 즉시 form 값 설정
       form.setFieldsValue({
@@ -154,7 +161,7 @@ function MyPageUserInfo() {
         nick_name: res.data.resultData.nickName,
         phone: res.data.resultData.phone,
         birth: res.data.resultData.birth,
-        user_pic: res.data.resultData.userPic,
+        pic: res.data.resultData.userPic,
       });
     } catch (error) {
       console.log(error);
@@ -170,7 +177,7 @@ function MyPageUserInfo() {
     return Promise.resolve();
   };
 
-  console.log(editMember);
+  console.log("editMember : ", editMember);
 
   const { email, name, nickName, phone, birth, userPic } = editMember;
   console.log(email, name, nickName, phone, birth, userPic);
@@ -187,8 +194,22 @@ function MyPageUserInfo() {
         nickName: editMember.nickName,
         phone: editMember.phone,
         birth: editMember.birth,
-        user_pic: editMember.userPic,
+        pic: editMember.userPic,
       });
+    }
+    if (
+      editMember?.userPic &&
+      editMember.userPic !== "null" &&
+      editMember.userPic !== ""
+    ) {
+      setFileList([
+        {
+          uid: "1",
+          name: editMember.userPic,
+          status: "done",
+          url: `http://112.222.157.156:5223/pic/user/${editMember.userId}/${editMember.userPic}`,
+        },
+      ]);
     }
   }, [editMember, form]);
 
@@ -198,7 +219,7 @@ function MyPageUserInfo() {
   //   nick_name: nickName,
   //   phone: phone,
   //   birth: birth,
-  //   user_pic: userPic,
+  //   pic: userPic,
   // };
   const [initialValues, setInitialValues] = useState({
     user_id: "",
@@ -206,24 +227,55 @@ function MyPageUserInfo() {
     nickName: "",
     phone: "",
     birth: "",
-    user_pic: "",
+    pic: "",
   });
 
   //console.log(initialValues);
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
-  const [fileList, setFileList] = useState<UploadFile[]>([
-    {
-      uid: "1",
-      name: userPic,
-      status: "done",
-      url: `http://112.222.157.156:5223/pic/user/${editMember.userId}/${editMember.userPic}`,
-    },
-  ]);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
-  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) =>
+  // const [fileList, setFileList] = useState<UploadFile[]>(() => {
+  // userPic이 존재하고 유효한 값인 경우에만 fileList 생성
+  //   console.log("editMember.userPic : ", editMember.userPic);
+  //   if (
+  //     editMember.userPic &&
+  //     editMember.userPic !== "null" &&
+  //     editMember.userPic !== ""
+  //   ) {
+  //     return [
+  //       {
+  //         uid: "1",
+  //         name: editMember.userPic,
+  //         status: "done",
+  //         url: `http://112.222.157.156:5223/pic/user/${editMember.userId}/${editMember.userPic}`,
+  //       },
+  //     ];
+  //   }
+  //   // 이미지가 없는 경우 빈 배열 반환
+  //   return [];
+  // });
+
+  // const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) =>
+  //   setFileList(newFileList);
+  const handleChange = (info: UploadChangeParam<UploadFile>) => {
+    let newFileList = [...info.fileList];
+
+    // maxCount로 인해 하나의 파일만 유지
+    newFileList = newFileList.slice(-1);
+
+    console.log("newFileList : ", newFileList);
+
+    // 파일 상태 업데이트
     setFileList(newFileList);
+
+    // 선택된 파일이 있으면 콘솔에 출력
+    if (info.file.status === "done" && info.file.originFileObj) {
+      console.log("파일 선택됨:", info.file.originFileObj);
+      form.setFieldValue("pic", info.file.originFileObj);
+    }
+  };
 
   const handleButton1Click = () => {
     setIsModalVisible(false);
@@ -241,35 +293,60 @@ function MyPageUserInfo() {
     }
 
     try {
-      // 백엔드 API 스펙에 맞게 데이터 구조화
-      const requestData = {
-        req: {
-          name: values.name,
-          phone: values.phone,
-          currentPw: values.currentPw,
-          newPw: values.newPw,
-          birth: values.birth,
-          nickName: values.nickName,
-        },
-        pic: null, // 파일이 없는 경우 null로 설정
+      const formData = new FormData();
+
+      // 전송할 데이터 객체 생성
+      const sendData = {
+        name: values.name,
+        phone: values.phone,
+        currentPw: values.currentPw,
+        newPw: values.newPw,
+        birth: values.birth,
+        nickName: values.nickName,
       };
 
-      const response = await jwtAxios.put("/api/user", requestData, {
+      // Blob 형식으로 데이터 추가
+      formData.append(
+        "req",
+        new Blob([JSON.stringify(sendData)], { type: "application/json" }),
+      );
+
+      // pic이 있는 경우에만 추가
+      console.log("작동중 : ", values.pic);
+      if (values.pic) {
+        formData.append("pic", values.pic);
+      }
+
+      console.log("=== FormData 내용 확인 ===");
+      for (const pair of formData.entries()) {
+        if (pair[0] === "pic") {
+          console.log("pic 파일:", {
+            name: pair[1].name,
+            type: pair[1].type,
+            size: pair[1].size,
+          });
+        } else {
+          console.log(`${pair[0]}:`, pair[1]);
+        }
+      }
+      console.log("========================");
+
+      const response = await jwtAxios.put("/api/user", formData, {
         headers: {
           Accept: "*/*",
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       });
 
       if (response.data.resultData) {
         message.success("회원정보가 수정되었습니다.");
+        console.log("response : ", response);
       }
     } catch (error) {
       console.error("Update failed:", error);
       message.error("회원정보 수정에 실패했습니다.");
     }
   };
-
   //닉네임 중복확인
   const sameCheck = async (nickName: string) => {
     if (!nickName) {
@@ -323,9 +400,9 @@ function MyPageUserInfo() {
 
             <Form.Item
               name="currentPw"
-              label="현재 비밀번호"
+              label={"현재 비밀번호"}
               rules={[
-                // { required: true, message: "비밀번호를 입력해 주세요." },
+                { required: true, message: "비밀번호를 입력해 주세요." },
                 {
                   pattern:
                     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
@@ -431,15 +508,22 @@ function MyPageUserInfo() {
 
             <Form.Item name="pic" label="프로필 이미지">
               <Upload
-                action="/upload.do"
+                // action="/upload.do"
                 listType="picture-card"
                 maxCount={1}
                 showUploadList={{ showPreviewIcon: false }}
                 fileList={fileList}
                 onChange={handleChange}
+                customRequest={({ onSuccess }) => {
+                  // 자동 업로드 방지
+                  setTimeout(() => {
+                    onSuccess?.("ok");
+                  }, 0);
+                }}
               >
                 <button style={{ border: 0, background: "none" }} type="button">
                   <PlusOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
                 </button>
               </Upload>
 
