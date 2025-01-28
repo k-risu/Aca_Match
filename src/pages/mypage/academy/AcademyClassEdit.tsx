@@ -6,6 +6,7 @@ import { useRecoilValue } from "recoil";
 import userInfo from "../../../atoms/userInfo";
 import SideBar from "../../../components/SideBar";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 const { RangePicker } = DatePicker;
 
 const AcademyInfo = styled.div`
@@ -94,9 +95,10 @@ const AcademyInfo = styled.div`
   }
 `;
 
-function AcademyClassAdd() {
+function AcademyClassEdit() {
   const [form] = Form.useForm();
   const currentUserInfo = useRecoilValue(userInfo);
+  const navigate = useNavigate();
 
   let menuItems = [];
   switch (currentUserInfo.roleId) {
@@ -146,18 +148,23 @@ function AcademyClassAdd() {
     price: "",
   };
 
+  //뒤로가기
+  const historyBack = () => {
+    navigate(-1);
+  };
+
   const onFinished = (values: any) => {
     //alert("학원 등록 완료");
     console.log(values);
   };
 
   return (
-    <AcademyInfo className="w-full">
+    <AcademyInfo className="w-full  pb-12">
       <div className="flex gap-5 w-full justify-center align-top">
         <SideBar menuItems={menuItems} />
 
         <div className="w-full">
-          <h1 className="title-font">강좌 등록</h1>
+          <h1 className="title-font">강좌 수정</h1>
           <div className="w-3/4">
             <Form
               form={form}
@@ -263,12 +270,20 @@ function AcademyClassAdd() {
                 />
               </Form.Item>
               <Form.Item>
-                <Button
-                  htmlType="submit"
-                  className="w-full h-14 bg-[#E8EEF3] font-bold text-sm"
-                >
-                  강좌 등록
-                </Button>
+                <div className="flex justify-end gap-3">
+                  <Button
+                    className="w-1/2 h-14 border font-bold text-sm"
+                    onClick={() => historyBack()}
+                  >
+                    취소하기
+                  </Button>
+                  <Button
+                    htmlType="submit"
+                    className="w-full h-14 bg-[#E8EEF3] font-bold text-sm"
+                  >
+                    강좌 수정
+                  </Button>
+                </div>
               </Form.Item>
             </Form>
           </div>
@@ -278,4 +293,4 @@ function AcademyClassAdd() {
   );
 }
 
-export default AcademyClassAdd;
+export default AcademyClassEdit;

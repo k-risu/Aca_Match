@@ -2,6 +2,7 @@ import { useRecoilValue } from "recoil";
 import { getCookie } from "../../../utils/cookie";
 import userInfo from "../../../atoms/userInfo";
 import SideBar from "../../../components/SideBar";
+import { Pagination } from "antd";
 
 function AcademyLike() {
   const currentUserInfo = useRecoilValue(userInfo);
@@ -14,7 +15,18 @@ function AcademyLike() {
       menuItems = [
         { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
         { label: "학원정보 관리", isActive: false, link: "/mypage/academy" },
-        { label: "리뷰 목록", isActive: false, link: "/mypage/academy/review" },
+        /*
+        {
+          label: "학원학생 관리",
+          isActive: false,
+          link: "/mypage/academy/student",
+        },
+        */
+        {
+          label: "학원리뷰 목록",
+          isActive: false,
+          link: "/mypage/academy/review",
+        },
         { label: "좋아요 목록", isActive: true, link: "/mypage/academy/like" },
       ];
       break;
@@ -41,11 +53,63 @@ function AcademyLike() {
       <SideBar menuItems={menuItems} />
 
       <div className="w-full">
-        <h2 className="flex items-center justify-between pb-3 text-3xl font-bold">
+        <h1 className="title-font flex justify-between align-middle">
           좋아요 목록
-        </h2>
+        </h1>
         <div className="w-full border border-b-0 rounded-lg overflow-hidden">
-          좋아요 목록
+          <div className="flex justify-between align-middle p-4 pl-6 pr-6 border-b">
+            <div className="flex items-center justify-center w-full">
+              회원 목록
+            </div>
+            <div className="flex items-center justify-center w-40">등록일</div>
+            <div className="flex items-center justify-center w-40">
+              삭제하기
+            </div>
+          </div>
+
+          <div className="loop-content flex justify-between align-middle p-6 border-b">
+            <div className="w-full">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden">
+                  <img src="/aca_image_1.png" alt=" /" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">둘리</div>
+                  <div className="text-sm text-gray-500">학생</div>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-center w-40">
+              2025-01-01
+            </div>
+            <div className="flex items-center justify-center w-40">
+              <button className="small_line_button">삭제하기</button>
+            </div>
+          </div>
+
+          <div className="loop-content flex justify-between align-middle p-6 border-b">
+            <div className="w-full">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden">
+                  <img src="/aca_image_1.png" alt=" /" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">고길동</div>
+                  <div className="text-sm text-gray-500">학부모</div>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-center w-40">
+              2025-01-01
+            </div>
+            <div className="flex items-center justify-center w-40">
+              <button className="small_line_button">삭제하기</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-center items-center m-6 mb-10">
+          <Pagination defaultCurrent={1} total={100} showSizeChanger={false} />
         </div>
       </div>
     </div>

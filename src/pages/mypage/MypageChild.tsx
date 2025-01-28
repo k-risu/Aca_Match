@@ -3,6 +3,7 @@ import userInfo from "../../atoms/userInfo";
 import { getCookie } from "../../utils/cookie";
 import { useState } from "react";
 import SideBar from "../../components/SideBar";
+import { Pagination } from "antd";
 
 function MypageChild() {
   const currentUserInfo = useRecoilValue(userInfo);
@@ -22,9 +23,11 @@ function MypageChild() {
     case 2: //학부모
       menuItems = [
         { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
-        { label: "학원정보 관리", isActive: false, link: "/mypage" },
-        { label: "리뷰 목록", isActive: false, link: "/mypage/review" },
-        { label: "학생 관리", isActive: true, link: "/mypage/child" },
+        { label: "자녀 관리", isActive: true, link: "/mypage/child" },
+        { label: "자녀 학원정보", isActive: false, link: "/mypage" },
+        { label: "자녀 성적확인", isActive: false, link: "/mypage/record" },
+        { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
+        { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
       ];
       break;
     default: //일반학생
@@ -42,8 +45,63 @@ function MypageChild() {
       <SideBar menuItems={menuItems} />
 
       <div className="w-full">
-        <h1 className="title-font">학생 정보</h1>
-        <div className="w-full gap-0 border border-b-0 rounded-lg overflow-hidden"></div>
+        <h1 className="title-font">자녀 관리</h1>
+        <div className="w-full border border-b-0 rounded-lg overflow-hidden">
+          <div className="flex justify-between align-middle p-4 border-b">
+            <div className="flex items-center justify-center w-full">
+              학생 정보
+            </div>
+            <div className="flex items-center justify-center w-60">요청일</div>
+            <div className="flex items-center justify-center w-40">
+              처리상태
+            </div>
+            <div className="flex items-center justify-center w-40">
+              요청상태
+            </div>
+          </div>
+
+          <div className="loop-content flex justify-between align-middle p-4 border-b">
+            <div className="flex justify-start items-center w-full">
+              <div className="flex items-center gap-3">
+                <img src="/aca_image_1.png" alt=" /" />
+                ABCDEFG 어학원
+              </div>
+            </div>
+            <div className="flex items-center justify-center w-60">
+              2025-01-01
+            </div>
+            <div className="flex items-center justify-center w-40">
+              등록완료
+            </div>
+            <div className="flex items-center justify-center w-40">
+              <span className="small_line_button bg-gray-200 opacity-50">
+                요청삭제
+              </span>
+            </div>
+          </div>
+
+          <div className="loop-content flex justify-between align-middle p-4 border-b">
+            <div className="flex justify-start items-center w-full">
+              <div className="flex items-center gap-3">
+                <img src="/aca_image_1.png" alt=" /" />
+                ABCDEFG 어학원
+              </div>
+            </div>
+            <div className="flex items-center justify-center w-60">
+              2025-01-01
+            </div>
+            <div className="flex items-center justify-center w-40">
+              등록요청
+            </div>
+            <div className="flex items-center justify-center w-40">
+              <button className="small_line_button">요청삭제</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-center items-center m-6 mb-10">
+          <Pagination defaultCurrent={1} total={100} showSizeChanger={false} />
+        </div>
       </div>
     </div>
   );
