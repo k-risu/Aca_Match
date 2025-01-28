@@ -23,11 +23,11 @@ import AcademyReview from "./pages/mypage/academy/AcademyReview";
 import MypageChild from "./pages/mypage/MypageChild";
 import ForgotPw from "./pages/member/ForgotPw";
 import { useEffect } from "react";
-import HotAcademy from "./pages/hotAcademy";
 import Inquiry from "./pages/Inquiry";
 import ScrollToTop from "./components/ScrollToTop.tsx";
 import InquiryDetail from "./pages/InquiryDetail.tsx";
 import AcademyClassList from "./pages/mypage/academy/AcademyClassList";
+import AcademyStudent from "./pages/mypage/academy/AcademyStudent";
 import AcademyTestList from "./pages/mypage/academy/AcademyTestList";
 import AcademyTestAdd from "./pages/mypage/academy/AcademyTestAdd";
 import AcademyRecord from "./pages/mypage/academy/AcademyRecord";
@@ -136,6 +136,10 @@ function App() {
                   element={<AcademyClassAdd />}
                 />
                 <Route
+                  path="/mypage/academy/student"
+                  element={<AcademyStudent />}
+                />
+                <Route
                   path="/mypage/academy/testList"
                   element={<AcademyTestList />}
                 />
@@ -157,7 +161,6 @@ function App() {
                 <Route index element={<AcademySearch />} />
                 <Route path="detail" element={<AcademyDetail />} />
               </Route>
-              <Route path="/hotAcademy" element={<HotAcademy />} />
               <Route path="/support">
                 <Route index element={<Support />} />
                 <Route path="inquiry" element={<Inquiry />} />
