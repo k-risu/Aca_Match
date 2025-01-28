@@ -6,6 +6,10 @@ import { useRecoilValue } from "recoil";
 import userInfo from "../../../atoms/userInfo";
 import SideBar from "../../../components/SideBar";
 import dayjs from "dayjs";
+import axios from "axios";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState } from "react";
+import CustomModal from "../../../components/modal/Modal";
 const { RangePicker } = DatePicker;
 
 const AcademyInfo = styled.div`
@@ -97,6 +101,12 @@ const AcademyInfo = styled.div`
 function AcademyClassAdd() {
   const [form] = Form.useForm();
   const currentUserInfo = useRecoilValue(userInfo);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [resultMessage, setResultMessage] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const acaId = searchParams.get("acaId");
 
   let menuItems = [];
   switch (currentUserInfo.roleId) {
@@ -135,6 +145,16 @@ function AcademyClassAdd() {
       ];
   }
 
+  const handleButton1Click = () => {
+    setIsModalVisible(false);
+    navigate(`/mypage/academy/class?acaId=${acaId}`);
+  };
+
+  const handleButton2Click = () => {
+    setIsModalVisible(false);
+    navigate(`/mypage/academy/class?acaId=${acaId}`);
+  };
+
   const initialValues = {
     acaId: "",
     className: "",
@@ -148,7 +168,43 @@ function AcademyClassAdd() {
 
   const onFinished = (values: any) => {
     //alert("학원 등록 완료");
-    console.log(values);
+    //console.log(values);
+    const startDate = dayjs(values.classDate[0].$d).format("YYYY-MM-DD");
+    const endDate = dayjs(values.classDate[1].$d).format("YYYY-MM-DD");
+    const startTimes = dayjs(values.startTime.$d).format("HH:mm");
+    const endTimes = dayjs(values.endTime.$d).format("HH:mm");
+    //console.log(startDate, endDate, startTimes, endTimes);
+
+    const postClass = async () => {
+      const datas = {
+        acaId: acaId,
+        className: values.className,
+        classComment: values.classComment,
+        startDate: startDate,
+        endDate: endDate,
+        startTime: startTimes,
+        endTime: endTimes,
+        price: values.price,
+      };
+      //console.log(datas);
+
+      try {
+        const res = await axios.post("/api/acaClass", datas);
+        //console.log(res.data);
+        if (res.data.resultData === 1) {
+          //alert("수업등록 완료되었습니다.");
+          setResultMessage("수업등록이 완료되었습니다.");
+          setIsModalVisible(true);
+        } else {
+          //alert("수업등록이 실패되었습니다. 다시 시도해주세요.");
+          setResultMessage("수업등록이 실패되었습니다. 다시 시도해 주세요.");
+          setIsModalVisible(true);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    postClass();
   };
 
   return (
@@ -179,7 +235,7 @@ function AcademyClassAdd() {
               </Form.Item>
 
               <Form.Item
-                name="aca_name"
+                name="classDate"
                 label="강좌 기간"
                 rules={[
                   { required: true, message: "강좌 기간을 입력해 주세요." },
@@ -189,7 +245,7 @@ function AcademyClassAdd() {
               </Form.Item>
 
               <Form.Item
-                name="comment"
+                name="classComment"
                 label="강좌 소개글"
                 className="h-44"
                 rules={[
@@ -203,7 +259,7 @@ function AcademyClassAdd() {
               </Form.Item>
               <div className="flex gap-3">
                 <Form.Item
-                  name="openTime"
+                  name="startTime"
                   label="강좌 시간"
                   rules={[
                     { required: true, message: "시작 시간을 선택해 주세요." },
@@ -216,7 +272,7 @@ function AcademyClassAdd() {
                   />
                 </Form.Item>
                 <Form.Item
-                  name="closeTime"
+                  name="endTime"
                   label=""
                   rules={[
                     { required: true, message: "종료 시간을 선택해 주세요." },
@@ -229,13 +285,7 @@ function AcademyClassAdd() {
                   />
                 </Form.Item>
               </div>
-              <Form.Item
-                name="age"
-                label="수강 연령대"
-                rules={[
-                  { required: true, message: "수강 연령대를 선택해 주세요." },
-                ]}
-              >
+              <Form.Item name="classAge" label="수강 연령대">
                 <Checkbox>성인</Checkbox>
                 <Checkbox>청소년</Checkbox>
                 <Checkbox>초등학생</Checkbox>
@@ -243,7 +293,7 @@ function AcademyClassAdd() {
                 <Checkbox>기타</Checkbox>
               </Form.Item>
 
-              <Form.Item label="수준" name="disabled" valuePropName="checked">
+              <Form.Item label="수준" name="classLevel" valuePropName="checked">
                 <Checkbox>전문가</Checkbox>
                 <Checkbox>상급</Checkbox>
                 <Checkbox>중급</Checkbox>
@@ -272,6 +322,19 @@ function AcademyClassAdd() {
               </Form.Item>
             </Form>
           </div>
+
+          {resultMessage && (
+            <CustomModal
+              visible={isModalVisible}
+              title={"수업등록 완료"}
+              content={resultMessage}
+              onButton1Click={handleButton1Click}
+              onButton2Click={handleButton2Click}
+              button1Text={"닫기"}
+              button2Text={"확인"}
+              modalWidth={400}
+            />
+          )}
         </div>
       </div>
     </AcademyInfo>
