@@ -387,14 +387,15 @@ const AcademySearch = () => {
           {academyData.map((academy, index) => (
             <div
               key={index}
-              className="flex flex-row h-[72px] border-t border-[#DBE3E6]"
+              className="flex flex-row h-[72px] border-t border-[#DBE3E6] cursor-pointer"
               onClick={() => navigate(path)}
             >
               <div className="flex justify-center items-center min-w-[10%]">
                 <div
                   className="w-[60px] h-[60px] rounded-[20px] bg-cover"
-                  style={{ backgroundColor: "#F0F2F5" }}
+                  // style={{ backgroundColor: "#F0F2F5" }}
                   // style={{ backgroundImage: `url(${academy.image})` }}
+                  style={{ backgroundImage: `url('/default_academy.jpg')` }}
                 />
               </div>
               <div className="flex items-center p-4 w-full text-start">

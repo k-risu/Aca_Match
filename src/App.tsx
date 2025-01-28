@@ -25,6 +25,8 @@ import ForgotPw from "./pages/member/ForgotPw";
 import { useEffect } from "react";
 import HotAcademy from "./pages/hotAcademy";
 import Inquiry from "./pages/Inquiry";
+import ScrollToTop from "./components/ScrollToTop.tsx";
+import InquiryDetail from "./pages/InquiryDetail.tsx";
 import AcademyClassList from "./pages/mypage/academy/AcademyClassList";
 import AcademyTestList from "./pages/mypage/academy/AcademyTestList";
 import AcademyTestAdd from "./pages/mypage/academy/AcademyTestAdd";
@@ -102,6 +104,7 @@ function App() {
         }}
       >
         <Router>
+          <ScrollToTop />
           <Layout>
             <Routes>
               <Route path="/" element={<HomePage />} />
@@ -158,6 +161,7 @@ function App() {
               <Route path="/support">
                 <Route index element={<Support />} />
                 <Route path="inquiry" element={<Inquiry />} />
+                <Route path="inquiry/detail" element={<InquiryDetail />} />
               </Route>
               <Route path="/support" element={<Support />} />
               {/* <Route path="/support/faq" element={<SupportFaq />} /> */}

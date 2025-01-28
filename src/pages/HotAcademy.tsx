@@ -120,7 +120,7 @@ function HotAcademy() {
   const AcademyCard = ({ academy }: { academy: (typeof academyData)[0] }) => (
     <div
       className="flex flex-col items-start pb-3 gap-3 w-[166px] cursor-pointer"
-      onClick={() => navigate(`/academy/detail/${academy.id}`)}
+      onClick={() => navigate(`/academy/detail?id=${academy.id}`)}
     >
       <img
         src={academy.image}
@@ -200,7 +200,7 @@ function HotAcademy() {
           </div>
         </div>
 
-        <div className="flex justify-center items-center m-6 mb-10">
+        <div className="flex justify-center items-center m-6">
           <Pagination
             current={currentPage}
             total={(currentPage + (hasMore ? 1 : 0)) * pageSize}

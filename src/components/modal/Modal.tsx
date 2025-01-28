@@ -6,8 +6,8 @@ interface CustomModalProps {
   visible: boolean;
   title: string | React.ReactNode;
   content: string;
-  onButton1Click: () => void;
-  onButton2Click: () => void;
+  onButton1Click?: () => void;
+  onButton2Click?: () => void;
   button1Text: string;
   button2Text: string;
   modalWidth?: number;

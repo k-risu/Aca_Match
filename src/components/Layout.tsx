@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Footer from "./footer/Footer";
 import Header from "./header/Header";
@@ -11,12 +11,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { pathname } = useLocation(); // 현재 경로 확인
 
   // 특정 경로에서 Header와 Footer를 숨기기 위한 배열
-  const noLayoutPaths = ["/login", "/signup", "/signup/end"];
+  const noLayoutPaths = ["/login", "/signup", "/signup/end", "/forgotPw"];
   // const noSideBarPaths = ["/signup", "/signup/end", "/"];
 
   // 현재 경로가 noLayoutPaths에 포함되어 있으면 Header와 Footer를 숨김
   const isLayoutVisible = !noLayoutPaths.includes(pathname);
   // const isSideBarVisible = !noSideBarPaths.includes(pathname);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <div>

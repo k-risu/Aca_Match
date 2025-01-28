@@ -2,7 +2,7 @@ import { Button, ButtonProps } from "antd";
 
 interface MainButtonProps extends ButtonProps {
   // ButtonProps를 상속받아서 Button의 타입을 그대로 사용
-  onClick: () => void;
+  onClick?: () => void;
   className: string;
   children: React.ReactNode;
   htmlType?: "button" | "submit" | "reset";

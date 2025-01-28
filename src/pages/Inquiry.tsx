@@ -1,7 +1,12 @@
 import { Button, Pagination } from "antd";
 import SideBar from "../components/SideBar";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import CustomModal from "../components/modal/Modal";
 
 function Inquiry() {
+  const navigate = useNavigate();
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const menuItems = [
     { label: "FAQ", isActive: false, link: "/support" },
     { label: "1 : 1 문의", isActive: true, link: "/support/inquiry" },
@@ -86,7 +91,13 @@ function Inquiry() {
     },
   ];
 
-  // TypeScript 타입 정의
+  const handleButton1Click = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleButton2Click = () => {
+    setIsModalVisible(false);
+  };
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
@@ -113,7 +124,16 @@ function Inquiry() {
             <div
               key={index}
               className="flex flex-row h-[72px] border-t border-[#DBE3E6]"
+              onClick={() => navigate("/support/inquiry/detail")}
             >
+              <div className="flex justify-center items-center min-w-[10%]">
+                <div
+                  className="w-[60px] h-[60px] rounded-[20px] bg-cover"
+                  // style={{ backgroundColor: "#F0F2F5" }}
+                  // style={{ backgroundImage: `url(${academy.image})` }}
+                  style={{ backgroundImage: `url('/default_academy.jpg')` }}
+                />
+              </div>
               <div className="flex items-center p-4 w-full text-start">
                 <span className="text-[14px] text-brand-default">
                   {academy.academyName}
@@ -139,7 +159,10 @@ function Inquiry() {
                 {academy.canCancel ? (
                   <button
                     className="small_line_button"
-                    onClick={() => setIsModalVisible(true)}
+                    onClick={e => {
+                      e.stopPropagation(); // 이벤트 전파 중지
+                      setIsModalVisible(true);
+                    }}
                   >
                     취소하기
                   </button>
@@ -147,6 +170,7 @@ function Inquiry() {
                   <button
                     className="small_line_button bg-gray-200 opacity-50"
                     disabled
+                    onClick={e => e.stopPropagation()}
                   >
                     취소하기
                   </button>
@@ -155,7 +179,7 @@ function Inquiry() {
             </div>
           ))}
         </div>
-        <div className="flex w-full justify-center items-center my-4">
+        <div className="flex justify-center items-center m-6">
           <Pagination
             // current={currentPage}
             total={500} // 전체 아이템 수
@@ -165,6 +189,19 @@ function Inquiry() {
           />
         </div>
       </div>
+      {isModalVisible && (
+        <CustomModal
+          visible={isModalVisible}
+          title={"학원등록 취소하기"}
+          content={"선택하신 학원을 등록 취소하시겠습니까?"}
+          onButton1Click={handleButton1Click}
+          onButton2Click={handleButton2Click}
+          button1Text={"취소"}
+          button2Text={"확인"}
+          modalWidth={400}
+          modalHeight={244}
+        />
+      )}
     </div>
   );
 }

@@ -156,7 +156,11 @@ function Support() {
         <div className="w-full border rounded-lg overflow-hidden">
           <div className="flex flex-col">
             {currentFaq.map((faq, index) => (
-              <div key={index} className="border-b last:border-b-0">
+              <div
+                key={index}
+                className="border-b last:border-b-0 cursor-pointer"
+                onClick={() => toggleItem(index)}
+              >
                 <div className="py-4 px-[16px]">
                   <div className="flex items-start gap-2">
                     <span className="flex justify-center rounded-full text-[14px] w-6 h-6 border border-[#DDDDDD] text-brand-BTBlue font-medium">
@@ -165,8 +169,8 @@ function Support() {
                     {/* <FaQuestionCircle className="w-[28px] h-[28px] text-brand-BTBlue" /> */}
                     <div className="flex flex-col gap-2 w-full">
                       <div
-                        className="flex justify-between items-center w-full cursor-pointer"
-                        onClick={() => toggleItem(index)}
+                        className="flex justify-between items-center w-full "
+                        // onClick={() => toggleItem(index)}
                       >
                         <h3 className="text-base font-medium">
                           {faq.question}
