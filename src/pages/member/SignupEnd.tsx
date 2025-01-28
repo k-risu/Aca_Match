@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import MainButton from "../../components/button/MainButton";
 
 function SignupEnd() {
   const navigate = useNavigate();
@@ -47,12 +48,12 @@ function SignupEnd() {
 
         {/* 로그인 버튼 섹션 */}
         <div className={`${frameStyle} p-3`}>
-          <button
+          <MainButton
             className="w-[480px] h-12 bg-[#3B77D8] rounded-xl text-white font-bold"
             onClick={() => navigate("/login")}
           >
             로그인
-          </button>
+          </MainButton>
         </div>
 
         {/* 스팸 폴더 안내 섹션 */}

@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
-import CustomInput from "../components/CustomInput ";
-import MainButton from "../components/button/MainButton";
+import { Skeleton } from "antd";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { Skeleton } from "antd";
+import CustomInput from "../components/CustomInput ";
+import MainButton from "../components/button/MainButton";
+import { BsBuilding, BsClock } from "react-icons/bs";
+import { LiaUserFriendsSolid } from "react-icons/lia";
 
 interface Academy {
   acaId: number;
@@ -120,19 +122,19 @@ function HomePage() {
 
   const serviceStats = [
     {
-      title: "Flexible scheduling",
-      count: "2,999,254 명",
-      icon: "clock-icon",
+      icon: BsClock,
+      title: "최근 접속자 수",
+      count: "1,234",
     },
     {
-      title: "Trusted by millions",
-      count: "1,322 개",
-      icon: "trust-icon",
+      icon: BsBuilding,
+      title: "총 학원 수",
+      count: "567",
     },
     {
-      title: "Expert tutors",
-      count: "135,991 명",
-      icon: "expert-icon",
+      icon: LiaUserFriendsSolid,
+      title: "등록 인원",
+      count: "8,910",
     },
   ];
 
@@ -179,20 +181,6 @@ function HomePage() {
           params: { page: 1, size: 4 },
         });
 
-        // API 응답 데이터를 카드 형식으로 변환
-        // const updatedCards: BestAcademy[] = response.data.resultData.map(
-        //   (item: any) => ({
-        //     ...bestAcademyCards[0], // 기존 데이터 구조 유지
-        //     acaId: item.acaId, // acaId 추가
-        //     reviews: `${item.starCount.toFixed(1)} (${item.reviewCount} reviews)`,
-        //     questionsAnswered: `${item.likeCount} likes`,
-        //     image: item.pic
-        //       ? `/pic/academy/${item.acaId}/${item.pic}`
-        //       : "/default-academy.png",
-        //   }),
-        // );
-        // console.log(response.data.resultData);
-        // console.log(updatedCards);
         const updatedCards: BestAcademy[] = response.data.resultData.map(
           (item: any) => ({
             acaId: item.acaId,
@@ -243,7 +231,6 @@ function HomePage() {
           backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4)), url(/main_banner.jpg)`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          opacity: 0.8,
         }}
       >
         <div className="absolute left-10 top-[216px] text-white">
@@ -335,11 +322,12 @@ function HomePage() {
                 // wrapperClassName="w-full h-[186px]"
               />
               <div>
-                <h3 className="font-medium text-base text-[#0E161B] truncate">
+                <h3 className="font-medium text-base text-[#242424] truncate">
                   {academy.acaName}
                 </h3>
                 <p className="text-sm text-[#507A95] truncate">
-                  {academy.address}
+                  {/* {academy.address} */}
+                  {academy.tagName}
                 </p>
                 <p className="text-sm text-[#507A95]">
                   {academy.star.toFixed(1)}
@@ -362,11 +350,9 @@ function HomePage() {
               key={index}
               className="flex flex-col gap-3 p-4 bg-[#F8FAFB] border border-[#D1DDE6] rounded-lg"
             >
-              <div className="w-6 h-6 bg-[#0E161B]">
-                {/* 아이콘 컴포넌트 추가 필요 */}
-              </div>
+              <stat.icon className="w-6 h-6 text-[#242424]" />
               <div>
-                <h3 className="text-base font-bold text-[#0E161B]">
+                <h3 className="text-base font-bold text-[#242424]">
                   {stat.title}
                 </h3>
                 <p className="text-sm text-[#507A95]">{stat.count}</p>
@@ -404,7 +390,7 @@ function HomePage() {
                   alt="academy-image"
                 />
                 <div className="flex flex-col gap-3">
-                  <h3 className="font-medium text-base text-[#0E161B]">
+                  <h3 className="font-medium text-base text-[#242424  ]">
                     {card.subject}
                   </h3>
                   <div className="text-sm text-[#507A95]">

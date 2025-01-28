@@ -480,12 +480,12 @@ function SignupPage() {
                 </div>
               </div>
               {/* 회원가입 버튼 */}
-              <Button
+              <SecondaryButton
                 htmlType="submit"
-                className="w-[448px] h-10 bg-[#F0F2F5] rounded-xl font-bold text-sm text-brand-default mt-[8px]"
+                className="w-[448px] h-10 rounded-xl font-bold text-sm text-brand-default mt-[8px]"
               >
                 회원가입
-              </Button>
+              </SecondaryButton>
             </div>
           </Form>
         </div>

@@ -12,7 +12,13 @@ interface LikeButtonProps {
   initialIsLiked: boolean;
   onLikeChange?: (isLiked: boolean) => void;
 }
-
+/**
+ * 학원 좋아요 버튼 컴포넌트
+ * @param {number} academyId - 학원 ID
+ * @param {boolean} initialIsLiked - 초기 좋아요 상태
+ * @param {function} [onLikeChange] - 좋아요 상태 변경 시 호출되는 콜백 함수 (선택적)
+ * @returns {JSX.Element} 좋아요 버튼 컴포넌트
+ */
 const LikeButton = ({
   academyId,
   initialIsLiked,

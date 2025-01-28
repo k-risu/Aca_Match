@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Pagination } from "antd";
 import { jwtApiRequest } from "../../apis/jwt";
 import { Review } from "./types"; // types.ts에서 Review 타입을 임포트
+import ReviewModal from "../../components/modal/ReviewModal";
 
 interface ReviewSectionProps {
   star: number;
@@ -19,7 +20,7 @@ interface ReviewResponse {
 const styles = {
   stats: {
     container:
-      "flex justify-center items-center p-5 gap-[130px] w-[960px] h-[94px] mb-[50px] border border-[#EEEEEE] rounded-[10px]",
+      "flex justify-center items-center p-4 gap-[130px] w-[928px] h-[94px] mb-[50px] border border-[#EEEEEE] rounded-[10px]",
     rating: "flex items-center h-[50px] text-[32px] font-bold",
     ratingWrapper: "flex items-center gap-[10px]",
     statsWrapper: "flex flex-col items-center justify-between",
@@ -28,7 +29,7 @@ const styles = {
     statValue: "flex items-center text-[14px] text-[#507A95]",
   },
   reviews: {
-    container: "flex flex-col py-[12px] w-[930px]",
+    container: "flex flex-col py-[12px] w-[928px]",
     header: "flex flex-row gap-[12px] items-center w-[930px]",
     avatar: "w-[40px] h-[40px] rounded-[20px] object-cover",
     text: "text-[14px]",
@@ -47,6 +48,7 @@ const ReviewSection = ({
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   // const fetchReviews = async (page: number) => {
   //   try {
@@ -83,7 +85,7 @@ const ReviewSection = ({
   };
 
   return (
-    <div className="flex flex-col mx-auto">
+    <div className="flex flex-col mx-auto p-[12px]">
       <div className={styles.stats.container}>
         <div className={styles.stats.ratingWrapper}>
           <div className={styles.stats.rating}>{star.toFixed(1)}</div>
@@ -96,7 +98,21 @@ const ReviewSection = ({
         </div>
       </div>
 
-      <div className="text-[18px] font-bold h-[47px]">Reviews</div>
+      <div className="flex justify-between items-center">
+        <h3 className="text-[18px] font-bold h-[47px]">Reviews</h3>
+        <button
+          className="small_line_button bg-[#3B77D8]"
+          style={{
+            color: "#fff",
+          }}
+          onClick={e => {
+            e.stopPropagation(); // 이벤트 전파 중지
+            setIsModalVisible(true);
+          }}
+        >
+          리뷰등록
+        </button>
+      </div>
       <div className={styles.reviews.container}>
         {reviews.map((review, index) => (
           <div
@@ -133,6 +149,13 @@ const ReviewSection = ({
           showSizeChanger={false}
         />
       </div>
+      {isModalVisible && (
+        <ReviewModal
+          joinClassId={academyId}
+          // rating={3} // 선택적으로 전달
+          onClose={() => setIsModalVisible(false)}
+        />
+      )}
     </div>
   );
 };

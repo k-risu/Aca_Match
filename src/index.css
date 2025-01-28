@@ -73,7 +73,6 @@ body {
   color: var(--primary-color);
   overflow-y: scroll;
 }
-/* 웹서비스 개발시 권장함.(개인적으로) */
 html,
 body,
 :root {
