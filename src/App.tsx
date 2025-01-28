@@ -27,6 +27,11 @@ import HotAcademy from "./pages/hotAcademy";
 import Inquiry from "./pages/Inquiry";
 import ScrollToTop from "./components/ScrollToTop.tsx";
 import InquiryDetail from "./pages/InquiryDetail.tsx";
+import AcademyClassList from "./pages/mypage/academy/AcademyClassList";
+import AcademyTestList from "./pages/mypage/academy/AcademyTestList";
+import AcademyTestAdd from "./pages/mypage/academy/AcademyTestAdd";
+import AcademyRecord from "./pages/mypage/academy/AcademyRecord";
+import AcademyClassEdit from "./pages/mypage/academy/AcademyClassEdit";
 
 function App() {
   useEffect(() => {
@@ -117,10 +122,30 @@ function App() {
               </Route>
               <Route path="/mypage/academy">
                 <Route index element={<AcademyList />} />
+                <Route
+                  path="/mypage/academy/class"
+                  element={<AcademyClassList />}
+                />
                 <Route path="/mypage/academy/add" element={<AcademyAdd />} />
+                <Route
+                  path="/mypage/academy/edit"
+                  element={<AcademyClassEdit />}
+                />
                 <Route
                   path="/mypage/academy/classAdd"
                   element={<AcademyClassAdd />}
+                />
+                <Route
+                  path="/mypage/academy/testList"
+                  element={<AcademyTestList />}
+                />
+                <Route
+                  path="/mypage/academy/testAdd"
+                  element={<AcademyTestAdd />}
+                />
+                <Route
+                  path="/mypage/academy/record"
+                  element={<AcademyRecord />}
                 />
                 <Route path="/mypage/academy/like" element={<AcademyLike />} />
                 <Route
@@ -138,6 +163,8 @@ function App() {
                 <Route path="inquiry" element={<Inquiry />} />
                 <Route path="inquiry/detail" element={<InquiryDetail />} />
               </Route>
+              <Route path="/support" element={<Support />} />
+              {/* <Route path="/support/faq" element={<SupportFaq />} /> */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Layout>

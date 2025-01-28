@@ -1,18 +1,47 @@
 import { useEffect } from "react";
 import SideBar from "../../components/SideBar";
 import { Pagination } from "antd";
-
-const menuItems = [
-  { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
-  { label: "나의 학원정보", isActive: false, link: "/mypage" },
-  { label: "나의 성적확인", isActive: true, link: "/mypage/record" },
-  { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
-  { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
-];
+import { useRecoilValue } from "recoil";
+import { getCookie } from "../../utils/cookie";
+import userInfo from "../../atoms/userInfo";
 
 function MyPageRecord() {
+  const currentUserInfo = useRecoilValue(userInfo);
+  const accessToken = getCookie("accessToken");
+
+  let menuItems = [];
+  switch (currentUserInfo.roleId) {
+    case 3: //학원 관계자
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "학원정보 관리", isActive: true, link: "/mypage" },
+        { label: "리뷰 목록", isActive: false, link: "/mypage/academy/review" },
+        { label: "좋아요 목록", isActive: false, link: "/mypage/academy/like" },
+      ];
+      break;
+    case 2: //학부모
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "자녀 관리", isActive: false, link: "/mypage/child" },
+        { label: "자녀 학원정보", isActive: false, link: "/mypage" },
+        { label: "자녀 성적확인", isActive: true, link: "/mypage/record" },
+        { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
+        { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
+      ];
+      break;
+    default: //일반학생
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "나의 학원정보", isActive: true, link: "/mypage" },
+        { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
+        { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
+        { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
+      ];
+      break;
+  }
+
   const fetchData = (page: number) => {
-    console.log(page);
+    //console.log(page);
     //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
   };
 

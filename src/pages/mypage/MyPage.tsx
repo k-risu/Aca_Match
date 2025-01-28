@@ -28,9 +28,11 @@ function MyPage() {
     case 2: //학부모
       menuItems = [
         { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
-        { label: "학원정보 관리", isActive: true, link: "/mypage" },
-        { label: "리뷰 목록", isActive: false, link: "/mypage/review" },
-        { label: "학생 관리", isActive: false, link: "/mypage/child" },
+        { label: "자녀 관리", isActive: false, link: "/mypage/child" },
+        { label: "자녀 학원정보", isActive: true, link: "/mypage" },
+        { label: "자녀 성적확인", isActive: false, link: "/mypage/record" },
+        { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
+        { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
       ];
       mypageUrl = "/mypage";
       break;
@@ -55,7 +57,7 @@ function MyPage() {
   };
 
   const fetchData = (page: number) => {
-    console.log(page);
+    //console.log(page);
     //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
   };
 

@@ -1,12 +1,16 @@
 import { Pagination } from "antd";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa";
 import SideBar from "../../components/SideBar";
 import { getCookie } from "../../utils/cookie";
 import { useRecoilValue } from "recoil";
 import userInfo from "../../atoms/userInfo";
+import { jwtApiRequest } from "../../apis/jwt";
+import { useNavigate } from "react-router-dom";
 
 function MypageReview() {
+  const navigate = useNavigate();
+  const [reviewList, setReviewList] = useState([]);
   const currentUserInfo = useRecoilValue(userInfo);
   const accessToken = getCookie("accessToken");
 
@@ -23,9 +27,11 @@ function MypageReview() {
     case 2: //학부모
       menuItems = [
         { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
-        { label: "학원정보 관리", isActive: false, link: "/mypage" },
-        { label: "리뷰 목록", isActive: true, link: "/mypage/review" },
-        { label: "학생 관리", isActive: false, link: "/mypage/child" },
+        { label: "자녀 관리", isActive: false, link: "/mypage/child" },
+        { label: "자녀 학원정보", isActive: false, link: "/mypage" },
+        { label: "자녀 성적확인", isActive: false, link: "/mypage/record" },
+        { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
+        { label: "나의 리뷰 목록", isActive: true, link: "/mypage/review" },
       ];
       break;
     default: //일반학생
@@ -38,9 +44,26 @@ function MypageReview() {
       ];
   }
 
-  const fetchData = (page: number) => {
-    //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
-    console.log(page);
+  const fetchData = async (page: number) => {
+    try {
+      //좋아요 목록 호출
+      const res = await jwtApiRequest.get(
+        `/api/review/user?userId=${currentUserInfo.userId}&page=${page}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (res.data.resultData.length > 0) {
+        console.log(res.data.resultData);
+        setReviewList(res.data.resultData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    //console.log(page);
   };
 
   useEffect(() => {
@@ -54,7 +77,7 @@ function MypageReview() {
       <div className="w-full">
         <h1 className="title-font">나의 리뷰 목록</h1>
         <div className="w-full border border-b-0 rounded-lg overflow-hidden">
-          <div className="flex justify-between align-middle p-4 border-b">
+          <div className="flex justify-between align-middle p-4 pl-6 pr-6 border-b">
             <div className="flex items-center justify-center w-full">
               리뷰 내용
             </div>
@@ -66,73 +89,58 @@ function MypageReview() {
             </div>
           </div>
 
-          <div className="loop-content flex justify-between align-middle p-6 border-b">
-            <div className="w-full">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden">
-                  <img src="/aca_image_1.png" alt=" /" />
+          {reviewList.map((item: any, index: number) => (
+            <div
+              key={index}
+              className="loop-content flex justify-between align-middle p-6 border-b"
+            >
+              <div className="w-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full overflow-hidden">
+                    <img
+                      src={
+                        item.userPic
+                          ? `http://112.222.157.156:5223/pic/user/${item.userId}/${item.userPic}`
+                          : "/aca_image_1.png"
+                      }
+                      alt=" /"
+                    />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium">
+                      <p>userId, 회원이름 또는 닉네임 필요</p>
+                      ABCDEFG 어학원_
+                      {item.joinClassId}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {item.createdAt}
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm font-medium">ABCDEFG 어학원</div>
-                  <div className="text-sm text-gray-500">2025-01-01</div>
+                <div className="flex items-center gap-1 mt-4 mb-3">
+                  {Array.from({ length: 5 }, (_, index) => (
+                    <FaStar
+                      key={index}
+                      className={`${index < item.star ? "text-blue-500" : "text-black-500"}`}
+                    />
+                  ))}
                 </div>
-              </div>
-              <div className="flex items-center gap-1 mt-4 mb-3">
-                <FaStar className="text-blue-500" />
-                <FaStar className="text-blue-500" />
-                <FaStar className="text-blue-500" />
-                <FaStar className="text-blue-500" />
-                <FaStar className="text-black-500" />
-              </div>
-              <div className="text-lg font-bold">ABCDEFG 대구 어학원</div>
-              <div className="text-sm text-gray-500">
-                제 아들은 1년 동안 Little Explorers에 갔는데 긍정적인 경험밖에
-                없었습니다. 직원들은 세심하고 전문적입니다. 커리큘럼은 발달에
-                적합하고 매력적입니다. 나는 다른 부모들에게 이 유치원을 적극
-                추천합니다.
-              </div>
-            </div>
-            <div className="flex items-center justify-center w-40">
-              <button className="small_line_button">수정하기</button>
-            </div>
-            <div className="flex items-center justify-center w-40">
-              <button className="small_line_button">삭제하기</button>
-            </div>
-          </div>
-
-          <div className="loop-content flex justify-between align-middle p-6 border-b">
-            <div className="w-full">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden">
-                  <img src="/aca_image_1.png" alt=" /" />
+                <div
+                  className="text-lg font-bold"
+                  onClick={() => navigate(`/academy/detail?id=${item.acaId}`)}
+                >
+                  {item.acaName}
                 </div>
-                <div>
-                  <div className="text-sm font-medium">ABCDEFG 어학원</div>
-                  <div className="text-sm text-gray-500">2025-01-01</div>
-                </div>
+                <div className="text-sm text-gray-500">{item.comment}</div>
               </div>
-              <div className="flex items-center gap-1 mt-4 mb-3">
-                <FaStar className="text-blue-500" />
-                <FaStar className="text-blue-500" />
-                <FaStar className="text-blue-500" />
-                <FaStar className="text-blue-500" />
-                <FaStar className="text-black-500" />
+              <div className="flex items-center justify-center w-40">
+                <button className="small_line_button">수정하기</button>
               </div>
-              <div className="text-lg font-bold">ABCDEFG 대구 어학원</div>
-              <div className="text-sm text-gray-500">
-                제 아들은 1년 동안 Little Explorers에 갔는데 긍정적인 경험밖에
-                없었습니다. 직원들은 세심하고 전문적입니다. 커리큘럼은 발달에
-                적합하고 매력적입니다. 나는 다른 부모들에게 이 유치원을 적극
-                추천합니다.
+              <div className="flex items-center justify-center w-40">
+                <button className="small_line_button">삭제하기</button>
               </div>
             </div>
-            <div className="flex items-center justify-center w-40">
-              <button className="small_line_button">수정하기</button>
-            </div>
-            <div className="flex items-center justify-center w-40">
-              <button className="small_line_button">삭제하기</button>
-            </div>
-          </div>
+          ))}
         </div>
 
         <div className="flex justify-center items-center m-6 mb-10">

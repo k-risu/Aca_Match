@@ -7,7 +7,7 @@ import { Pagination } from "antd";
 import { useNavigate } from "react-router-dom";
 import { FaPlusCircle } from "react-icons/fa";
 
-function AcademyList() {
+function AcademyTestList() {
   const currentUserInfo = useRecoilValue(userInfo);
   const [myAcademyList, setMyAcademyList] = useState([]);
   const navigate = useNavigate();
@@ -57,30 +57,25 @@ function AcademyList() {
 
       <div className="w-full">
         <h1 className="title-font flex justify-between align-middle">
-          학원정보 관리
+          "학원명 &gt; 강좌명"의 테스트 목록
           <button
             className="flex items-center gap-1 mr-5 text-sm font-normal"
-            onClick={() => navigate("/mypage/academy/add")}
+            onClick={() => navigate("/mypage/academy/classAdd")}
           >
-            학원 신규등록
+            테스트 신규등록
             <FaPlusCircle />
           </button>
         </h1>
         <div className="w-full gap-0 border border-b-0 rounded-lg overflow-hidden">
           <div className="flex justify-between align-middle p-4 border-b">
             <div className="flex items-center justify-center w-full">
-              학원명
+              테스트 명
             </div>
             <div className="flex items-center justify-center w-60">등록일</div>
-            <div className="flex items-center justify-center w-40">
+            <div className="flex items-center justify-center w-60">
               처리상태
             </div>
-            <div className="flex items-center justify-center w-40">
-              강좌목록
-            </div>
-            <div className="flex items-center justify-center w-40">
-              수정하기
-            </div>
+            <div className="flex items-center justify-center w-40">삭제</div>
           </div>
 
           {myAcademyList.map((item: never, index: number) => (
@@ -91,36 +86,29 @@ function AcademyList() {
               <div className="flex justify-start items-center w-full">
                 <div
                   className="flex items-center gap-3 cursor-pointer"
-                  onClick={() => navigate(`/academy/detail?id=${item.acaId}`)}
+                  onClick={() =>
+                    navigate(`/mypage/academy/record?id=${item.acaId}`)
+                  }
                 >
                   <img src="/aca_image_1.png" alt="" />
-                  {item?.acaName}
+                  <div>
+                    <h4 className="font-bold">1월 학원 모의고사</h4>
+                    <p className="text-sm text-gray-500">[채점방식 : 점수]</p>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center justify-center text-center w-60">
-                {item.createdAt.substr(0, 10)}
+              <div className="flex items-center justify-center w-60">
+                2025-01-01
               </div>
-              <div className="flex items-center justify-center w-40">
-                등록완료
-              </div>
-              <div className="flex items-center justify-center w-40">
-                <button
-                  className="small_line_button"
-                  onClick={() =>
-                    navigate(`/mypage/academy/class?acaId=${item.acaId}`)
-                  }
-                >
-                  강좌목록
-                </button>
+              <div className="flex items-center justify-center w-60">
+                채점 전/완료
               </div>
               <div className="flex items-center justify-center w-40">
                 <button
                   className="small_line_button"
-                  onClick={() =>
-                    navigate(`/mypage/academy/edit?acaid=${item.acaId}`)
-                  }
+                  onClick={() => navigate("/mypage/academy/testList")}
                 >
-                  수정하기
+                  삭제하기
                 </button>
               </div>
             </div>
@@ -139,4 +127,4 @@ function AcademyList() {
   );
 }
 
-export default AcademyList;
+export default AcademyTestList;
