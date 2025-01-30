@@ -1,16 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { FaHeartCircleMinus, FaHeartCirclePlus } from "react-icons/fa6";
 import axios from "axios";
 import { Cookies } from "react-cookie";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import userInfo from "../atoms/userInfo";
+import userInfo from "../../atoms/userInfo";
 
 interface LikeButtonProps {
   academyId: number;
   initialIsLiked: boolean;
   onLikeChange?: (isLiked: boolean) => void;
+  setLikeCount?: Dispatch<SetStateAction<number>>;
 }
 /**
  * 학원 좋아요 버튼 컴포넌트
@@ -23,6 +24,7 @@ const LikeButton = ({
   academyId,
   initialIsLiked,
   onLikeChange,
+  setLikeCount,
 }: LikeButtonProps) => {
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,6 +69,9 @@ const LikeButton = ({
             },
           },
         );
+        if (setLikeCount) {
+          setLikeCount((prevCount: number) => prevCount - 1); // 타입 명시
+        }
         console.log("좋아요 삭제 완료", res);
       } else {
         // 좋아요 등록
@@ -83,6 +88,9 @@ const LikeButton = ({
           },
         );
         console.log("좋아요 등록 완료", res);
+        if (setLikeCount) {
+          setLikeCount(prevCount => prevCount + 1); // 좋아요 수 증가
+        }
       }
 
       // 상태 업데이트

@@ -7,7 +7,7 @@ import { useSearchParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import userInfo from "../../atoms/userInfo";
 import MainButton from "../../components/button/MainButton";
-import LikeButton from "../../components/LikeButton";
+import LikeButton from "../../components/button/LikeButton";
 import CustomModal from "../../components/modal/Modal";
 import AcademyCalendar from "./AcademyCalendar";
 import KakaoMap from "./KakaoMap";
@@ -74,6 +74,7 @@ const AcademyDetail = () => {
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [address, setAddress] = useState("");
+  const [likeCount, setLikeCount] = useState<number>(0);
 
   const [isLiked, setIsLiked] = useState<boolean>(false);
 
@@ -108,6 +109,7 @@ const AcademyDetail = () => {
         if (response.data.resultData) {
           setAcademyData(response.data.resultData);
           setIsLiked(response.data.resultData.isLiked);
+          setLikeCount(response.data.resultData.likeCount);
           if (response.data.resultData.addressDto.address) {
             setAddress(response.data.resultData.addressDto.address);
           }
@@ -290,10 +292,11 @@ const AcademyDetail = () => {
                         academyId={academyData.acaId}
                         initialIsLiked={isLiked}
                         onLikeChange={setIsLiked}
+                        setLikeCount={setLikeCount}
                       />
                     </div>
                     <span className={styles.stats.statValue}>
-                      {academyData.likeCount}명
+                      {likeCount}명
                     </span>
                   </div>
                   <div className={styles.stats.statItem}>
@@ -328,7 +331,9 @@ const AcademyDetail = () => {
               </div>
 
               <div className={styles.section.title}>찾아 오시는 길</div>
-              <KakaoMap address={academyData?.addressDto?.address || ""} />
+              {academyData?.addressDto?.address && (
+                <KakaoMap address={academyData.addressDto.address} />
+              )}
             </div>
           </div>
         )}

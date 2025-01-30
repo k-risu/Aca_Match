@@ -32,6 +32,7 @@ import AcademyTestList from "./pages/mypage/academy/AcademyTestList";
 import AcademyTestAdd from "./pages/mypage/academy/AcademyTestAdd";
 import AcademyRecord from "./pages/mypage/academy/AcademyRecord";
 import AcademyClassEdit from "./pages/mypage/academy/AcademyClassEdit";
+import HotAcademy from "./pages/HotAcademy.tsx";
 
 function App() {
   useEffect(() => {
@@ -166,7 +167,8 @@ function App() {
                 <Route path="inquiry" element={<Inquiry />} />
                 <Route path="inquiry/detail" element={<InquiryDetail />} />
               </Route>
-              <Route path="/support" element={<Support />} />
+              <Route path="/hotAcademy" element={<HotAcademy />} />
+              {/* <Route path="/support" element={<Support />} /> */}
               {/* <Route path="/support/faq" element={<SupportFaq />} /> */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
