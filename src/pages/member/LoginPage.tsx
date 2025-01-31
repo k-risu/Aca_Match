@@ -1,4 +1,4 @@
-import { Checkbox, Form, Input } from "antd";
+import { Checkbox, Form, Input, message } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
@@ -19,7 +19,9 @@ function LoginPage() {
       const response = await axios.post("/api/user/sign-in", loginData);
       const { name, roleId, userId } = response.data.resultData;
 
-      setCookie("accessToken", response.data.resultData.accessToken);
+      setCookie("accessToken", response.data.resultData.accessToken, {
+        path: "/",
+      });
 
       // 아이디 기억하기가 체크되어 있으면 이메일 쿠키 저장
       if (remember) {
@@ -41,6 +43,7 @@ function LoginPage() {
     } catch (error) {
       console.error(error);
       removeCookie("accessToken");
+      message.error("아이디와 비밀번호가 일치하지않습니다.");
     }
   };
 

@@ -20,6 +20,7 @@ declare global {
     kakao: any;
   }
 }
+const usedRandomNumbers = new Set<number>();
 
 // Tailwind 스타일 상수
 const styles = {
@@ -93,6 +94,20 @@ const AcademyDetail = () => {
     { label: "후기", isActive: false },
   ]);
 
+  const getRandomUniqueNumber = () => {
+    if (usedRandomNumbers.size === 10) {
+      usedRandomNumbers.clear(); // 모든 숫자가 사용되면 초기화
+    }
+
+    let randomNum;
+    do {
+      randomNum = Math.floor(Math.random() * 10) + 1; // 1~10 사이의 랜덤 숫자
+    } while (usedRandomNumbers.has(randomNum));
+
+    usedRandomNumbers.add(randomNum);
+    return randomNum;
+  };
+
   const { userId } = useRecoilValue(userInfo); // Recoil에서 userId 가져오기
 
   useEffect(() => {
@@ -101,8 +116,8 @@ const AcademyDetail = () => {
         setLoading(true);
         // userId가 있을 경우 signedUserId 파라미터 추가
         const url = userId
-          ? `/api/academy?signedUserId=${userId}&acaId=${acaId}`
-          : `/api/academy?acaId=${acaId}`;
+          ? `/api/academy/getAcademyDetailAllInfo?signedUserId=${userId}&acaId=${acaId}`
+          : `/api/academy/getAcademyDetailAllInfo?acaId=${acaId}`;
 
         const response = await axios.get(url);
 
@@ -154,17 +169,6 @@ const AcademyDetail = () => {
           ))}
       </>
     );
-  };
-
-  // 좋아요 토글 핸들러
-  const handleLikeToggle = async () => {
-    try {
-      // API 호출 (실제 엔드포인트에 맞게 수정 필요)
-      await axios.post(`/api/academy/like/${acaId}`);
-      setIsLiked(prev => !prev);
-    } catch (error) {
-      console.error("Failed to toggle like:", error);
-    }
   };
 
   const handleButton1Click = () => setIsModalVisible(false);
@@ -244,7 +248,9 @@ const AcademyDetail = () => {
                     className="w-full h-full object-cover rounded-[12px]"
                     onError={e => {
                       const target = e.target as HTMLImageElement;
-                      target.src = "/default_academy.jpg";
+                      const randomNum = getRandomUniqueNumber();
+                      target.src = `/default_academy${randomNum}.jpg`;
+                      // console.log(`/default_academy${randomNum}.jpg`);
                     }}
                   />
                 )}

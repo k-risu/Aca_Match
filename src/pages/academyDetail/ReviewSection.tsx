@@ -151,7 +151,7 @@ const ReviewSection = ({
       </div>
       {isModalVisible && (
         <ReviewModal
-          joinClassId={academyId}
+          joinClassId={150}
           // rating={3} // 선택적으로 전달
           onClose={() => setIsModalVisible(false)}
         />

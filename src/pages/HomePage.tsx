@@ -24,6 +24,22 @@ interface BestAcademy {
   image: string;
 }
 
+const usedRandomNumbers = new Set<number>();
+
+const getRandomUniqueNumber = () => {
+  if (usedRandomNumbers.size === 10) {
+    usedRandomNumbers.clear(); // 모든 숫자가 사용되면 초기화
+  }
+
+  let randomNum;
+  do {
+    randomNum = Math.floor(Math.random() * 10) + 1; // 1~10 사이의 랜덤 숫자
+  } while (usedRandomNumbers.has(randomNum));
+
+  usedRandomNumbers.add(randomNum);
+  return randomNum;
+};
+
 function HomePage() {
   const navigate = useNavigate();
 
@@ -47,43 +63,43 @@ function HomePage() {
     { name: "일본어", link: "/" },
   ];
 
-  const pickAcademyCards = [
-    {
-      subject: "수학 학원",
-      description: "Math, Algebra, Calculus",
-      reviews: "5.0 (123 reviews)",
-      questionsAnswered: "12,000 questions answered",
-      link: "/",
-    },
-    {
-      subject: "과학 학원",
-      description: "Physics, Chemistry",
-      reviews: "4.9 (87 reviews)",
-      questionsAnswered: "9,000 questions answered",
-      link: "/",
-    },
-    {
-      subject: "영어 학원",
-      description: "English, Grammar, ESL",
-      reviews: "4.8 (56 reviews)",
-      questionsAnswered: "7,500 questions answered",
-      link: "/",
-    },
-    {
-      subject: "외국어 학원",
-      description: "Spanish, French, Italian",
-      reviews: "4.7 (34 reviews)",
-      questionsAnswered: "6,000 questions answered",
-      link: "/",
-    },
-    {
-      subject: "코딩 학원",
-      description: "Programming, Web Development",
-      reviews: "4.9 (45 reviews)",
-      questionsAnswered: "5,500 questions answered",
-      link: "/",
-    },
-  ];
+  // const pickAcademyCards = [
+  //   {
+  //     subject: "수학 학원",
+  //     description: "Math, Algebra, Calculus",
+  //     reviews: "5.0 (123 reviews)",
+  //     questionsAnswered: "12,000 questions answered",
+  //     link: "/",
+  //   },
+  //   {
+  //     subject: "과학 학원",
+  //     description: "Physics, Chemistry",
+  //     reviews: "4.9 (87 reviews)",
+  //     questionsAnswered: "9,000 questions answered",
+  //     link: "/",
+  //   },
+  //   {
+  //     subject: "영어 학원",
+  //     description: "English, Grammar, ESL",
+  //     reviews: "4.8 (56 reviews)",
+  //     questionsAnswered: "7,500 questions answered",
+  //     link: "/",
+  //   },
+  //   {
+  //     subject: "외국어 학원",
+  //     description: "Spanish, French, Italian",
+  //     reviews: "4.7 (34 reviews)",
+  //     questionsAnswered: "6,000 questions answered",
+  //     link: "/",
+  //   },
+  //   {
+  //     subject: "코딩 학원",
+  //     description: "Programming, Web Development",
+  //     reviews: "4.9 (45 reviews)",
+  //     questionsAnswered: "5,500 questions answered",
+  //     link: "/",
+  //   },
+  // ];
 
   const [bestAcademyCards, setBestAcademyCards] = useState<BestAcademy[]>([
     {
@@ -147,7 +163,7 @@ function HomePage() {
   const getAcademyImageUrl = (acaId: number, pic: string) => {
     console.log(acaId, pic);
     if (pic === "default.jpg" || pic === undefined || pic === null) {
-      return "/default_academy.jpg";
+      return `/default_academy${getRandomUniqueNumber()}.jpg`;
     }
     return `/pic/academy/${acaId}/${pic}`;
   };
@@ -180,6 +196,7 @@ function HomePage() {
         const response = await axios.get("/api/academy/best", {
           params: { page: 1, size: 4 },
         });
+        console.log("작동중", response);
 
         const updatedCards: BestAcademy[] = response.data.resultData.map(
           (item: any) => ({
@@ -303,7 +320,7 @@ function HomePage() {
       </div> */}
       <div className="w-full max-w-[990px]">
         <h2 className="text-2xl font-bold mb-6">이 학원 어떠신가요?</h2>
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-5 gap-6">
           {defaultAcademies.map(academy => (
             <div
               key={academy.acaId}
@@ -317,7 +334,7 @@ function HomePage() {
                 src={getAcademyImageUrl(academy.acaId, academy.acaPic)}
                 alt={academy.acaName}
                 // effect="blur"
-                className="w-full h-[230px] rounded-xl object-cover"
+                className="w-full h-[178px] rounded-xl object-cover"
                 // placeholderSrc="/image-placeholder.jpg" // 로딩 중 표시될 저해상도 이미지
                 // wrapperClassName="w-full h-[186px]"
               />
@@ -371,6 +388,7 @@ function HomePage() {
           {loading ? (
             // 로딩 중일 때 스켈레톤 표시
             <>
+              <SkeletonCard />
               <SkeletonCard />
               <SkeletonCard />
               <SkeletonCard />
