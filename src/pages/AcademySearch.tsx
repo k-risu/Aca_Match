@@ -26,6 +26,8 @@ interface AcademyData {
   location: string;
   rating: string;
 }
+const usedRandomNumbers = new Set<number>();
+
 const DropdownButton = styled(MainButton)`
   border: 1px solid #dbe3e6 !important;
   &:hover {
@@ -124,6 +126,19 @@ const AcademySearch = () => {
   // const handleCloseModal = () => {
   //   setVisible(false);
   // };
+  const getRandomUniqueNumber = () => {
+    if (usedRandomNumbers.size === 10) {
+      usedRandomNumbers.clear(); // 모든 숫자가 사용되면 초기화
+    }
+
+    let randomNum;
+    do {
+      randomNum = Math.floor(Math.random() * 10) + 1; // 1~10 사이의 랜덤 숫자
+    } while (usedRandomNumbers.has(randomNum));
+
+    usedRandomNumbers.add(randomNum);
+    return randomNum;
+  };
 
   const handleButton1Click = () => {
     setIsModalVisible(false);
@@ -384,6 +399,7 @@ const AcademySearch = () => {
           </div>
 
           {/* 학원 목록 아이템 */}
+
           {academyData.map((academy, index) => (
             <div
               key={index}
@@ -391,11 +407,14 @@ const AcademySearch = () => {
               onClick={() => navigate(path)}
             >
               <div className="flex justify-center items-center min-w-[10%]">
-                <div
-                  className="w-[60px] h-[60px] rounded-[20px] bg-cover"
-                  // style={{ backgroundColor: "#F0F2F5" }}
-                  // style={{ backgroundImage: `url(${academy.image})` }}
-                  style={{ backgroundImage: `url('/default_academy.jpg')` }}
+                <img
+                  className="w-[60px] h-[60px] rounded-[20px]"
+                  src={academy.image} // 기본 이미지 설정
+                  onError={e => {
+                    const target = e.target as HTMLImageElement;
+                    const randomNum = getRandomUniqueNumber();
+                    target.src = `/default_academy${randomNum}.jpg`;
+                  }}
                 />
               </div>
               <div className="flex items-center p-4 w-full text-start">

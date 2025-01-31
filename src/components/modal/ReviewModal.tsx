@@ -4,6 +4,7 @@ import { Form, message } from "antd";
 import axios from "axios";
 import { SecondaryButton } from "./Modal";
 import MainButton from "../button/MainButton";
+import jwtAxios from "../../apis/jwt";
 
 interface ReviewModalProps {
   onClose: () => void;
@@ -34,10 +35,11 @@ function ReviewModal({ onClose, joinClassId }: ReviewModalProps) {
       return;
     }
 
+    console.log(joinClassId, values.comment.trim(), rating);
     try {
       setIsSubmitting(true);
 
-      const res = await axios.post("/api/review/user", {
+      const res = await jwtAxios.post("/api/review/user", {
         joinClassId: joinClassId,
         comment: values.comment.trim(),
         star: rating,

@@ -55,6 +55,9 @@ const failRes = async (error: AxiosError) => {
         "/api/user/access-token",
         {
           withCredentials: true,
+          headers: {
+            Authorization: "", // 기존 Authorization 헤더 제거
+          },
         },
       );
 
@@ -87,6 +90,9 @@ const failRes = async (error: AxiosError) => {
         "/api/user/access-token",
         {
           withCredentials: true,
+          headers: {
+            Authorization: "", // 기존 Authorization 헤더 제거
+          },
         },
       );
 

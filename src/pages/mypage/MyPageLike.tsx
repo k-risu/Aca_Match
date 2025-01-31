@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import SideBar from "../../components/SideBar";
-import { FaHeartCircleMinus } from "react-icons/fa6";
 import CustomModal from "../../components/modal/Modal";
 import { getCookie } from "../../utils/cookie";
 import { useRecoilValue } from "recoil";
@@ -8,13 +7,19 @@ import userInfo from "../../atoms/userInfo";
 import { jwtApiRequest } from "../../apis/jwt";
 import { Pagination } from "antd";
 import { useNavigate } from "react-router-dom";
+import LikeButton from "../../components/button/LikeButton";
+
+const usedRandomNumbers = new Set<number>();
 
 function MyPageLike() {
-  const [likeList, setLikeList] = useState([]); //좋아요 목록
+  const [likeList, setLikeList] = useState([]); // 좋아요 목록
   const [isModalVisible, setIsModalVisible] = useState(false);
   const currentUserInfo = useRecoilValue(userInfo);
   const accessToken = getCookie("accessToken");
   const navigate = useNavigate();
+
+  // 각 학원의 좋아요 상태를 관리하기 위한 상태
+  const [likeStates, setLikeStates] = useState<{ [key: number]: boolean }>({});
 
   let menuItems = [];
   switch (currentUserInfo.roleId) {
@@ -46,17 +51,23 @@ function MyPageLike() {
       ];
   }
 
-  const handleButton1Click = () => {
-    setIsModalVisible(false);
-  };
+  const handleLikeChange = (academyId: number, newIsLiked: boolean) => {
+    // 좋아요 상태 변경 시 해당 academyId에 대한 상태만 업데이트
+    setLikeStates(prevStates => ({
+      ...prevStates,
+      [academyId]: newIsLiked,
+    }));
 
-  const handleButton2Click = () => {
-    setIsModalVisible(false);
+    if (!newIsLiked) {
+      setLikeList(prevList =>
+        prevList.filter(item => item.acaId !== academyId),
+      );
+    }
   };
 
   const fetchData = async (page: number) => {
     try {
-      //좋아요 목록 호출
+      // 좋아요 목록 호출
       const res = await jwtApiRequest.get(
         `/api/like/user?userId=${currentUserInfo.userId}&page=${page}`,
         {
@@ -69,15 +80,22 @@ function MyPageLike() {
       if (res.data.resultData.length > 0) {
         console.log(res.data.resultData);
         setLikeList(res.data.resultData);
+
+        // 초기 상태 설정: 좋아요 상태를 초기화
+        const initialLikeStates = res.data.resultData.reduce(
+          (acc, item) => {
+            acc[item.acaId] = true; // 처음엔 모두 좋아요 상태로 설정
+            return acc;
+          },
+          {} as { [key: number]: boolean },
+        );
+
+        setLikeStates(initialLikeStates);
       }
     } catch (error) {
       console.log(error);
     }
   };
-
-  useEffect(() => {
-    fetchData(1);
-  }, []);
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
@@ -106,23 +124,29 @@ function MyPageLike() {
                   onClick={() => navigate(`/academy/detail?id=${item.acaId}`)}
                 >
                   <img
+                    className="h-[60px] w-[60px] rounded-[20px]"
                     src={
-                      item.acaPic
-                        ? `http://112.222.157.156:5223/pic/academy/${item.acaId}/${item.acaPic}`
-                        : "/aca_image_1.png"
+                      (item.acaPic = `http://112.222.157.156:5223/pic/academy/${item.acaId}/${item.acaPic}`)
                     }
+                    onError={e => {
+                      const target = e.target as HTMLImageElement;
+                      const randomNum = getRandomUniqueNumber();
+                      target.src = `/default_academy${randomNum}.jpg`;
+                    }}
                     alt=""
                   />
-                  ABCDEFG 어학원_{item.acaId}_{item.acaPic}
+                  {item.acaName}
                 </div>
               </div>
               <div className="flex items-center justify-center w-20">
-                <button
-                  className="small_color_button w-full flex justify-center items-center"
-                  onClick={() => setIsModalVisible(true)}
-                >
-                  <FaHeartCircleMinus size={20} color="#3b77d8" />
-                </button>
+                {/* 각 LikeButton 컴포넌트에 isLiked 상태를 개별적으로 전달 */}
+                <LikeButton
+                  academyId={item.acaId}
+                  initialIsLiked={likeStates[item.acaId] || false} // 각 버튼의 상태
+                  onLikeChange={newIsLiked =>
+                    handleLikeChange(item.acaId, newIsLiked)
+                  } // 상태 변경 시 처리
+                />
               </div>
             </div>
           ))}
@@ -141,8 +165,8 @@ function MyPageLike() {
           visible={isModalVisible}
           title={"좋아요 삭제하기"}
           content={"선택하신 학원을 좋아요에서 삭제하시겠습니까?"}
-          onButton1Click={handleButton1Click}
-          onButton2Click={handleButton2Click}
+          onButton1Click={() => setIsModalVisible(false)}
+          onButton2Click={() => setIsModalVisible(false)}
           button1Text={"취소"}
           button2Text={"확인"}
           modalWidth={400}
