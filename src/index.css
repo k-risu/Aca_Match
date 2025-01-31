@@ -26,6 +26,13 @@
   @apply font-bold text-3xl text-brand-default mt-[65px] mb-[36px];
 }
 
+.board-wrap {
+  @apply w-full gap-0 border border-b-0 rounded-lg overflow-hidden;
+}
+.board-wrap div {
+  @apply text-[14px];
+}
+
 .small_line_button {
   padding: 3px 10px;
   border: 1px solid #ddd;

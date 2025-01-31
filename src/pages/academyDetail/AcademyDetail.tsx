@@ -101,8 +101,8 @@ const AcademyDetail = () => {
         setLoading(true);
         // userId가 있을 경우 signedUserId 파라미터 추가
         const url = userId
-          ? `/api/academy?signedUserId=${userId}&acaId=${acaId}`
-          : `/api/academy?acaId=${acaId}`;
+          ? `/api/academy/getAcademyDetailAllInfo?signedUserId=${userId}&acaId=${acaId}`
+          : `/api/academy/getAcademyDetailAllInfo?acaId=${acaId}`;
 
         const response = await axios.get(url);
 

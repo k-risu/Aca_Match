@@ -56,7 +56,8 @@ function AcademyLike() {
         <h1 className="title-font flex justify-between align-middle">
           좋아요 목록
         </h1>
-        <div className="w-full border border-b-0 rounded-lg overflow-hidden">
+
+        <div className="board-wrap">
           <div className="flex justify-between align-middle p-4 pl-6 pr-6 border-b">
             <div className="flex items-center justify-center w-full">
               회원 목록

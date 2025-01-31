@@ -50,7 +50,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
   button1Text = "취소하기",
   button2Text = "확인하기",
   modalWidth = 400,
-  modalHeight = 244,
+  modalHeight,
 }) => {
   if (!visible) return null; // visible이 false일 경우 렌더링하지 않음
 
@@ -71,7 +71,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
         }}
       >
         <h2 className="text-2xl font-bold text-left mb-[30px]">{title}</h2>
-        <p className="text-base text-left mb-[52px]">{content}</p>
+        <p className="text-base text-left mb-5">{content}</p>
         <div className="flex justify-end space-x-[10px]">
           <CancelButton
             onClick={onButton1Click}

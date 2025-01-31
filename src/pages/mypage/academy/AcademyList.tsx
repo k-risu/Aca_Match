@@ -66,7 +66,8 @@ function AcademyList() {
             <FaPlusCircle />
           </button>
         </h1>
-        <div className="w-full gap-0 border border-b-0 rounded-lg overflow-hidden">
+
+        <div className="board-wrap">
           <div className="flex justify-between align-middle p-4 border-b">
             <div className="flex items-center justify-center w-full">
               학원명
@@ -117,7 +118,7 @@ function AcademyList() {
                 <button
                   className="small_line_button"
                   onClick={() =>
-                    navigate(`/mypage/academy/edit?acaid=${item.acaId}`)
+                    navigate(`/mypage/academy/edit?acaId=${item.acaId}`)
                   }
                 >
                   수정하기

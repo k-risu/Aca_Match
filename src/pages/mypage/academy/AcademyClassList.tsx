@@ -10,6 +10,7 @@ import { FaPlusCircle } from "react-icons/fa";
 function AcademyClassList() {
   const currentUserInfo = useRecoilValue(userInfo);
   const [classList, setClassList] = useState([]);
+  const [academyInfo, setAcademyInfo] = useState("");
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -33,6 +34,20 @@ function AcademyClassList() {
     { label: "좋아요 목록", isActive: false, link: "/mypage/academy/like" },
   ];
 
+  //학원정보 확인
+
+  //학원정보 가져오기
+  const academyGetInfo = async () => {
+    try {
+      const res = await axios.get(`/api/academy/academyDetail/${acaId}`);
+      setAcademyInfo(res.data.resultData.acaName);
+      //console.log(res.data.resultData.acaName);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //강좌 목록
   const academyClassList = async () => {
     try {
       const res = await axios.get(`/api/acaClass?acaId=${acaId}&page=1`);
@@ -52,13 +67,17 @@ function AcademyClassList() {
     academyClassList();
   }, []);
 
+  useEffect(() => {
+    academyGetInfo();
+  }, []);
+
   return (
     <div className="flex gap-5 w-full justify-center align-top">
       <SideBar menuItems={menuItems} />
 
       <div className="w-full">
         <h1 className="title-font flex justify-between align-middle">
-          "학원명"의 강좌목록
+          {academyInfo}의 강좌목록
           <button
             className="flex items-center gap-1 mr-5 text-sm font-normal"
             onClick={() => navigate(`/mypage/academy/classAdd?acaId=${acaId}`)}
@@ -67,7 +86,8 @@ function AcademyClassList() {
             <FaPlusCircle />
           </button>
         </h1>
-        <div className="w-full gap-0 border border-b-0 rounded-lg overflow-hidden">
+
+        <div className="board-wrap">
           <div className="flex justify-between align-middle p-4 border-b">
             <div className="flex items-center justify-center w-full">
               강좌명
@@ -79,7 +99,9 @@ function AcademyClassList() {
             </div>
           </div>
 
-          {classList.map((item: never, index: number) => (
+          {classList?.length === 0 && "<div>aaa</div>"}
+
+          {classList?.map((item: never, index: number) => (
             <div
               key={index}
               className="loop-content flex justify-between align-middle p-4 border-b"
@@ -88,10 +110,15 @@ function AcademyClassList() {
                 <div
                   className="flex items-center gap-3 cursor-pointer"
                   onClick={() =>
-                    navigate(`/mypage/academy/student?id=${item.classId}`)
+                    navigate(
+                      `/mypage/academy/student?acaId=${acaId}classId=${item.classId}`,
+                    )
                   }
                 >
-                  <img src="/aca_image_1.png" alt="" />
+                  <img
+                    src={`/pic/user/${item.classId}/${item.acaPic}`}
+                    alt=""
+                  />
                   {item.acaPic}
                   {item.className}
                 </div>
@@ -105,7 +132,11 @@ function AcademyClassList() {
               <div className="flex items-center justify-center w-40">
                 <button
                   className="small_line_button"
-                  onClick={() => navigate("/mypage/academy/testList?classId=1")}
+                  onClick={() =>
+                    navigate(
+                      `/mypage/academy/testList?acaId=${acaId}&classId=${item.classId}`,
+                    )
+                  }
                 >
                   테스트 목록
                 </button>
@@ -113,12 +144,11 @@ function AcademyClassList() {
             </div>
           ))}
         </div>
-        response에서 학원명 필요, classId 정보 없어서 테스트 목록 호출
-        불가(쿼리스트링으로 전달)
+
         <div className="flex justify-center items-center m-6 mb-10">
           <Pagination
             defaultCurrent={1}
-            total={classList.length}
+            total={classList?.length}
             showSizeChanger={false}
           />
         </div>

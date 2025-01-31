@@ -1,14 +1,20 @@
 import { Pagination } from "antd";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa";
 import SideBar from "../../../components/SideBar";
 import { getCookie } from "../../../utils/cookie";
 import { useRecoilValue } from "recoil";
 import userInfo from "../../../atoms/userInfo";
+import { useSearchParams } from "react-router-dom";
+import axios from "axios";
 
 function AcademyReview() {
+  const [academyReviewList, setAcademyReviewList] = useState([]); //학원리뷰 목록
+  const [searchParams, setSearchParams] = useSearchParams();
   const currentUserInfo = useRecoilValue(userInfo);
   const accessToken = getCookie("accessToken");
+  const acaId = searchParams.get("acaId");
+  console.log(accessToken);
 
   let menuItems = [];
   switch (currentUserInfo.roleId) {
@@ -49,6 +55,19 @@ function AcademyReview() {
       ];
   }
 
+  //학원리뷰 전체목록 가져오기
+  const getTagList = async () => {
+    try {
+      const res = await axios.get(
+        `/api/review/my-academy?acaId=2025&userId=1&page=1&size=20`,
+      );
+      //setAcademyReviewList(res.data.resultData);
+      console.log(res.data.resultData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const fetchData = (page: number) => {
     //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
     console.log(page);
@@ -58,13 +77,18 @@ function AcademyReview() {
     fetchData(1);
   }, []);
 
+  useEffect(() => {
+    getTagList();
+  }, []);
+
   return (
     <div className="flex gap-5 w-full justify-center align-top">
       <SideBar menuItems={menuItems} />
 
       <div className="w-full">
         <h1 className="title-font">학원리뷰 목록</h1>
-        <div className="w-full border border-b-0 rounded-lg overflow-hidden">
+
+        <div className="board-wrap">
           <div className="flex justify-between align-middle p-4 pl-6 pr-6 border-b">
             <div className="flex items-center justify-center w-full">
               리뷰 내용

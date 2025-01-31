@@ -76,7 +76,8 @@ function MypageReview() {
 
       <div className="w-full">
         <h1 className="title-font">나의 리뷰 목록</h1>
-        <div className="w-full border border-b-0 rounded-lg overflow-hidden">
+
+        <div className="board-wrap">
           <div className="flex justify-between align-middle p-4 pl-6 pr-6 border-b">
             <div className="flex items-center justify-center w-full">
               리뷰 내용
@@ -109,8 +110,7 @@ function MypageReview() {
                   <div>
                     <div className="text-sm font-medium">
                       <p>userId, 회원이름 또는 닉네임 필요</p>
-                      ABCDEFG 어학원_
-                      {item.joinClassId}
+                      {item.acaName}
                     </div>
                     <div className="text-sm text-gray-500">
                       {item.createdAt}
