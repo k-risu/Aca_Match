@@ -16,7 +16,9 @@ import MyPageUserInfo from "./pages/mypage/MyPageUserInfo";
 import MypageReview from "./pages/mypage/MypageReview";
 import AcademyList from "./pages/mypage/academy/AcademyList";
 import AcademyAdd from "./pages/mypage/academy/AcademyAdd";
+import AcademyEdit from "./pages/mypage/academy/AcademyEdit";
 import AcademyClassAdd from "./pages/mypage/academy/AcademyClassAdd";
+import AcademyClassEdit from "./pages/mypage/academy/AcademyClassEdit";
 import { RecoilRoot } from "recoil";
 import AcademyLike from "./pages/mypage/academy/AcademyLike";
 import AcademyReview from "./pages/mypage/academy/AcademyReview";
@@ -31,7 +33,6 @@ import AcademyStudent from "./pages/mypage/academy/AcademyStudent";
 import AcademyTestList from "./pages/mypage/academy/AcademyTestList";
 import AcademyTestAdd from "./pages/mypage/academy/AcademyTestAdd";
 import AcademyRecord from "./pages/mypage/academy/AcademyRecord";
-import AcademyClassEdit from "./pages/mypage/academy/AcademyClassEdit";
 import HotAcademy from "./pages/HotAcademy.tsx";
 
 function App() {
@@ -128,8 +129,9 @@ function App() {
                   element={<AcademyClassList />}
                 />
                 <Route path="/mypage/academy/add" element={<AcademyAdd />} />
+                <Route path="/mypage/academy/Edit" element={<AcademyEdit />} />
                 <Route
-                  path="/mypage/academy/edit"
+                  path="/mypage/academy/classEdit"
                   element={<AcademyClassEdit />}
                 />
                 <Route
