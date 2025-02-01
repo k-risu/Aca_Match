@@ -31,7 +31,6 @@ import InquiryDetail from "./pages/InquiryDetail.tsx";
 import AcademyClassList from "./pages/mypage/academy/AcademyClassList";
 import AcademyStudent from "./pages/mypage/academy/AcademyStudent";
 import AcademyTestList from "./pages/mypage/academy/AcademyTestList";
-import AcademyTestAdd from "./pages/mypage/academy/AcademyTestAdd";
 import AcademyRecord from "./pages/mypage/academy/AcademyRecord";
 import HotAcademy from "./pages/HotAcademy.tsx";
 
@@ -145,10 +144,6 @@ function App() {
                 <Route
                   path="/mypage/academy/testList"
                   element={<AcademyTestList />}
-                />
-                <Route
-                  path="/mypage/academy/testAdd"
-                  element={<AcademyTestAdd />}
                 />
                 <Route
                   path="/mypage/academy/record"

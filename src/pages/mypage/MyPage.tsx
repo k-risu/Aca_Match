@@ -6,8 +6,10 @@ import userInfo from "../../atoms/userInfo";
 import { getCookie } from "../../utils/cookie";
 import { Pagination } from "antd";
 import { useNavigate } from "react-router-dom";
+import jwtAxios from "../../apis/jwt";
 
 function MyPage() {
+  const [mypageAcademyList, setMypageAcademyList] = useState([]); //내 학원 내역
   const [isModalVisible, setIsModalVisible] = useState(false);
   const currentUserInfo = useRecoilValue(userInfo);
   const accessToken = getCookie("accessToken");
@@ -48,6 +50,28 @@ function MyPage() {
       break;
   }
 
+  const myAcademyList = async (page: number) => {
+    try {
+      //좋아요 목록 호출
+      const res = await jwtAxios.get(
+        `/api/joinClass?userId=${currentUserInfo.userId}&page=${page}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (res.data.resultData.length > 0) {
+        console.log(res.data.resultData);
+        setMypageAcademyList(res.data.resultData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    //console.log(page);
+  };
+
   const handleButton1Click = () => {
     setIsModalVisible(false);
   };
@@ -56,14 +80,12 @@ function MyPage() {
     setIsModalVisible(false);
   };
 
-  const fetchData = (page: number) => {
-    //console.log(page);
-    //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
-  };
-
   useEffect(() => {
     navigate(mypageUrl); //학원 관계자는 마이페이지 메인 리다이렉션
-    fetchData(1);
+  }, []);
+
+  useEffect(() => {
+    myAcademyList(1);
   }, []);
 
   return (
@@ -86,50 +108,41 @@ function MyPage() {
             </div>
           </div>
 
-          <div className="loop-content flex justify-between align-middle p-4 border-b">
-            <div className="flex justify-start items-center w-full">
-              <div className="flex items-center gap-3">
-                <img src="aca_image_1.png" alt=" /" />
-                ABCDEFG 어학원
+          {mypageAcademyList.map((item, index) => (
+            <div
+              key={index}
+              className="loop-content flex justify-between align-middle p-4 border-b"
+            >
+              <div className="flex justify-start items-center w-full">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <img src="aca_image_1.png" alt=" /" />
+                  </div>
+                  <h4>{item.acaName}</h4>
+                  {item.className}
+                </div>
+              </div>
+              <div className="flex items-center justify-center w-60">
+                2025-01-01
+              </div>
+              <div className="flex items-center justify-center w-40">
+                등록완료
+              </div>
+              <div className="flex items-center justify-center w-40">
+                <span className="small_line_button bg-gray-200 opacity-50">
+                  취소하기
+                </span>
               </div>
             </div>
-            <div className="flex items-center justify-center w-60">
-              2025-01-01
-            </div>
-            <div className="flex items-center justify-center w-40">
-              등록완료
-            </div>
-            <div className="flex items-center justify-center w-40">
-              <span className="small_line_button bg-gray-200 opacity-50">
-                취소하기
-              </span>
-            </div>
-          </div>
-
-          <div className="loop-content flex justify-between align-middle p-4 border-b">
-            <div className="w-full flex justify-start items-center">
-              <div className="flex items-center gap-3">
-                <img src="aca_image_1.png" alt=" /" />
-                ABCDEFG 어학원
-              </div>
-            </div>
-            <div className="flex items-center justify-center w-60">
-              2025-01-01
-            </div>
-            <div className="flex items-center justify-center w-40">처리중</div>
-            <div className="flex items-center justify-center w-40">
-              <button
-                className="small_line_button"
-                onClick={() => setIsModalVisible(true)}
-              >
-                취소하기
-              </button>
-            </div>
-          </div>
+          ))}
         </div>
 
         <div className="flex justify-center items-center m-6 mb-10">
-          <Pagination defaultCurrent={1} total={100} showSizeChanger={false} />
+          <Pagination
+            defaultCurrent={1}
+            total={mypageAcademyList.length}
+            showSizeChanger={false}
+          />
         </div>
 
         <CustomModal

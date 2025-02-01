@@ -1,11 +1,13 @@
 import { useRecoilValue } from "recoil";
 import userInfo from "../../atoms/userInfo";
 import { getCookie } from "../../utils/cookie";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SideBar from "../../components/SideBar";
 import { Pagination } from "antd";
+import jwtAxios from "../../apis/jwt";
 
 function MypageChild() {
+  const [myypageChildList, setMypageChildList] = useState([]);
   const currentUserInfo = useRecoilValue(userInfo);
   const accessToken = getCookie("accessToken");
   const [childList, setChildList] = useState<object[]>([]); //자녀 목록
@@ -40,6 +42,21 @@ function MypageChild() {
       ];
   }
 
+  //내 자녀 목록 가져오기
+  const myChildList = async () => {
+    try {
+      const res = await jwtAxios.get("/api/user/relationship/required");
+      setMypageChildList(res.data.resultData);
+      console.log(res.data.resultData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    myChildList();
+  }, []);
+
   return (
     <div className="flex gap-5 w-full justify-center align-top">
       <SideBar menuItems={menuItems} />
@@ -59,6 +76,10 @@ function MypageChild() {
               요청상태
             </div>
           </div>
+
+          {myypageChildList.map((item, index) => (
+            <div key={index}>{item.name}</div>
+          ))}
 
           <div className="loop-content flex justify-between align-middle p-4 border-b">
             <div className="flex justify-start items-center w-full">

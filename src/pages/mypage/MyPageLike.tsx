@@ -97,6 +97,10 @@ function MyPageLike() {
     }
   };
 
+  useEffect(() => {
+    fetchData(1);
+  }, []);
+
   return (
     <div className="flex gap-5 w-full justify-center align-top">
       <SideBar menuItems={menuItems} />
@@ -112,6 +116,12 @@ function MyPageLike() {
               삭제하기
             </div>
           </div>
+
+          {likeList?.length === 0 && (
+            <div className="p-4 border-b text-center">
+              등록된 좋아요 학원이 없습니다.
+            </div>
+          )}
 
           {likeList.map((item: any, index: number) => (
             <div

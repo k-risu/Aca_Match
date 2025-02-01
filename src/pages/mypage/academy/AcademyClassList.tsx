@@ -108,18 +108,20 @@ function AcademyClassList() {
             >
               <div className="flex justify-start items-center w-full">
                 <div
-                  className="flex items-center gap-3 cursor-pointer"
+                  className="flex items-center gap-4 cursor-pointer"
                   onClick={() =>
                     navigate(
                       `/mypage/academy/student?acaId=${acaId}classId=${item.classId}`,
                     )
                   }
                 >
-                  <img
-                    src={`/pic/user/${item.classId}/${item.acaPic}`}
-                    alt=""
-                  />
-                  {item.acaPic}
+                  <div className="flex justify-center items-center w-14 h-14 rounded-xl overflow-hidden">
+                    <img
+                      src={`http://112.222.157.156:5223/pic/academy/${acaId}/${item.acaPic}`}
+                      alt=""
+                      className="max-w-fit max-h-full object-cover"
+                    />
+                  </div>
                   {item.className}
                 </div>
               </div>
