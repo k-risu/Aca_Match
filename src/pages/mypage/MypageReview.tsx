@@ -46,7 +46,6 @@ function MypageReview() {
 
   const fetchData = async (page: number) => {
     try {
-      //좋아요 목록 호출
       const res = await jwtApiRequest.get(
         `/api/review/user?userId=${currentUserInfo.userId}&page=${page}`,
         {
@@ -55,6 +54,7 @@ function MypageReview() {
           },
         },
       );
+      console.log(res);
 
       if (res.data.resultData.length > 0) {
         console.log(res.data.resultData);
