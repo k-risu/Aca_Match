@@ -12,6 +12,7 @@ interface LikeButtonProps {
   initialIsLiked: boolean;
   onLikeChange?: (isLiked: boolean) => void;
   setLikeCount?: Dispatch<SetStateAction<number>>;
+  isMyLike?: boolean;
 }
 /**
  * 학원 좋아요 버튼 컴포넌트
@@ -25,6 +26,7 @@ const LikeButton = ({
   initialIsLiked,
   onLikeChange,
   setLikeCount,
+  isMyLike,
 }: LikeButtonProps) => {
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [isLoading, setIsLoading] = useState(false);
@@ -94,7 +96,9 @@ const LikeButton = ({
       }
 
       // 상태 업데이트
-      setIsLiked(prev => !prev);
+      if (!isMyLike) {
+        setIsLiked(prev => !prev);
+      }
 
       // 부모 컴포넌트에 변경 알림
       if (onLikeChange) {
