@@ -115,7 +115,8 @@ function AcademyRecord() {
             </button>
           </div>
         </h1>
-        <div className="w-full gap-0 border border-b-0 rounded-lg overflow-hidden">
+
+        <div className="board-wrap">
           <div className="flex justify-between align-middle p-4 border-b">
             <div className="flex items-center justify-center w-full">
               수강생 명

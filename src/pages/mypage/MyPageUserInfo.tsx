@@ -130,9 +130,11 @@ function MyPageUserInfo() {
     case 2: //학부모
       menuItems = [
         { label: "회원정보 관리", isActive: true, link: "/mypage/user" },
-        { label: "학원정보 관리", isActive: false, link: "/mypage" },
-        { label: "리뷰 목록", isActive: false, link: "/mypage/review" },
-        { label: "학생 관리", isActive: false, link: "/mypage/child" },
+        { label: "자녀 관리", isActive: false, link: "/mypage/child" },
+        { label: "자녀 학원정보", isActive: false, link: "/mypage" },
+        { label: "자녀 성적확인", isActive: false, link: "/mypage/record" },
+        { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
+        { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
       ];
       break;
     default: //일반학생

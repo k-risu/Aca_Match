@@ -81,8 +81,6 @@ function MyPageLike() {
       console.log(error);
     }
   };
-
-  useEffect(() => {
     fetchData(1); // Fetch data when the component mounts
   }, [likeList]);
 

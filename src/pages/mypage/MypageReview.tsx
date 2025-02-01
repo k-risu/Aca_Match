@@ -100,18 +100,15 @@ function MypageReview() {
                   <div className="w-10 h-10 rounded-full overflow-hidden">
                     <img
                       src={
-                        item.userPic
-                          ? `http://112.222.157.156:5223/pic/user/${item.userId}/${item.userPic}`
+                        item.writerPic
+                          ? `http://112.222.157.156:5223/pic/user/${item.userId}/${item.writerPic}`
                           : "/aca_image_1.png"
                       }
                       alt=" /"
                     />
                   </div>
                   <div>
-                    <div className="text-sm font-medium">
-                      <p>userId, 회원이름 또는 닉네임 필요</p>
-                      {item.acaName}
-                    </div>
+                    <div className="text-sm font-medium">{item.writerName}</div>
                     <div className="text-sm text-gray-500">
                       {item.createdAt}
                     </div>
@@ -129,7 +126,7 @@ function MypageReview() {
                   className="text-lg font-bold"
                   onClick={() => navigate(`/academy/detail?id=${item.acaId}`)}
                 >
-                  {item.acaName}
+                  {item.className}
                 </div>
                 <div className="text-sm text-gray-500">{item.comment}</div>
               </div>

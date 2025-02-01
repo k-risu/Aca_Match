@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Button, Pagination, Radio, RadioChangeEvent } from "antd";
+import { Button, Pagination, Radio } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaPlusCircle } from "react-icons/fa";
@@ -10,6 +10,7 @@ import CustomModal from "../../../components/modal/Modal";
 import SideBar from "../../../components/SideBar";
 
 import { Form, Input } from "antd";
+import { getCookie } from "../../../utils/cookie";
 
 function AcademyTestList() {
   const [form] = Form.useForm();
@@ -17,6 +18,8 @@ function AcademyTestList() {
   const [myAcademyTestList, setMyAcademyTestList] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isModal2Visible, setIsModal2Visible] = useState(false);
+  const [resultMessage, setResultMessage] = useState("");
+  const [academyInfo, setAcademyInfo] = useState("");
   const [radioValue, setRadioValue] = useState(1);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -44,12 +47,13 @@ function AcademyTestList() {
 
   const TestList = styled.div`
     button {
-      display: none;
+      display: none !important;
     }
     .addOk button,
     .title-font button,
+    .small_line_button,
     .ant-form-item-control-input button {
-      display: flex;
+      display: flex !important;
     }
   `;
   const AddTest = styled.div`
@@ -101,18 +105,34 @@ function AcademyTestList() {
     subjectName: "",
   };
 
+  //학원정보 가져오기
+  const academyGetInfo = async () => {
+    try {
+      const res = await axios.get(`/api/academy/academyDetail/${acaId}`);
+      setAcademyInfo(res.data.resultData.acaName);
+      //console.log(res.data.resultData.acaName);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   //전송하기
   const onFinished = async values => {
     values.classId = parseInt(classId);
-    //console.log(values);
     const res = await axios.post("/api/subject", values);
+    //console.log(res.data);
     if (res.data.resultData === 1) {
       form.resetFields(); //초기화
       setIsModal2Visible(true);
       setIsModalVisible(false);
     }
+    if (res.data.resultData === 0) {
+      setIsModal2Visible(true);
+    }
+    setResultMessage(res.data.resultMessage); //결과 메시지
   };
 
+  //과목별 등록된 테스트 목록 가져오기
   const academyTestList = async () => {
     try {
       const res = await axios.get(
@@ -126,6 +146,10 @@ function AcademyTestList() {
   };
 
   useEffect(() => {
+    academyGetInfo();
+  }, []);
+
+  useEffect(() => {
     academyTestList();
   }, []);
 
@@ -135,7 +159,7 @@ function AcademyTestList() {
 
       <TestList className="w-full">
         <h1 className="title-font flex justify-between align-middle">
-          "학원명 &gt; 강좌명"의 테스트 목록
+          {academyInfo} &gt; "강좌명"의 테스트 목록
           <button
             className="flex items-center gap-1 mr-5 text-sm font-normal"
             onClick={() => setIsModalVisible(true)}
@@ -154,7 +178,9 @@ function AcademyTestList() {
             <div className="flex items-center justify-center w-60">
               처리상태
             </div>
-            <div className="flex items-center justify-center w-40">삭제</div>
+            <div className="flex items-center justify-center w-40">
+              채점하기
+            </div>
           </div>
 
           {myAcademyTestList === null && (
@@ -175,25 +201,37 @@ function AcademyTestList() {
                     navigate(`/mypage/academy/record?id=${item.acaId}`)
                   }
                 >
-                  <img src="/aca_image_1.png" alt="" />
+                  <div className="flex justify-center align-middle w-14 h-14 rounded-xl overflow-hidden">
+                    <img
+                      src={
+                        item.acaPic
+                          ? `http://112.222.157.156:5223/pic/academy/${acaId}/${item.acaPic}`
+                          : "/aca_image_1.png"
+                      }
+                      className="max-w-fit max-h-full object-cover"
+                      alt=""
+                    />
+                  </div>
                   <div>
-                    <h4 className="font-bold">1월 학원 모의고사</h4>
-                    <p className="text-sm text-gray-500">[채점방식 : 점수]</p>
+                    <h4 className="font-bold">{item.subjectName}</h4>
+                    {/* <p className="text-sm text-gray-500">[채점방식 : 점수]</p> */}
                   </div>
                 </div>
               </div>
               <div className="flex items-center justify-center w-60">
-                2025-01-01
+                {item.examDate}
               </div>
               <div className="flex items-center justify-center w-60">
-                채점 전/완료
+                {item.processingStatus === 0 ? "채점 전" : "채점 완료"}
               </div>
               <div className="flex items-center justify-center w-40">
                 <button
                   className="small_line_button"
-                  onClick={() => navigate("/mypage/academy/testList")}
+                  onClick={() =>
+                    navigate(`/mypage/academy/record?id=${item.acaId}`)
+                  }
                 >
-                  삭제하기
+                  채점하기
                 </button>
               </div>
             </div>
@@ -250,12 +288,12 @@ function AcademyTestList() {
                   >
                     <Input
                       className="input w-full h-14 border rounded-xl"
-                      placeholder="시험 제목"
+                      placeholder="시험 제목을 입력해 주세요."
                     />
                   </Form.Item>
                 </div>
 
-                <div className="flex w-full gap-1 justify-between">
+                <div className="flex w-full gap-3 justify-between">
                   <Form.Item>
                     <Button
                       className="w-full h-14 bg-[#E8EEF3] text-sm"
@@ -289,7 +327,7 @@ function AcademyTestList() {
           title={"시험 등록 완료"}
           content={
             <div className="addOk">
-              시험 등록이 완료되었습니다.
+              {resultMessage}
               <button
                 type="button"
                 onClick={() => setIsModal2Visible(false)}
