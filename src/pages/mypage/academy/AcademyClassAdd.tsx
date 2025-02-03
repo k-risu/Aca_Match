@@ -315,7 +315,7 @@ function AcademyClassAdd() {
               <Form.Item>
                 <Button
                   htmlType="submit"
-                  className="w-full h-14 bg-[#E8EEF3] font-bold text-sm"
+                  className="w-full h-14 mt-5 mb-10 bg-[#E8EEF3] font-bold text-sm"
                 >
                   강좌 등록
                 </Button>

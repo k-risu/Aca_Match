@@ -1,8 +1,7 @@
 import { Pagination } from "antd";
 import { useEffect, useState } from "react";
-import { FaStar } from "react-icons/fa";
+import { GoStar, GoStarFill } from "react-icons/go";
 import SideBar from "../../../components/SideBar";
-import { getCookie } from "../../../utils/cookie";
 import { useRecoilValue } from "recoil";
 import userInfo from "../../../atoms/userInfo";
 //import { useSearchParams } from "react-router-dom";
@@ -15,11 +14,8 @@ function AcademyReview() {
   const [resultMessage, setResultMessage] = useState("");
   const [reviewId, setReviewId] = useState();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  //const [searchParams, setSearchParams] = useSearchParams();
   const currentUserInfo = useRecoilValue(userInfo);
-  const accessToken = getCookie("accessToken");
   //const acaId = searchParams.get("acaId");
-  console.log(accessToken);
 
   let menuItems = [];
   switch (currentUserInfo.roleId) {
@@ -81,21 +77,19 @@ function AcademyReview() {
   const getTagList = async () => {
     try {
       const res = await jwtAxios.get(
-        `/api/review/my-academy?userId=1&page=1&size=20`,
+        `/api/review/my-academy?userId=${currentUserInfo.userId}&page=1&size=30`,
       );
       setAcademyReviewList(res.data.resultData);
-      console.log(res.data.resultData);
+      //console.log(res.data.resultData);
     } catch (error) {
       console.log(error);
     }
   };
 
   //리뷰 삭제하기
-  const deleteReviewCheck = idx => {
-    //alert(idx);
-    setReviewId(idx);
+  const deleteReviewCheck = (acaId, classId) => {
     setResultMessage(
-      `리뷰(${idx})를 삭제하시면 복구할 수 없습니다. 해당 리뷰를 삭제하시겠습니까?`,
+      `리뷰(${acaId})를 삭제하시면 복구할 수 없습니다. 해당 리뷰를 삭제하시겠습니까?`,
     );
     setIsModalVisible(true);
   };
@@ -110,12 +104,6 @@ function AcademyReview() {
 
       <div className="w-full">
         <h1 className="title-font">학원리뷰 목록</h1>
-
-        <p className="mb-3">
-          /api/review/my-academy : 작성자 프사, 아이디 정보가 맞지 않음,
-          수업(아카데미) 정보가 null로 돌아옴, 삭제하는데 필요한 정보 부족(리뷰
-          pk, acaId만으로 삭제해도 될 것 같은데)
-        </p>
 
         <div className="board-wrap">
           <div className="flex justify-between align-middle p-4 pl-6 pr-6 border-b">
@@ -152,12 +140,9 @@ function AcademyReview() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 mt-4 mb-3">
-                  {Array.from({ length: 5 }, (_, index) => (
-                    <FaStar
-                      key={index}
-                      className={`${index < item.star ? "text-blue-500" : "text-black-500"}`}
-                    />
-                  ))}
+                  {Array.from({ length: 5 }, (_, index) =>
+                    index < item.star ? <GoStarFill /> : <GoStar />,
+                  )}
                 </div>
                 <div className="text-lg font-bold">
                   {item.className ? item.className : "학원 정보가 없습니다."}
@@ -167,7 +152,7 @@ function AcademyReview() {
               <div className="flex items-center justify-center w-40">
                 <button
                   className="small_line_button"
-                  onClick={() => deleteReviewCheck(item.classId)}
+                  onClick={() => deleteReviewCheck(item.acaId, item.classId)}
                 >
                   삭제하기
                 </button>

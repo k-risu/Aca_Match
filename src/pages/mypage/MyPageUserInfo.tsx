@@ -123,7 +123,11 @@ function MyPageUserInfo() {
       menuItems = [
         { label: "회원정보 관리", isActive: true, link: "/mypage/user" },
         { label: "학원정보 관리", isActive: false, link: "/mypage" },
-        { label: "리뷰 목록", isActive: false, link: "/mypage/academy/review" },
+        {
+          label: "학원리뷰 목록",
+          isActive: false,
+          link: "/mypage/academy/review",
+        },
         { label: "좋아요 목록", isActive: false, link: "/mypage/academy/like" },
       ];
       break;
@@ -154,7 +158,7 @@ function MyPageUserInfo() {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setEditMember(res.data.resultData);
-      console.log("res.data.resultData : ", res.data.resultData);
+      //console.log("res.data.resultData : ", res.data.resultData);
 
       // 데이터를 받아온 즉시 form 값 설정
       form.setFieldsValue({
@@ -179,10 +183,7 @@ function MyPageUserInfo() {
     return Promise.resolve();
   };
 
-  console.log("editMember : ", editMember);
-
   const { email, name, nickName, phone, birth, userPic } = editMember;
-  console.log(email, name, nickName, phone, birth, userPic);
 
   useEffect(() => {
     memberInfo();
@@ -236,31 +237,9 @@ function MyPageUserInfo() {
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
-  // const [fileList, setFileList] = useState<UploadFile[]>(() => {
-  // userPic이 존재하고 유효한 값인 경우에만 fileList 생성
-  //   console.log("editMember.userPic : ", editMember.userPic);
-  //   if (
-  //     editMember.userPic &&
-  //     editMember.userPic !== "null" &&
-  //     editMember.userPic !== ""
-  //   ) {
-  //     return [
-  //       {
-  //         uid: "1",
-  //         name: editMember.userPic,
-  //         status: "done",
-  //         url: `http://112.222.157.156:5223/pic/user/${editMember.userId}/${editMember.userPic}`,
-  //       },
-  //     ];
-  //   }
-  //   // 이미지가 없는 경우 빈 배열 반환
-  //   return [];
-  // });
-
-  // const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) =>
-  //   setFileList(newFileList);
   const handleChange = (info: UploadChangeParam<UploadFile>) => {
     let newFileList = [...info.fileList];
 
@@ -290,7 +269,7 @@ function MyPageUserInfo() {
   const onFinished = async (values: any) => {
     if (nickNameCheck === 2) {
       setIsModalVisible(true);
-      console.log("닉네임 확인이 필요합니다.");
+      //console.log("닉네임 확인이 필요합니다.");
       return;
     }
 
@@ -314,24 +293,9 @@ function MyPageUserInfo() {
       );
 
       // pic이 있는 경우에만 추가
-      console.log("작동중 : ", values.pic);
       if (values.pic) {
         formData.append("pic", values.pic);
       }
-
-      console.log("=== FormData 내용 확인 ===");
-      for (const pair of formData.entries()) {
-        if (pair[0] === "pic") {
-          console.log("pic 파일:", {
-            name: pair[1].name,
-            type: pair[1].type,
-            size: pair[1].size,
-          });
-        } else {
-          console.log(`${pair[0]}:`, pair[1]);
-        }
-      }
-      console.log("========================");
 
       const response = await jwtAxios.put("/api/user", formData, {
         headers: {
@@ -349,6 +313,7 @@ function MyPageUserInfo() {
       message.error("회원정보 수정에 실패했습니다.");
     }
   };
+
   //닉네임 중복확인
   const sameCheck = async (nickName: string) => {
     if (!nickName) {
@@ -376,9 +341,22 @@ function MyPageUserInfo() {
     }
   };
 
-  if (!editMember) {
-    return <div>Loading...</div>; // 데이터가 없으면 로딩 화면 표시
-  }
+  //휴대폰 번호 구분기호 자동입력
+  const handlePhoneNumber = e => {
+    const value = e.target.value.replace(/\D/g, ""); // 숫자만 남기기
+
+    if (value.length <= 3) {
+      form.setFieldsValue({ phone: value.replace(/(\d{1,3})/, "$1") }); //첫 3자리
+    } else if (value.length <= 7) {
+      form.setFieldsValue({
+        phone: value.replace(/(\d{3})(\d{1,4})/, "$1-$2"),
+      }); //4~7자리
+    } else {
+      form.setFieldsValue({
+        phone: value.replace(/(\d{3})(\d{4})(\d{1,4})/, "$1-$2-$3"),
+      }); //8자리 이상
+    }
+  };
 
   return (
     <MemberInfo className="flex gap-5 w-full justify-center align-top">
@@ -499,7 +477,9 @@ function MyPageUserInfo() {
               <Input
                 className="input"
                 id="phone"
+                value={phoneNumber}
                 maxLength={13}
+                onChange={e => handlePhoneNumber(e)}
                 placeholder="휴대폰 번호를 입력해 주세요."
               />
             </Form.Item>

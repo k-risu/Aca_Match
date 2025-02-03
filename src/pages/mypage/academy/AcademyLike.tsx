@@ -4,13 +4,11 @@ import userInfo from "../../../atoms/userInfo";
 import SideBar from "../../../components/SideBar";
 import { Pagination } from "antd";
 import jwtAxios from "../../../apis/jwt";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function AcademyLike() {
   const [academyLikeList, setAcademyLikeList] = useState([]);
   const currentUserInfo = useRecoilValue(userInfo);
-  //const accessToken = getCookie("accessToken");
-  console.log(currentUserInfo);
 
   let menuItems = [];
   switch (currentUserInfo.roleId) {
@@ -54,9 +52,7 @@ function AcademyLike() {
   //학원 좋아요 전체목록 가져오기
   const getLikeList = async () => {
     try {
-      const res = await jwtAxios.get(
-        `/api/like/list?acaId=2025&page=1&size=20`,
-      );
+      const res = await jwtAxios.get(`/api/like/list?acaId=%&page=1&size=20`);
       setAcademyLikeList(res.data.resultData);
       console.log(res.data.resultData);
     } catch (error) {

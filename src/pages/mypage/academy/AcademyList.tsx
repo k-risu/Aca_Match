@@ -30,21 +30,17 @@ function AcademyList() {
     { label: "좋아요 목록", isActive: false, link: "/mypage/academy/like" },
   ];
 
+  //학원 목록
   const academyList = async () => {
     try {
       const res = await axios.get(
         `/api/academy/getAcademyListByUserId?signedUserId=${currentUserInfo.userId}`,
       );
       setMyAcademyList(res.data.resultData);
-      console.log(res.data.resultData);
+      //console.log(res.data.resultData);
     } catch (error) {
       console.log(error);
     }
-  };
-
-  //학원 상세보기 이동
-  const detailAcademy = (acaId: number) => {
-    navigate(`/academy/detail?id=${acaId}`);
   };
 
   useEffect(() => {
