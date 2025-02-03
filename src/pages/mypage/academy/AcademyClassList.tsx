@@ -99,7 +99,11 @@ function AcademyClassList() {
             </div>
           </div>
 
-          {classList?.length === 0 && "<div>aaa</div>"}
+          {classList === null && (
+            <div className="text-center p-4 border-b">
+              등록된 강좌가 없습니다.
+            </div>
+          )}
 
           {classList?.map((item: never, index: number) => (
             <div

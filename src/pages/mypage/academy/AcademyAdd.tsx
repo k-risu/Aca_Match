@@ -4,6 +4,7 @@ import {
   Form,
   Image,
   Input,
+  message,
   TimePicker,
   Upload,
   UploadFile,
@@ -19,6 +20,7 @@ import userInfo from "../../../atoms/userInfo";
 import { useRecoilValue } from "recoil";
 import dayjs from "dayjs";
 import CustomModal from "../../../components/modal/Modal";
+import { useNavigate } from "react-router-dom";
 
 const AcademyInfo = styled.div`
   .ant-form-item-label {
@@ -145,14 +147,30 @@ function AcademyAdd() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [tagList, setTagList] = useState([]); //태그목록
   const [tagKeyword, setTagKeyword] = useState(""); //태그검색 키워드
-  const [selectedTag, setSelectedTag] = useState([]); //선택한 태그값
-
+  const [tagList, setTagList] = useState([]); //태그목록(전체/검색결과)
+  const [selectedItems, setSelectedItems] = useState([]); //선택한 태그값
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const currentUserInfo = useRecoilValue(userInfo);
-  //console.log(currentUserInfo);
+  const navigate = useNavigate();
+
+  // 체크박스 클릭 시 선택/해제 처리
+  const handleCheckbox2Change = value => {
+    setSelectedItems(
+      prevSelectedItems =>
+        prevSelectedItems.includes(value)
+          ? prevSelectedItems.filter(item => item !== value) // 이미 선택된 항목이면 제거
+          : [...prevSelectedItems, value], // 선택되지 않은 항목이면 추가
+    );
+  };
+
+  // 선택한 항목 제거
+  const handleRemoveItem = value => {
+    setSelectedItems(prevSelectedItems =>
+      prevSelectedItems.filter(item => item !== value),
+    );
+  };
 
   const handleAddressSearch = () => {
     new window.daum.Postcode({
@@ -201,82 +219,56 @@ function AcademyAdd() {
     tagSearch();
   };
 
-  //선택한 태그값 전달
-  const handleCheckboxChange = (e, item) => {
-    if (e.target.checked) {
-      setSelectedTag(prev => [...prev, item]);
-    } else {
-      setSelectedTag(prev => prev.filter(i => i !== item));
-    }
-  };
-
-  //선택한 태그값 삭제
-  const handleDeleteItem = item => {
-    setSelectedTag(prev => prev.filter(i => i !== item));
-  };
-
   //input 값 변경 처리
   const handleChangeTag = e => {
     setTagKeyword(e.target.value);
   };
 
-  const tagAllList = tagList.map((item, index) => {
-    const isSelected = selectedTag.includes(item);
-    //const isRemoved = removedItems.includes(item);
-
+  const tagAllListNew = tagList.map(item => {
     return (
-      <li key={index}>
+      <div key={item.tagId}>
         <input
           type="checkbox"
-          name="tag"
-          value={item.tagId}
-          id={`tag_${item.tagId}`}
-          onChange={e => handleCheckboxChange(e, item.tagId)}
-          disabled={selectedTag.some(selected => selected.id === item.tagId)}
+          id={`checkbox-${item.tagId}`}
+          checked={selectedItems.includes(item.tagId)}
+          onChange={() => handleCheckbox2Change(item.tagId)}
         />
-        <label htmlFor={`tag_${item.tagId}`}>{item.tagName}</label>
-      </li>
+        <label htmlFor={`checkbox-${item.tagId}`}>{item.tagName}</label>
+      </div>
     );
   });
 
-  const initialValues = {
-    acaName: "",
-    acaPhone: "",
-    openTime: dayjs("10:00", "HH:mm"),
-    closeTime: dayjs("20:00", "HH:mm"),
-    teacherNum: "",
-    postNum: "",
-    address: "",
-    detailAddress: "",
-    tagIdList: "",
-    pic: "",
-    userId: 2,
-    dongId: 0,
-    comment: "",
-  };
+  //첨부파일 처리
+  const handleChange = (info: UploadChangeParam<UploadFile>) => {
+    let newFileList = [...info.fileList];
 
-  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
+    // maxCount로 인해 하나의 파일만 유지
+    newFileList = newFileList.slice(-1);
+
+    // 파일 상태 업데이트
     setFileList(newFileList);
-    //console.log(newFileList);
+
+    // 선택된 파일이 있으면 콘솔에 출력
+    if (info.file.status === "done" && info.file.originFileObj) {
+      console.log("파일 선택됨:", info.file.originFileObj);
+      form.setFieldValue("pic", info.file.originFileObj);
+    }
   };
 
   const onFinished = async values => {
     try {
-      console.log(values);
-      console.log(fileList[0]);
       const startTimes = dayjs(values.openTime.$d).format("HH:mm");
       const endTimes = dayjs(values.closeTime.$d).format("HH:mm");
 
       const formData = new FormData();
 
-      if (fileList[0]) {
-        formData.append("pic", fileList[0]); // 파일일 경우
-      } else {
-        formData.append("pic", null); // 파일이 없을 경우
+      // pic이 있는 경우에만 추가
+      if (values.pic) {
+        formData.append("pic", values.pic);
       }
 
       const reqData = {
-        userId: values.userId,
+        userId: currentUserInfo.userId,
         dongId: 3,
         acaName: values.acaName,
         acaPhone: values.acaPhone,
@@ -289,7 +281,8 @@ function AcademyAdd() {
           detailAddress: values.detailAddress,
           postNum: values.postNum,
         },
-        tagIdList: [1, 3],
+        tagIdList: selectedItems.map(item => parseInt(item, 10)),
+        //tagIdList: [1, 3],
       };
 
       //JSON 형태로 데이터를 만들어 formData에 추가
@@ -305,7 +298,12 @@ function AcademyAdd() {
       };
 
       const res = await axios.post("/api/academy", formData, header);
-      console.log(res.data.resultData);
+      //console.log(res.data.resultData);
+      if (res.data.resultData === 1) {
+        navigate("/mypage/academy");
+        message.error("학원등록이 완료되었습니다.");
+        return;
+      }
     } catch (error) {
       console.log(error);
     }
@@ -339,19 +337,7 @@ function AcademyAdd() {
             학원 등록
           </h1>
           <div className="w-3/4">
-            <Form
-              form={form}
-              onFinish={values => onFinished(values)}
-              initialValues={initialValues}
-            >
-              <Form.Item
-                name="userId"
-                label="아이디"
-                rules={[{ required: true, message: "아이디를 입력해 주세요." }]}
-              >
-                <Input type="text" className="input" value="2" />
-              </Form.Item>
-
+            <Form form={form} onFinish={values => onFinished(values)}>
               <Form.Item
                 name="acaName"
                 label="학원 이름"
@@ -507,29 +493,33 @@ function AcademyAdd() {
                 </Form.Item>
               </div>
 
-              {selectedTag && (
-                <div className="w-full">
-                  <ul className="flex flex-wrap gap-2">
-                    {selectedTag.map(item => (
-                      <li key={item}>
-                        {item}{" "}
-                        <button onClick={() => handleDeleteItem(item)}>
-                          &times;
-                        </button>
-                      </li>
-                    ))}
+              {selectedItems && (
+                <div className="w-full pl-32 pb-6">
+                  <ul className="flex flex-wrap gap-5">
+                    {selectedItems.map(value => {
+                      const selectedTags = tagList.find(
+                        option => option.tagId === value,
+                      );
+                      return (
+                        <li
+                          key={value}
+                          className="flex justify-center items-center"
+                        >
+                          {selectedTags.tagName}
+                          <button
+                            onClick={() => handleRemoveItem(value)}
+                            className="size-5 ml-2 border border-gray-300 rounded-full text-xs"
+                          >
+                            &times;
+                          </button>
+                        </li>
+                      );
+                    })}
                   </ul>
-
-                  <input
-                    type="hidden"
-                    name="tagIdList"
-                    value={selectedTag.join(", ")}
-                    id="hiddenItems"
-                  />
                 </div>
               )}
 
-              <Form.Item name="pic" label="프로필 이미지">
+              <Form.Item name="pic" label="학원 이미지">
                 <div>
                   <Upload
                     listType="picture-card"
@@ -582,7 +572,7 @@ function AcademyAdd() {
                   type="text"
                   name="tagSearch"
                   value={tagKeyword}
-                  placeholder="태그를 입력해 주세요."
+                  placeholder="태그를 선택해 주세요."
                   className="w-full h-14 pl-3 border rounded-xl text-sm"
                   onChange={handleChangeTag}
                 />
@@ -595,8 +585,8 @@ function AcademyAdd() {
               </div>
 
               <ul className="flex w-full flex-wrap gap-2 overflow-y-auto max-h-32">
-                {tagAllList.length > 0 ? (
-                  tagAllList
+                {tagAllListNew.length > 0 ? (
+                  tagAllListNew
                 ) : (
                   <li className="w-full text-center">검색 결과가 없습니다.</li>
                 )}

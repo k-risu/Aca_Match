@@ -29,6 +29,7 @@ const getRandomUniqueNumber = () => {
 function MyPageLike() {
   const [likeList, setLikeList] = useState<any[]>([]); // 좋아요 목록
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [resultMessage, setResultMessage] = useState("");
   const currentUserInfo = useRecoilValue(userInfo);
   const accessToken = getCookie("accessToken");
   const navigate = useNavigate();
@@ -81,12 +82,22 @@ function MyPageLike() {
       console.log(error);
     }
   };
+  /*
     fetchData(1); // Fetch data when the component mounts
   }, [likeList]);
 
   const showDeleteModal = () => {
     setIsModalVisible(true);
   };
+  */
+
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      setResultMessage("회원 로그인이 필요합니다."); //결과 메시지
+      setIsModalVisible(true);
+      //navigate("/login");
+    }
+  }, []);
 
   let menuItems = [];
   switch (currentUserInfo.roleId) {
@@ -124,7 +135,8 @@ function MyPageLike() {
 
       <div className="w-full">
         <h1 className="title-font">나의 좋아요 목록</h1>
-        <div className="w-full border border-b-0 rounded-lg overflow-hidden">
+
+        <div className="board-wrap">
           <div className="flex justify-between align-middle p-4 border-b">
             <div className="flex items-center justify-center w-full">
               학원명
@@ -133,6 +145,12 @@ function MyPageLike() {
               삭제하기
             </div>
           </div>
+
+          {likeList.length === 0 && (
+            <div className="text-center p-4 border-b">
+              좋아요 내역이 없습니다.
+            </div>
+          )}
 
           {likeList.map((item, index) => (
             <div
