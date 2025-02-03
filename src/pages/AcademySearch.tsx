@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { Checkbox, Dropdown, Form, Input, Menu, Pagination } from "antd";
 import { useEffect, useState } from "react";
 import { SlArrowDown } from "react-icons/sl";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import MainButton from "../components/button/MainButton";
 import LocationModal from "../components/modal/LocationModal";
 import axios from "axios";
@@ -14,7 +14,6 @@ interface FilterOption {
 }
 
 interface FilterSection {
-  id: string;
   title: string;
   options: FilterOption[];
 }
@@ -117,6 +116,8 @@ const AcademySearch = () => {
   // const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
 
+  const { search } = useLocation();
+
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const [selectedLocation, setSelectedLocation] = useState<number | null>(-1);
@@ -126,11 +127,25 @@ const AcademySearch = () => {
 
   const [searchInput, setSearchInput] = useState<string>("");
 
+  // const handleLocationSelect = (location: number, locationText: string) => {
+  //   setSelectedLocation(location); // 지역 선택
+  //   setIsModalVisible(false); // 모달 닫기
+  //   setSelectedLocationText(locationText);
+  //   console.log(location);
+  // };
+
   const handleLocationSelect = (location: number, locationText: string) => {
     setSelectedLocation(location); // 지역 선택
     setIsModalVisible(false); // 모달 닫기
     setSelectedLocationText(locationText);
-    console.log(location);
+
+    // URL에 location 파라미터 추가
+    const params = new URLSearchParams(search);
+    params.set("location", String(location)); // location 값 설정
+    navigate({
+      pathname: window.location.pathname,
+      search: params.toString(),
+    });
   };
   const academyData: AcademyData[] = [
     {
@@ -251,22 +266,22 @@ const AcademySearch = () => {
       id: "age",
       title: "수강 연령",
       options: [
-        { label: "성인", value: "adult" },
-        { label: "청소년", value: "teenager" },
-        { label: "초등학생", value: "elementary" },
-        { label: "유아", value: "child" },
-        { label: "기타", value: "etc" },
+        { label: "성인", value: "1" }, // id 추가
+        { label: "청소년", value: "2" },
+        { label: "초등학생", value: "3" },
+        { label: "유아", value: "4" },
+        { label: "기타", value: "5" },
       ],
     },
     {
       id: "level",
       title: "수준",
       options: [
-        { label: "전문가", value: "expert" },
-        { label: "상급", value: "advanced" },
-        { label: "중급", value: "intermediate" },
-        { label: "초급", value: "beginner" },
-        { label: "입문자", value: "novice" },
+        { label: "전문가", value: "6" },
+        { label: "상급", value: "7" },
+        { label: "중급", value: "8" },
+        { label: "초급", value: "9" },
+        { label: "입문자", value: "10" },
       ],
     },
   ];
@@ -290,33 +305,60 @@ const AcademySearch = () => {
   });
 
   // 개별 필터 값 변경 핸들러
+  // const handleFilterChange = (
+  //   sectionId: string,
+  //   id: string,
+  //   checked: boolean,
+  // ) => {
+  //   setSelectedFilters(prev => {
+  //     const currentValues = prev[sectionId] || [];
+  //     // 체크된 값일 경우 기존 배열에 추가
+  //     if (checked && !currentValues.includes(id)) {
+  //       return {
+  //         ...prev,
+  //         [sectionId]: [...currentValues, id],
+  //       };
+  //     }
+  //     // 체크 해제된 값일 경우 해당 값 제거
+  //     else if (!checked) {
+  //       return {
+  //         ...prev,
+  //         [sectionId]: currentValues.filter(item => item !== id),
+  //       };
+  //     }
+  //     return prev; // 이미 추가된 값은 그대로 두기
+  //   });
+  // };
   const handleFilterChange = (
     sectionId: string,
-    value: string,
+    id: string,
     checked: boolean,
   ) => {
     setSelectedFilters(prev => {
       const currentValues = prev[sectionId] || [];
-      if (checked) {
-        return {
-          ...prev,
-          [sectionId]: [...currentValues, value],
-        };
+      if (checked && !currentValues.includes(id)) {
+        currentValues.push(id);
       } else {
-        return {
-          ...prev,
-          [sectionId]: currentValues.filter(v => v !== value),
-        };
+        const index = currentValues.indexOf(id);
+        if (index > -1) {
+          currentValues.splice(index, 1);
+        }
       }
+
+      // URL 쿼리 스트링 업데이트
+      const params = new URLSearchParams(search);
+      params.set(sectionId, currentValues.join(","));
+      navigate({
+        pathname: window.location.pathname,
+        search: params.toString(),
+      });
+
+      return {
+        ...prev,
+        [sectionId]: currentValues,
+      };
     });
-    // console.log(selectedFilters);
   };
-  // useEffect(() => {
-  //   try {
-  //     const res = axios.post("/api/academy/getAcademyListByAll");
-  //   } catch (error) {}
-  //   console.log("Updated filters:", selectedFilters);
-  // }, [selectedFilters]); // selectedFilters가 변경될 때마다 실행
 
   const SearchInput = styled(Input.Search)`
     .ant-input {
@@ -340,30 +382,78 @@ const AcademySearch = () => {
     setSearchInput(e.target.value);
   };
 
-  const fetchData = async (page: number) => {
-    const params = {
-      dongId: selectedLocation || -1, // 선택된 지역
-      searchName: searchInput, // 검색어
-      tagId: 1, // 태그 ID, 필요시 수정
-      categoryIds: selectedFilters.age.concat(selectedFilters.level), // 연령대 및 수준 필터
-      page: page, // 페이지 번호
-      size: 10, // 페이지 크기
-    };
+  // const fetchData = async (page: number) => {
+  //   const params = new URLSearchParams();
 
+  //   // 페이지 번호와 크기
+  //   params.append("page", String(page));
+  //   params.append("size", "10");
+
+  //   // 선택된 필터 값들 (id 값으로 업데이트된 selectedFilters 사용)
+  //   const categoryIds = [...selectedFilters.age, ...selectedFilters.level];
+
+  //   // categoryIds 배열에 값이 있을 경우, 'categoryIds' 파라미터를 반복해서 추가
+  //   categoryIds.forEach(id => {
+  //     params.append("categoryIds", id); // 동일한 'categoryIds' 파라미터를 여러 번 추가
+  //   });
+
+  //   // URLSearchParams는 문자열 형태로 반환되므로, 그 값을 쿼리 파라미터로 전달
+  //   try {
+  //     const response = await axios.get("/api/academy/getAcademyListByAll", {
+  //       params: params, // URLSearchParams를 params로 전달
+  //     });
+  //     console.log(response.data); // 응답 데이터 확인
+  //     setTotalItems(response.data.totalItems); // 총 아이템 수 설정
+  //   } catch (error) {
+  //     console.error("API 요청 실패:", error);
+  //   }
+  // };
+
+  const fetchData = async (page: number) => {
+    const params = new URLSearchParams(search);
+
+    // 페이지 번호와 크기
+    params.set("page", String(page));
+    params.set("size", "10");
+
+    // 필터 값 추가
+    for (const [key, values] of Object.entries(selectedFilters)) {
+      if (values.length) {
+        values.forEach(value => {
+          params.append("categoryIds", value); // 같은 key에 여러 값을 추가
+        });
+      }
+    }
+
+    // location 값 추가 (필터가 있을 경우 추가)
+    if (selectedLocation !== -1) {
+      params.set("location", String(selectedLocation));
+    }
+    console.log(params.toString());
     try {
       const response = await axios.get("/api/academy/getAcademyListByAll", {
-        params,
+        params: params,
       });
-      console.log(response.data); // 데이터 확인
-      setTotalItems(response.data.totalItems); // 총 아이템 수 설정
-      // 데이터를 기반으로 학원 목록 갱신
+      setTotalItems(response.data.totalItems);
+      console.log(response);
     } catch (error) {
       console.error("API 요청 실패:", error);
     }
   };
-
   const id = 123;
   const path = `/academy/detail?id=${id}`;
+
+  // 필터 변경 시 데이터 갱신
+  useEffect(() => {
+    fetchData(currentPage); // 필터가 변경될 때마다 데이터 갱신
+
+    // URL에서 'location' 파라미터를 가져와서 상태에 반영
+    const params = new URLSearchParams(search);
+    const location = params.get("location");
+    if (location) {
+      setSelectedLocation(Number(location));
+    }
+  }, [selectedFilters, selectedLocation, searchInput, search, currentPage]);
 
   return (
     <Form form={form} onFinish={onFinish}>
