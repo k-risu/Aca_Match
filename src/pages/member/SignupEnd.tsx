@@ -13,7 +13,7 @@ function SignupEnd() {
       <header className="sticky top-0 z-50 flex items-center h-16 bg-white border-b border-brand-BTWhite">
         <div className="w-[1280px] flex items-center justify-between mx-auto">
           <img
-            src="/public/logo.png"
+            src="/public/logo2.png"
             className="w-[210px] h-12 cursor-pointer"
             onClick={() => navigate("/")}
           />

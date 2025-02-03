@@ -34,6 +34,10 @@ const KakaoMap = ({ address }: KakaoMapProps) => {
   useEffect(() => {
     let isComponentMounted = true;
 
+    console.log(window.kakao);
+    console.log(import.meta.env.VITE_KKO_MAP_KEY);
+    // if (!isMapLoaded || !address) return;
+
     // 기존에 카카오맵 스크립트가 있는지 확인
     if (!document.querySelector("script[src*='dapi.kakao.com']")) {
       const kakaoMapScript = document.createElement("script");

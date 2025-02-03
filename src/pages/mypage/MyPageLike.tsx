@@ -82,22 +82,15 @@ function MyPageLike() {
       console.log(error);
     }
   };
-  /*
-    fetchData(1); // Fetch data when the component mounts
-  }, [likeList]);
 
-  const showDeleteModal = () => {
-    setIsModalVisible(true);
-  };
-  */
+  //   fetchData(1); // Fetch data when the component mounts
+  // }, [likeList]);
 
-  useEffect(() => {
-    if (!currentUserInfo.userId) {
-      setResultMessage("회원 로그인이 필요합니다."); //결과 메시지
-      setIsModalVisible(true);
-      //navigate("/login");
-    }
-  }, []);
+  // const showDeleteModal = () => {
+  //   setIsModalVisible(true);
+  // };
+
+
 
   let menuItems = [];
   switch (currentUserInfo.roleId) {

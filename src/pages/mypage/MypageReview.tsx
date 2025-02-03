@@ -1,4 +1,4 @@
-import { Pagination } from "antd";
+import { message, Pagination } from "antd";
 import { useEffect, useState } from "react";
 import { GoStar, GoStarFill } from "react-icons/go";
 import SideBar from "../../components/SideBar";
@@ -7,12 +7,15 @@ import { useRecoilValue } from "recoil";
 import userInfo from "../../atoms/userInfo";
 import { jwtApiRequest } from "../../apis/jwt";
 import { useNavigate } from "react-router-dom";
+import { Cookies } from "react-cookie";
 
 function MypageReview() {
   const navigate = useNavigate();
   const [reviewList, setReviewList] = useState([]);
   const currentUserInfo = useRecoilValue(userInfo);
   const accessToken = getCookie("accessToken");
+
+  const cookies = new Cookies();
 
   let menuItems = [];
   switch (currentUserInfo.roleId) {
@@ -45,6 +48,11 @@ function MypageReview() {
   }
 
   const fetchData = async (page: number) => {
+    if (!cookies.get("accessToken")) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+      return;
+    }
     try {
       const res = await jwtApiRequest.get(
         `/api/review/user?userId=${currentUserInfo.userId}&page=${page}`,

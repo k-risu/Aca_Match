@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GoStar, GoStarFill } from "react-icons/go";
 import { Form, message } from "antd";
 import axios from "axios";
@@ -24,6 +24,12 @@ function ReviewModal({ onClose, joinClassId }: ReviewModalProps) {
   const handleStarClick = (selectedRating: number) => {
     setRating(selectedRating);
   };
+
+  useEffect(() => {
+    try {
+      const res = jwtAxios.post("/api/review/user");
+    } catch (error) {}
+  }, []);
 
   const handleSubmit = async (values: ReviewFormValues) => {
     if (rating === 0) {

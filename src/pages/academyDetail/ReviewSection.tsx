@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
 import { Pagination } from "antd";
-import { jwtApiRequest } from "../../apis/jwt";
-import { Review } from "./types"; // types.ts에서 Review 타입을 임포트
+import { useEffect, useState } from "react";
 import ReviewModal from "../../components/modal/ReviewModal";
+import { AcademyClass, Review } from "./types"; // types.ts에서 Review 타입을 임포트
 
 interface ReviewSectionProps {
   star: number;
@@ -10,11 +9,7 @@ interface ReviewSectionProps {
   renderStars: (rating: number) => JSX.Element;
   academyId: number;
   reviews: Review[];
-}
-
-interface ReviewResponse {
-  resultMessage: string;
-  resultData: Review[];
+  classes: AcademyClass[];
 }
 
 const styles = {
@@ -43,6 +38,7 @@ const ReviewSection = ({
   reviewCount,
   renderStars,
   academyId,
+  classes,
   reviews: initialReviews, // 초기 리뷰 데이터
 }: ReviewSectionProps) => {
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
@@ -151,7 +147,7 @@ const ReviewSection = ({
       </div>
       {isModalVisible && (
         <ReviewModal
-          joinClassId={150}
+          joinClassId={classes.classId}
           // rating={3} // 선택적으로 전달
           onClose={() => setIsModalVisible(false)}
         />

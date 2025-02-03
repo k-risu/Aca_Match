@@ -15,6 +15,29 @@ function HotAcademy() {
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 10;
 
+  const usedRandomNumbers = new Set<number>();
+  const getRandomUniqueNumber = () => {
+    if (usedRandomNumbers.size === 10) {
+      usedRandomNumbers.clear(); // 모든 숫자가 사용되면 초기화
+    }
+
+    let randomNum;
+    do {
+      randomNum = Math.floor(Math.random() * 10) + 1; // 1~10 사이의 랜덤 숫자
+    } while (usedRandomNumbers.has(randomNum));
+
+    usedRandomNumbers.add(randomNum);
+    return randomNum;
+  };
+
+  const getAcademyImageUrl = (acaId: number, pic: string) => {
+    // console.log(acaId, pic);
+    if (pic === "default.jpg" || pic === undefined || pic === null) {
+      return `/default_academy${getRandomUniqueNumber()}.jpg`;
+    }
+    return `http://112.222.157.156:5223/pic/academy/${acaId}/${pic}`;
+  };
+
   const menuItems = [
     { label: "학원 목록", isActive: true, link: "/hotAcademy" },
   ];
@@ -43,12 +66,14 @@ function HotAcademy() {
 
         const updatedCards = response.data.resultData.map((item: any) => ({
           id: item.acaId,
-          image: item.pic || "/default_academy.jpg",
-          name: item.name || "학원 이름",
-          tags: item.tags || "태그 정보 없음",
-          rating: item.starCount?.toFixed(1) || "0.0",
+          image: getAcademyImageUrl(item.acaId, item.acaPic),
+          acaName: item.acaName || "학원 이름",
+          tags: item.tagNames || "태그 정보 없음",
+          rating: item.starAvg?.toFixed(1) || "0.0",
           reviews: item.reviewCount || 0,
         }));
+
+        console.log(response);
 
         setAcademyData(updatedCards);
         setHasMore(updatedCards.length === pageSize);
@@ -139,16 +164,17 @@ const AcademyCard = ({ academy }: { academy: (typeof academyData)[0] }) => {
     >
       <img
         src={academy.image}
-        alt={academy.name}
+        alt={academy.acaName}
         className="w-[166px] h-[166px] rounded-xl object-cover"
       />
       <div className="flex flex-col items-start w-full">
-        <h3 className="text-base font-medium text-[#0E161B] leading-6 w-full">
-          {academy.name}
+        <h3 className="text-base font-medium text-[#0E161B] leading-6 w-full line-clamp-1">
+          {academy.acaName}
         </h3>
-        <p className="text-sm text-[#507A95] leading-[21px] w-full">
+        <p className="text-sm text-[#507A95] leading-[21px] w-full line-clamp-1">
           {academy.tags}
           <br />
+          {console.log(academy.rating)}
           {academy.rating} ({academy.reviews} reviews)
         </p>
       </div>
