@@ -8,6 +8,7 @@ import { Radio } from "antd";
 interface LocationModalProps {
   visible: boolean;
   handleCloseModal: () => void;
+  handleLocationSelect: (location: number, locationText: string) => void;
 }
 
 interface City {
@@ -26,6 +27,7 @@ interface Dong {
 const LocationModal: React.FC<LocationModalProps> = ({
   visible,
   handleCloseModal,
+  handleLocationSelect,
 }) => {
   const [resultData, setResultData] = useState<City[]>([]);
   const [streetData, setStreetData] = useState<Street[]>([]);
@@ -33,6 +35,7 @@ const LocationModal: React.FC<LocationModalProps> = ({
   const [selectedCityId, setSelectedCityId] = useState<number | null>(null);
   const [selectedStreetId, setSelectedStreetId] = useState<number | null>(null);
   const [selectedDongId, setSelectedDongId] = useState<number | null>(null);
+  const [selectedDongText, setSelectedDongText] = useState<string | null>(null);
   // API 호출 함수
   // 지역 데이터 호출
   const fetchCityData = async () => {
@@ -144,7 +147,16 @@ const LocationModal: React.FC<LocationModalProps> = ({
             <CustomScrollbar className="flex flex-col w-[150px] h-[528px] overflow-y-auto pr-[10px]">
               <Radio.Group
                 value={selectedDongId}
-                onChange={e => setSelectedDongId(e.target.value)}
+                onChange={e => {
+                  const selectedDong = dongData.find(
+                    dong => dong.dongId === e.target.value,
+                  );
+                  if (selectedDong) {
+                    setSelectedDongId(e.target.value);
+                    setSelectedDongText(selectedDong.dongName);
+                    console.log(e.target.value);
+                  }
+                }}
               >
                 {dongData.map(dong => (
                   <Radio
@@ -171,7 +183,12 @@ const LocationModal: React.FC<LocationModalProps> = ({
             </MainButton>
             <MainButton
               type="primary"
-              onClick={handleCloseModal}
+              onClick={() =>
+                handleLocationSelect(
+                  selectedDongId ?? -1,
+                  selectedDongText ?? "",
+                )
+              }
               className="px-4 py-2 w-full h-[32px]"
             >
               검색

@@ -20,6 +20,8 @@ import { useRecoilValue } from "recoil";
 import CustomModal from "../../components/modal/Modal";
 import jwtAxios from "../../apis/jwt";
 import { UploadChangeParam } from "antd/es/upload";
+import { Cookies } from "react-cookie";
+import { useNavigate } from "react-router-dom";
 
 const MemberInfo = styled.div`
   .ant-form-item-label {
@@ -117,6 +119,10 @@ function MyPageUserInfo() {
   const currentUserInfo = useRecoilValue(userInfo);
   const accessToken = getCookie("accessToken");
 
+  const cookies = new Cookies();
+
+  const navigate = useNavigate();
+
   let menuItems = [];
   switch (currentUserInfo.roleId) {
     case 3: //학원 관계자
@@ -149,6 +155,11 @@ function MyPageUserInfo() {
 
   //회원정보 조회
   const memberInfo = async () => {
+    if (!cookies.get("accessToken")) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+      return;
+    }
     try {
       const res = await jwtAxios.get(`/api/user`, {
         headers: { Authorization: `Bearer ${accessToken}` },

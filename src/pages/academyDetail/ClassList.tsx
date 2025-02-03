@@ -1,4 +1,5 @@
 import { AcademyClass } from "./types";
+import DOMPurify from "dompurify";
 
 interface ClassListProps {
   classes: AcademyClass[];
@@ -41,7 +42,14 @@ const ClassList = ({ classes }: ClassListProps) => {
             {/* 강좌 소개 */}
             <div>
               <h3 className="font-bold mb-[8px]">강좌 소개</h3>
-              <p className="whitespace-pre-line">{classItem.classComment}</p>
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(classItem.classComment),
+                }}
+                className="whitespace-pre-line"
+              >
+                {/* {classItem.classComment} */}
+              </p>
             </div>
 
             {/* 수강 연령대 */}

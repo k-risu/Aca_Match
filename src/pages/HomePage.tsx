@@ -15,11 +15,13 @@ interface Academy {
   address: string;
   star: number;
   tagName: string | null;
+  reviewCount: number;
 }
 interface BestAcademy {
-  acaId: number; // acaId 추가
+  acaName: string;
+  acaId: number;
   subject: string;
-  description: string;
+  tagNames: string;
   reviews: string;
   image: string;
 }
@@ -161,11 +163,11 @@ function HomePage() {
   };
 
   const getAcademyImageUrl = (acaId: number, pic: string) => {
-    console.log(acaId, pic);
+    // console.log(acaId, pic);
     if (pic === "default.jpg" || pic === undefined || pic === null) {
       return `/default_academy${getRandomUniqueNumber()}.jpg`;
     }
-    return `/pic/academy/${acaId}/${pic}`;
+    return `http://112.222.157.156:5223/pic/academy/${acaId}/${pic}`;
   };
 
   const handleAcademyClick = (acaId: number) => {
@@ -178,6 +180,7 @@ function HomePage() {
       try {
         const response = await axios.get("/api/academy/AcademyDefault");
         setDefaultAcademies(response.data.resultData);
+        console.log(response);
       } catch (error) {
         console.error("Error fetching default academies:", error);
       } finally {
@@ -196,19 +199,20 @@ function HomePage() {
         const response = await axios.get("/api/academy/best", {
           params: { page: 1, size: 4 },
         });
-        console.log("작동중", response);
+        // console.log("작동중", response);
 
         const updatedCards: BestAcademy[] = response.data.resultData.map(
           (item: any) => ({
             acaId: item.acaId,
-            subject: item.acaName || "학원명",
-            description: item.description || "",
-            reviews: `${item.starCount.toFixed(1)} (${item.reviewCount} reviews)`,
-            image: getAcademyImageUrl(item.acaId, item.acaPic), // 이미지 경로 처리 수정
+            acaName: item.acaName || "학원명",
+            reviews: `${item.reviewCount.toFixed(1)} (${item.reviewCount} reviews)`,
+            image: getAcademyImageUrl(item.acaId, item.acaPic), // 이미지 URL 변환
+            tagNames: item.tagNames,
           }),
         );
 
         setBestAcademyCards(updatedCards);
+        // console.log(updatedCards);
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {
@@ -327,7 +331,7 @@ function HomePage() {
               className="flex flex-col gap-4 cursor-pointer"
               onClick={() => {
                 handleAcademyClick(academy.acaId);
-                console.log(academy.acaId);
+                // console.log(academy.acaId);
               }}
             >
               <img
@@ -344,14 +348,12 @@ function HomePage() {
                 </h3>
                 <p className="text-sm text-[#507A95] truncate">
                   {/* {academy.address} */}
-                  {academy.tagName}
+                  {academy.tagName || "태그 정보 없음"}
                 </p>
                 <p className="text-sm text-[#507A95]">
-                  {academy.star.toFixed(1)}
+                  {academy.reviewCount?.toFixed(1)}({academy.reviewCount}
+                  reviews)
                 </p>
-                {academy.tagName && (
-                  <p className="text-sm text-[#507A95]">{academy.tagName}</p>
-                )}
               </div>
             </div>
           ))}
@@ -385,7 +387,7 @@ function HomePage() {
           화제가 되고 있는 학원
         </h2>
         <div className="grid grid-cols-4 gap-6">
-          {loading ? (
+          {/* {loading ? (
             // 로딩 중일 때 스켈레톤 표시
             <>
               <SkeletonCard />
@@ -394,32 +396,33 @@ function HomePage() {
               <SkeletonCard />
               <SkeletonCard />
             </>
-          ) : (
-            // 데이터 로딩 완료 시 실제 카드 표시
-            bestAcademyCards.map((card, index) => (
-              <div
-                key={index}
-                className="flex flex-col gap-4 cursor-pointer"
-                onClick={() => handleAcademyClick(card.acaId)}
-              >
-                <img
-                  className="h-56 bg-gray-200 rounded-xl object-cover"
-                  src={card.image}
-                  alt="academy-image"
-                />
-                <div className="flex flex-col gap-3">
-                  <h3 className="font-medium text-base text-[#242424  ]">
-                    {card.subject}
-                  </h3>
-                  <div className="text-sm text-[#507A95]">
-                    <p>{card.description}</p>
-                    <p>{card.reviews}</p>
-                    {/* <p>{card.questionsAnswered}</p> */}
-                  </div>
+          ) : ( */}
+          {/* // 데이터 로딩 완료 시 실제 카드 표시 */}
+          {bestAcademyCards.map((card, index) => (
+            <div
+              key={index}
+              className="flex flex-col gap-4 cursor-pointer"
+              onClick={() => handleAcademyClick(card.acaId)}
+            >
+              <img
+                className="h-56 bg-gray-200 rounded-xl object-cover"
+                // src={card.image}
+                src={card.image}
+                alt={card.acaName}
+              />
+              <div className="flex flex-col">
+                <h3 className="font-medium text-base text-[#242424  ]">
+                  {card.acaName}
+                </h3>
+                <div className="text-sm text-[#507A95]">
+                  <p className="text-[14px] line-clamp-1">{card.tagNames}</p>
+                  <p className="text-[14px] line-clamp-1">{card.reviews}</p>
+                  {/* <p>{card.questionsAnswered}</p> */}
                 </div>
               </div>
-            ))
-          )}
+            </div>
+          ))}
+          {/* )} */}
         </div>
       </div>
     </div>

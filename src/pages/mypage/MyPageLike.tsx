@@ -81,12 +81,12 @@ function MyPageLike() {
       console.log(error);
     }
   };
-    fetchData(1); // Fetch data when the component mounts
-  }, [likeList]);
+  //   fetchData(1); // Fetch data when the component mounts
+  // }, [likeList]);
 
-  const showDeleteModal = () => {
-    setIsModalVisible(true);
-  };
+  // const showDeleteModal = () => {
+  //   setIsModalVisible(true);
+  // };
 
   let menuItems = [];
   switch (currentUserInfo.roleId) {

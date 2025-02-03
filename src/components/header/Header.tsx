@@ -8,6 +8,7 @@ import userInfo from "../../atoms/userInfo";
 import { getCookie, removeCookie } from "../../utils/cookie";
 import MainButton from "../button/MainButton";
 import jwtAxios from "../../apis/jwt";
+import { message } from "antd";
 
 const SecondaryButton = styled(MainButton)`
   &:hover {
@@ -43,7 +44,6 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
               Authorization: `Bearer ${accessToken}`,
             },
           });
-          console.log(response.data.resultData);
 
           // 서버에서 받은 데이터 매핑
           const userData = {
@@ -51,6 +51,8 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
             roleId: response.data.resultData.roleId, // roleId를 문자열로 변환
             userId: response.data.resultData.userId, // userId를 문자열로 변환
           };
+
+          console.log(response);
 
           setUserInfo(userData); // Recoil 상태 업데이트
         } catch (error) {
@@ -65,6 +67,14 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
     console.log("Current userInfo:", currentUserInfo);
   }, [currentUserInfo]); // userInfo가 변경될 때마다 로그 출력
 
+  const logOut = async () => {
+    try {
+      const res = await jwtAxios.post("/api/user/log-out", {});
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+    }
+  };
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const navigate = useNavigate();
 
@@ -75,11 +85,20 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
   const handleButton2Click = () => {
     setIsModalVisible(false);
   };
+
+  const isMypage = (link: string) => {
+    if (link.startsWith("/mypage") && !cookies.get("accessToken")) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+      return true; // 로그인 페이지로 이동했음을 나타냄
+    }
+    return false;
+  };
   return (
     <header className={className}>
       <div className="w-[1280px] flex items-center justify-between mx-auto  ">
         <img
-          src="/public/logo.png"
+          src="/public/logo2.png"
           className="w-[210px] h-[48px] cursor-pointer mr-[full]"
           onClick={() => {
             navigate("/");
@@ -93,7 +112,9 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                 key={index}
                 className="w-[100px] hover:text-brand-BTBlueHover cursor-pointer justify-center text-center"
                 onClick={() => {
-                  navigate(menuItems[index].link);
+                  if (!isMypage(item.link)) {
+                    navigate(item.link);
+                  }
                 }}
               >
                 {item.label}
@@ -109,6 +130,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                     // 로그아웃 처리 로직 추가
                     removeCookie("accessToken");
                     // 리코일 정보 삭제 아직 안함
+                    logOut();
                     navigate("/");
                   }}
                   className={`px-4 py-2 w-[85px] h-[40px]`}

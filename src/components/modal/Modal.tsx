@@ -5,7 +5,7 @@ import styled from "@emotion/styled";
 interface CustomModalProps {
   visible: boolean;
   title: string | React.ReactNode;
-  content: string;
+  content: string | React.ReactNode;
   onButton1Click?: () => void;
   onButton2Click?: () => void;
   button1Text: string;

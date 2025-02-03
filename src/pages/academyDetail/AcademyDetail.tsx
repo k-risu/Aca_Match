@@ -3,7 +3,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaShare } from "react-icons/fa6";
 import { GoStar, GoStarFill } from "react-icons/go";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import userInfo from "../../atoms/userInfo";
 import MainButton from "../../components/button/MainButton";
@@ -14,6 +14,9 @@ import KakaoMap from "./KakaoMap";
 import { AcademyClass, AcademyData } from "./types";
 import ClassList from "./ClassList";
 import ReviewSection from "./ReviewSection";
+import DOMPurify from "dompurify";
+import { Cookies } from "react-cookie";
+import jwtAxios from "../../apis/jwt";
 
 declare global {
   interface Window {
@@ -72,27 +75,26 @@ const AcademyDetail = () => {
   const [academyData, setAcademyData] = useState<AcademyData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isMapLoaded, setIsMapLoaded] = useState(false);
+  // const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [address, setAddress] = useState("");
   const [likeCount, setLikeCount] = useState<number>(0);
 
   const [isLiked, setIsLiked] = useState<boolean>(false);
 
-  const [mapPosition, setMapPosition] = useState({
-    lat: 33.5563,
-    lng: 126.79581,
-  });
-  const [markerPosition, setMarkerPosition] = useState({
-    lat: 33.55635,
-    lng: 126.795841,
-  });
+  const cookies = new Cookies();
+  const navigate = useNavigate();
 
   const [items, setItems] = useState([
     { label: "상세 학원정보", isActive: true },
     { label: "수업정보", isActive: false },
     { label: "후기", isActive: false },
   ]);
+
+  const checkIsAuthenticated = () => {
+    const accessToken = cookies.get("accessToken");
+    return !!accessToken; // accessToken이 존재하면 true, 없으면 false
+  };
 
   const getRandomUniqueNumber = () => {
     if (usedRandomNumbers.size === 10) {
@@ -172,8 +174,12 @@ const AcademyDetail = () => {
   };
 
   const handleButton1Click = () => setIsModalVisible(false);
-  const handleButton2Click = () => setIsModalVisible(false);
-  const handleDateClick = (arg: any) => alert(arg.dateStr);
+  const handleButton2Click = () => {
+    // try {
+    //   const res = jwtAxios.post()
+    // } catch (error) {}
+    setIsModalVisible(false);
+  };
 
   const handleCopy = async () => {
     try {
@@ -272,8 +278,13 @@ const AcademyDetail = () => {
               <div className={styles.academy.description}>
                 {academyData.acaPhone}
               </div>
-              <div className="text-[14px] mb-[50px]">
-                {academyData.comments}
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(academyData.comments),
+                }}
+                className="text-[14px] mb-[50px]"
+              >
+                {/* {academyData.comments} */}
               </div>
 
               <div className={styles.stats.container}>
@@ -317,13 +328,27 @@ const AcademyDetail = () => {
                 <div className="flex items-center justify-center gap-[12px]">
                   <MainButton
                     className="w-[119px] h-[40px] text-[14px]"
-                    onClick={() => setIsModalVisible(true)}
+                    onClick={() => {
+                      if (!checkIsAuthenticated()) {
+                        navigate("/login");
+                        message.error("로그인이 필요한 서비스입니다.");
+                        return;
+                      }
+                      setIsModalVisible(true);
+                    }}
                   >
                     학원 문의하기
                   </MainButton>
                   <MainButton
                     className="w-[119px] h-[40px] text-[14px]"
-                    onClick={() => setIsModalVisible(true)}
+                    onClick={() => {
+                      if (!checkIsAuthenticated()) {
+                        navigate("/login");
+                        message.error("로그인이 필요한 서비스입니다.");
+                        return;
+                      }
+                      setIsModalVisible(true);
+                    }}
                     type="primary"
                   >
                     학원 신청하기
@@ -344,102 +369,10 @@ const AcademyDetail = () => {
           </div>
         )}
 
-        {/* {items[1].isActive && (
-          <div className="flex flex-col justify-center items-center mt-[12px] w-[930px] mx-auto mb-[50px]">
-            {academyData.classes.map(classItem => (
-              <div
-                key={classItem.classId}
-                className="w-full mb-[24px] p-[16px] border rounded-[8px]"
-              >
-                <h2 className="text-[24px] font-bold mb-[12px]">
-                  {classItem.className}
-                </h2>
-                <p className="text-[16px] mb-[12px]">
-                  {classItem.classComment}
-                </p>
-                <div className="grid grid-cols-2 gap-[12px]">
-                  <p>
-                    <span className="font-bold">수업 기간:</span>{" "}
-                    {classItem.classStartDate} ~ {classItem.classEndDate}
-                  </p>
-                  <p>
-                    <span className="font-bold">수업 시간:</span>{" "}
-                    {classItem.classStartTime.slice(0, 5)} ~{" "}
-                    {classItem.classEndTime.slice(0, 5)}
-                  </p>
-                  <p>
-                    <span className="font-bold">수업료:</span>{" "}
-                    {classItem.classPrice.toLocaleString()}원
-                  </p>
-                  {classItem.classDay && (
-                    <p>
-                      <span className="font-bold">수업 요일:</span>{" "}
-                      {classItem.classDay}
-                    </p>
-                  )}
-                  {classItem.classCategoryName && (
-                    <p>
-                      <span className="font-bold">수강 대상:</span>{" "}
-                      {classItem.classCategoryName}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )} */}
         {items[1].isActive && (
           <ClassList classes={academyData.classes as AcademyClass[]} />
         )}
 
-        {/* {items[2].isActive && academyData && (
-          <div className="flex flex-col mx-auto">
-            <div className={styles.stats.container}>
-              <div className={styles.stats.ratingWrapper}>
-                <div className={styles.stats.rating}>
-                  {academyData.star.toFixed(1)}
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="flex items-center gap-[2px] text-[14px] mt-[12px]">
-                    {renderStars(academyData.star)}
-                  </div>
-                  <div className="text-[14px]">
-                    {academyData.reviewCount} reviews
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="text-[18px] font-bold h-[47px]">Reviews</div>
-            <div className={styles.reviews.container}>
-              {academyData.reviews.map((review, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col mb-[24px] p-[16px] border rounded-[8px]"
-                >
-                  <div className={styles.reviews.header}>
-                    <div className={styles.reviews.avatar} />
-                    <div>
-                      <div className={styles.reviews.text}>
-                        User {review.userId}
-                      </div>
-                      <div className={styles.reviews.text}>
-                        {new Date(review.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-                  <div className={styles.reviews.rating}>
-                    {renderStars(review.star)}
-                    <span className="ml-2 text-[14px]">
-                      {review.star.toFixed(1)}
-                    </span>
-                  </div>
-                  <div className={styles.reviews.content}>{review.comment}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )} */}
         {items[2].isActive && (
           <ReviewSection
             academyId={academyData.acaId}
@@ -447,20 +380,20 @@ const AcademyDetail = () => {
             reviewCount={academyData.reviewCount}
             renderStars={renderStars}
             reviews={academyData.reviews}
+            classes={academyData.classes as AcademyClass[]}
           />
         )}
       </div>
 
       <CustomModal
         visible={isModalVisible}
-        title={"테스트"}
-        content={"작동 중"}
+        title={"수강등록"}
+        content={<p className="h-[50px]">수강등록 하시겠습니까?</p>}
         onButton1Click={handleButton1Click}
-        onButton2Click={handleButton2Click}
+        // onButton2Click={console.log("test")}
         button1Text={"취소"}
         button2Text={"확인"}
         modalWidth={400}
-        modalHeight={244}
       />
     </div>
   );
