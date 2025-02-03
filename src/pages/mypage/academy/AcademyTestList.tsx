@@ -228,7 +228,9 @@ function AcademyTestList() {
                 <button
                   className="small_line_button"
                   onClick={() =>
-                    navigate(`/mypage/academy/record?id=${item.acaId}`)
+                    navigate(
+                      `/mypage/academy/record?acaId=${acaId}&classId=${classId}&subjectId=${item.subjectId}`,
+                    )
                   }
                 >
                   채점하기

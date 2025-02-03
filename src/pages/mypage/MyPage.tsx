@@ -4,11 +4,13 @@ import SideBar from "../../components/SideBar";
 import CustomModal from "../../components/modal/Modal";
 import userInfo from "../../atoms/userInfo";
 import { getCookie } from "../../utils/cookie";
-import { Pagination } from "antd";
+import { message, Pagination } from "antd";
 import { useNavigate } from "react-router-dom";
 import jwtAxios from "../../apis/jwt";
 
 function MyPage() {
+  const [resultTitle, setResultTitle] = useState("");
+  const [resultMessage, setResultMessage] = useState("");
   const [mypageAcademyList, setMypageAcademyList] = useState([]); //내 학원 내역
   const [isModalVisible, setIsModalVisible] = useState(false);
   const currentUserInfo = useRecoilValue(userInfo);
@@ -52,7 +54,7 @@ function MyPage() {
 
   const myAcademyList = async (page: number) => {
     try {
-      //좋아요 목록 호출
+      //나의 수강목록 호출
       const res = await jwtAxios.get(
         `/api/joinClass?userId=${currentUserInfo.userId}&page=${page}`,
         {
@@ -63,7 +65,7 @@ function MyPage() {
       );
 
       if (res.data.resultData.length > 0) {
-        console.log(res.data.resultData);
+        //console.log(res.data.resultData);
         setMypageAcademyList(res.data.resultData);
       }
     } catch (error) {
@@ -88,13 +90,21 @@ function MyPage() {
     myAcademyList(1);
   }, []);
 
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
+  }, []);
+
   return (
     <div className="flex gap-5 w-full justify-center align-top">
       <SideBar menuItems={menuItems} />
 
       <div className="w-full">
         <h1 className="title-font">나의 학원정보</h1>
-        <div className="w-full gap-0 border border-b-0 rounded-lg overflow-hidden">
+
+        <div className="board-wrap">
           <div className="flex justify-between align-middle p-4 border-b">
             <div className="flex items-center justify-center w-full">
               학원명
@@ -108,6 +118,12 @@ function MyPage() {
             </div>
           </div>
 
+          {mypageAcademyList.length === 0 && (
+            <div className="text-center p-4 border-b">
+              등록한 학원이 없습니다.
+            </div>
+          )}
+
           {mypageAcademyList.map((item, index) => (
             <div
               key={index}
@@ -115,11 +131,16 @@ function MyPage() {
             >
               <div className="flex justify-start items-center w-full">
                 <div className="flex items-center gap-3">
+                  <img
+                    src={item.acaPic ? item.acaPic : "aca_image_1.png"}
+                    alt=" /"
+                  />
                   <div>
-                    <img src="aca_image_1.png" alt=" /" />
+                    <h4>{item.acaName}</h4>
+                    <p className="text-gray-400 text-sm">
+                      [수업명 : {item.className}]
+                    </p>
                   </div>
-                  <h4>{item.acaName}</h4>
-                  {item.className}
                 </div>
               </div>
               <div className="flex items-center justify-center w-60">
@@ -147,14 +168,13 @@ function MyPage() {
 
         <CustomModal
           visible={isModalVisible}
-          title={"학원등록 취소하기"}
-          content={"선택하신 학원을 등록 취소하시겠습니까?"}
+          title={resultTitle}
+          content={resultMessage}
           onButton1Click={handleButton1Click}
           onButton2Click={handleButton2Click}
           button1Text={"취소"}
           button2Text={"확인"}
           modalWidth={400}
-          modalHeight={244}
         />
       </div>
     </div>

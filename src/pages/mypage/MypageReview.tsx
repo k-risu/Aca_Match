@@ -1,6 +1,6 @@
 import { message, Pagination } from "antd";
 import { useEffect, useState } from "react";
-import { FaStar } from "react-icons/fa";
+import { GoStar, GoStarFill } from "react-icons/go";
 import SideBar from "../../components/SideBar";
 import { getCookie } from "../../utils/cookie";
 import { useRecoilValue } from "recoil";
@@ -98,6 +98,12 @@ function MypageReview() {
             </div>
           </div>
 
+          {reviewList.length === 0 && (
+            <div className="text-center p-4 border-b">
+              등록한 리뷰 내역이 없습니다.
+            </div>
+          )}
+
           {reviewList.map((item: any, index: number) => (
             <div
               key={index}
@@ -123,12 +129,9 @@ function MypageReview() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 mt-4 mb-3">
-                  {Array.from({ length: 5 }, (_, index) => (
-                    <FaStar
-                      key={index}
-                      className={`${index < item.star ? "text-blue-500" : "text-black-500"}`}
-                    />
-                  ))}
+                  {Array.from({ length: 5 }, (_, index) =>
+                    index < item.star ? <GoStarFill /> : <GoStar />,
+                  )}
                 </div>
                 <div
                   className="text-lg font-bold"
@@ -149,7 +152,11 @@ function MypageReview() {
         </div>
 
         <div className="flex justify-center items-center m-6 mb-10">
-          <Pagination defaultCurrent={1} total={100} showSizeChanger={false} />
+          <Pagination
+            defaultCurrent={1}
+            total={reviewList.length}
+            showSizeChanger={false}
+          />
         </div>
       </div>
     </div>

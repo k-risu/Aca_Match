@@ -14,7 +14,7 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import CustomModal from "../../../components/modal/Modal";
 import SideBar from "../../../components/SideBar";
 import { UploadChangeParam } from "antd/es/upload";
@@ -143,18 +143,39 @@ const menuItems = [
 
 function AcademyEdit() {
   const [form] = Form.useForm();
+  const [resultTitle, setResultTitle] = useState("");
+  const [resultMessage, setResultMessage] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [tagList, setTagList] = useState([]); //태그목록
+  const [isModalVisible2, setIsModalVisible2] = useState(false);
   const [tagKeyword, setTagKeyword] = useState(""); //태그검색 키워드
-  const [selectedTag, setSelectedTag] = useState([]); //선택한 태그값
+  const [tagList, setTagList] = useState([]); //태그목록(전체/검색결과)
+  const [selectedItems, setSelectedItems] = useState([]); //선택한 태그값
   const [searchParams, setSearchParams] = useSearchParams();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const acaId = searchParams.get("acaId");
   const currentUserInfo = useRecoilValue(userInfo);
-  console.log(currentUserInfo);
+  const navigate = useNavigate();
+  //console.log(currentUserInfo);
+
+  // 체크박스 클릭 시 선택/해제 처리
+  const handleCheckbox2Change = value => {
+    setSelectedItems(
+      prevSelectedItems =>
+        prevSelectedItems.includes(value)
+          ? prevSelectedItems.filter(item => item !== value) // 이미 선택된 항목이면 제거
+          : [...prevSelectedItems, value], // 선택되지 않은 항목이면 추가
+    );
+  };
+
+  // 선택한 항목 제거
+  const handleRemoveItem = value => {
+    setSelectedItems(prevSelectedItems =>
+      prevSelectedItems.filter(item => item !== value),
+    );
+  };
 
   const handleAddressSearch = () => {
     new window.daum.Postcode({
@@ -171,6 +192,15 @@ function AcademyEdit() {
 
   const handleButton2Click = () => {
     setIsModalVisible(false);
+  };
+
+  const handleButton1Click2 = () => {
+    setIsModalVisible2(false);
+  };
+
+  const handleButton2Click2 = () => {
+    setIsModalVisible2(false);
+    navigate("/mypage/academy");
   };
 
   //모달창에서 태그 검색하기
@@ -203,41 +233,22 @@ function AcademyEdit() {
     tagSearch();
   };
 
-  //선택한 태그값 전달
-  const handleCheckboxChange = (e, item) => {
-    if (e.target.checked) {
-      setSelectedTag(prev => [...prev, item]);
-    } else {
-      setSelectedTag(prev => prev.filter(i => i !== item));
-    }
-  };
-
-  //선택한 태그값 삭제
-  const handleDeleteItem = item => {
-    setSelectedTag(prev => prev.filter(i => i !== item));
-  };
-
   //input 값 변경 처리
   const handleChangeTag = e => {
     setTagKeyword(e.target.value);
   };
 
-  const tagAllList = tagList.map((item, index) => {
-    const isSelected = selectedTag.includes(item);
-    //const isRemoved = removedItems.includes(item);
-
+  const tagAllListNew = tagList.map(item => {
     return (
-      <li key={index}>
+      <div key={item.tagId}>
         <input
           type="checkbox"
-          name="tag"
-          value={item.tagId}
-          id={`tag_${item.tagId}`}
-          onChange={e => handleCheckboxChange(e, item.tagId)}
-          disabled={selectedTag.some(selected => selected.id === item.tagId)}
+          id={`checkbox-${item.tagId}`}
+          checked={selectedItems.includes(item.tagId)}
+          onChange={() => handleCheckbox2Change(item.tagId)}
         />
-        <label htmlFor={`tag_${item.tagId}`}>{item.tagName}</label>
-      </li>
+        <label htmlFor={`checkbox-${item.tagId}`}>{item.tagName}</label>
+      </div>
     );
   });
 
@@ -245,18 +256,32 @@ function AcademyEdit() {
   const academyGetInfo = async () => {
     try {
       const res = await axios.get(`/api/academy/academyDetail/${acaId}`);
-      console.log(res.data.resultData);
+      //console.log("aca_info : ", res.data.resultData);
 
       // 데이터를 받아온 즉시 form 값 설정
       form.setFieldsValue({
         acaId: res.data.resultData.acaId,
         acaName: res.data.resultData.acaName,
+        address: res.data.resultData.addressDto.address,
+        detailAddress: res.data.resultData.addressDto.detailAddress,
+        postNum: res.data.resultData.addressDto.postNum,
         acaPhone: res.data.resultData.acaPhone,
         openTime: dayjs(res.data.resultData.openTime.substr(0, 5), "HH:mm"),
         closeTime: dayjs(res.data.resultData.closeTime.substr(0, 5), "HH:mm"),
         comment: res.data.resultData.comment,
         teacherNum: res.data.resultData.teacherNum,
       });
+
+      if (res.data.resultData.acaPic) {
+        setFileList([
+          {
+            uid: "1",
+            name: res.data.resultData.acaPic,
+            status: "done",
+            url: `http://112.222.157.156:5223/pic/academy/${res.data.resultData.acaId}/${res.data.resultData.acaPic}`,
+          },
+        ]);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -269,48 +294,31 @@ function AcademyEdit() {
     // maxCount로 인해 하나의 파일만 유지
     newFileList = newFileList.slice(-1);
 
-    //console.log("newFileList : ", newFileList);
-
     // 파일 상태 업데이트
     setFileList(newFileList);
 
     // 선택된 파일이 있으면 콘솔에 출력
     if (info.file.status === "done" && info.file.originFileObj) {
-      console.log("파일 선택됨:", info.file.originFileObj);
+      //console.log("파일 선택됨:", info.file.originFileObj);
       form.setFieldValue("pic", info.file.originFileObj);
     }
   };
 
   const onFinished = async values => {
     try {
-      //console.log(fileList[0]);
       const startTimes = dayjs(values.openTime.$d).format("HH:mm");
       const endTimes = dayjs(values.closeTime.$d).format("HH:mm");
 
       const formData = new FormData();
 
       // pic이 있는 경우에만 추가
-      console.log("작동중 : ", values.pic);
       if (values.pic) {
         formData.append("pic", values.pic);
       }
-      console.log("=== FormData 내용 확인 ===");
-      for (const pair of formData.entries()) {
-        if (pair[0] === "pic") {
-          console.log("pic 파일:", {
-            name: pair[1].name,
-            type: pair[1].type,
-            size: pair[1].size,
-          });
-        } else {
-          console.log(`${pair[0]}:`, pair[1]);
-        }
-      }
-      console.log("========================");
 
       const reqData = {
-        acaId: values.acaId,
-        userId: 1,
+        acaId: acaId,
+        userId: currentUserInfo.userId,
         dongId: 3,
         acaName: values.acaName,
         acaPhone: values.acaPhone,
@@ -323,10 +331,9 @@ function AcademyEdit() {
           detailAddress: values.detailAddress,
           postNum: values.postNum,
         },
-        tagIdList: [1, 3],
+        tagIdList: selectedItems.map(item => parseInt(item, 10)),
+        //tagIdList: [1, 3],
       };
-
-      console.log("req_values : ", reqData);
 
       //JSON 형태로 데이터를 만들어 formData에 추가
       formData.append(
@@ -341,10 +348,12 @@ function AcademyEdit() {
         },
       };
 
-      console.log("formdata : ", formData);
-
       const res = await axios.put("/api/academy", formData, header);
-      console.log(res.data.resultData);
+      if (res.data.resultData === 1) {
+        setResultTitle("학원정보 수정 완료");
+        setResultMessage("학원정보 수정이 완료되었습니다.");
+        setIsModalVisible2(true);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -382,15 +391,7 @@ function AcademyEdit() {
             학원정보 수정
           </h1>
           <div className="w-3/4">
-            <Form
-              form={form}
-              onFinish={values => onFinished(values)}
-              //initialValues={initialValues}
-            >
-              <Form.Item name="acaId">
-                <Input type="hidden" />
-              </Form.Item>
-
+            <Form form={form} onFinish={values => onFinished(values)}>
               <Form.Item
                 name="acaName"
                 label="학원 이름"
@@ -529,7 +530,7 @@ function AcademyEdit() {
                   <Input
                     className="input"
                     id="academyTag"
-                    placeholder="태그를 입력해 주세요."
+                    placeholder="태그를 선택해 주세요."
                     onClick={() => handleTagSearch()}
                     readOnly
                   />
@@ -546,25 +547,29 @@ function AcademyEdit() {
                 </Form.Item>
               </div>
 
-              {selectedTag && (
-                <div className="w-full">
-                  <ul className="flex flex-wrap gap-2">
-                    {selectedTag.map(item => (
-                      <li key={item}>
-                        {item}{" "}
-                        <button onClick={() => handleDeleteItem(item)}>
-                          &times;
-                        </button>
-                      </li>
-                    ))}
+              {selectedItems && (
+                <div className="w-full pl-32 pb-6">
+                  <ul className="flex flex-wrap gap-5">
+                    {selectedItems.map(value => {
+                      const selectedTags = tagList.find(
+                        option => option.tagId === value,
+                      );
+                      return (
+                        <li
+                          key={value}
+                          className="flex justify-center items-center"
+                        >
+                          {selectedTags.tagName}
+                          <button
+                            onClick={() => handleRemoveItem(value)}
+                            className="size-5 ml-2 border border-gray-300 rounded-full text-xs"
+                          >
+                            &times;
+                          </button>
+                        </li>
+                      );
+                    })}
                   </ul>
-
-                  <input
-                    type="hidden"
-                    name="tagIdList"
-                    value={selectedTag.join(", ")}
-                    id="hiddenItems"
-                  />
                 </div>
               )}
 
@@ -576,7 +581,6 @@ function AcademyEdit() {
                     onChange={handleChange}
                     showUploadList={{ showPreviewIcon: false }}
                     fileList={fileList}
-                    onChange={handleChange}
                     customRequest={({ onSuccess }) => {
                       // 자동 업로드 방지
                       setTimeout(() => {
@@ -612,7 +616,7 @@ function AcademyEdit() {
                   htmlType="submit"
                   className="w-full h-14 bg-[#E8EEF3] font-bold text-sm"
                 >
-                  학원 등록
+                  학원정보 수정
                 </Button>
               </Form.Item>
             </Form>
@@ -644,8 +648,8 @@ function AcademyEdit() {
               </div>
 
               <ul className="flex w-full flex-wrap gap-2 overflow-y-auto max-h-32">
-                {tagAllList.length > 0 ? (
-                  tagAllList
+                {tagAllListNew.length > 0 ? (
+                  tagAllListNew
                 ) : (
                   <li className="w-full text-center">검색 결과가 없습니다.</li>
                 )}
@@ -657,6 +661,17 @@ function AcademyEdit() {
         onButton2Click={handleButton2Click}
         button1Text={"취소하기"}
         button2Text={"선택완료"}
+        modalWidth={400}
+      />
+
+      <CustomModal
+        visible={isModalVisible2}
+        title={resultTitle}
+        content={resultMessage}
+        onButton1Click={handleButton1Click2}
+        onButton2Click={handleButton2Click2}
+        button1Text={"창닫기"}
+        button2Text={"목록으로"}
         modalWidth={400}
       />
     </AcademyInfo>

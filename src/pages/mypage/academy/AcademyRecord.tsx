@@ -4,17 +4,22 @@ import { useRecoilValue } from "recoil";
 import userInfo from "../../../atoms/userInfo";
 import SideBar from "../../../components/SideBar";
 import { Pagination } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FaPlusCircle } from "react-icons/fa";
 import CustomModal from "../../../components/modal/Modal";
 
 function AcademyRecord() {
   const currentUserInfo = useRecoilValue(userInfo);
-  const [myAcademyList, setMyAcademyList] = useState([]);
+  const [testStudentList, setTestStudentList] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isModalVisible2, setIsModalVisible2] = useState(false);
   const [isModalVisible3, setIsModalVisible3] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const navigate = useNavigate();
+  const acaId = searchParams.get("acaId");
+  const classId = searchParams.get("classId");
+  const subjectId = searchParams.get("subjectId");
 
   const menuItems = [
     { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
@@ -44,7 +49,9 @@ function AcademyRecord() {
   const handle2Button1Click = () => {
     setIsModalVisible2(false);
   };
-  const handle2Button2Click = () => {
+  const handle2Button2Click = async () => {
+    const res = await axios.get(`/api/grade/export?subjectId=${subjectId}`);
+    console.log(res.data);
     setIsModalVisible2(false);
   };
 
@@ -70,25 +77,20 @@ function AcademyRecord() {
     setIsModalVisible3(true);
   };
 
-  const academyList = async () => {
+  const academyStudentList = async () => {
     try {
       const res = await axios.get(
-        `/api/academy/getAcademyListByUserId?signedUserId=${currentUserInfo.userId}`,
+        `/api/grade/gradeUser?acaId=${acaId}&joinClassId=${classId}&subjectId=${subjectId}`,
       );
-      setMyAcademyList(res.data.resultData);
+      setTestStudentList(res.data.resultData);
       console.log(res.data.resultData);
     } catch (error) {
       console.log(error);
     }
   };
 
-  //학원 상세보기 이동
-  const detailAcademy = (acaId: number) => {
-    navigate(`/academy/detail?id=${acaId}`);
-  };
-
   useEffect(() => {
-    academyList();
+    academyStudentList();
   }, []);
 
   return (
@@ -130,26 +132,23 @@ function AcademyRecord() {
             </div>
           </div>
 
-          {myAcademyList.map((item: never, index: number) => (
+          {testStudentList.map((item: never, index: number) => (
             <div
               key={index}
               className="loop-content flex justify-between align-middle p-4 border-b"
             >
               <div className="flex justify-start items-center w-full">
-                <div
-                  className="flex items-center gap-3 cursor-pointer"
-                  onClick={() =>
-                    navigate(`/mypage/academy/record?id=${item.acaId}`)
-                  }
-                >
+                <div className="flex items-center gap-3 cursor-pointer">
                   <img src="/aca_image_1.png" alt="" />
-                  김수한무
+                  {item.userName}
                 </div>
               </div>
               <div className="flex items-center justify-center w-60">
-                2025-01-01
+                {item.examDate}
               </div>
-              <div className="flex items-center justify-center w-60">85점</div>
+              <div className="flex items-center justify-center w-60">
+                {item.pass !== null ? item.pass : item.score + "점"}
+              </div>
               <div className="flex items-center justify-center w-40">
                 <button
                   className="small_line_button"
@@ -165,7 +164,7 @@ function AcademyRecord() {
         <div className="flex justify-center items-center m-6 mb-10">
           <Pagination
             defaultCurrent={1}
-            total={myAcademyList.length}
+            total={testStudentList.length}
             showSizeChanger={false}
           />
         </div>
