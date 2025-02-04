@@ -10,6 +10,7 @@ interface MenuItem {
 interface SideBarProps {
   children?: ReactNode; // children의 타입을 ReactNode로 지정
   menuItems: MenuItem[]; // 외부에서 menuItems 배열을 전달받음
+  titleName?: string;
   className?: string;
 }
 /**
@@ -25,13 +26,19 @@ interface SideBarProps {
  */
 const SideBar: React.FC<SideBarProps> = ({
   children,
+  titleName,
   menuItems,
   className,
 }) => {
   const navigate = useNavigate();
   return (
-    <div className={`mt-[93px] ${className}`}>
-      <div className="w-[280px]">
+    <div className={`mt-[75px] ${className}`}>
+      <div className="w-[240px] mr-10">
+        {titleName && (
+          <h2 className="mb-10 text-[24px] font-[500] leading-[21px] text-brand-default">
+            {titleName}
+          </h2>
+        )}
         {menuItems.map((item, index) => (
           <div
             key={index}

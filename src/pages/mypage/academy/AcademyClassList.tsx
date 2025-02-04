@@ -16,6 +16,7 @@ function AcademyClassList() {
 
   const acaId = searchParams.get("acaId");
 
+  const titleName = "마이페이지";
   const menuItems = [
     { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
     { label: "학원정보 관리", isActive: true, link: "/mypage/academy" },
@@ -41,7 +42,7 @@ function AcademyClassList() {
     try {
       const res = await axios.get(`/api/academy/academyDetail/${acaId}`);
       setAcademyInfo(res.data.resultData.acaName);
-      //console.log(res.data.resultData.acaName);
+      //console.log(res.data.resultData);
     } catch (error) {
       console.log(error);
     }
@@ -52,7 +53,7 @@ function AcademyClassList() {
     try {
       const res = await axios.get(`/api/acaClass?acaId=${acaId}&page=1`);
       setClassList(res.data.resultData);
-      console.log(res.data.resultData);
+      //console.log(res.data.resultData);
     } catch (error) {
       console.log(error);
     }
@@ -73,7 +74,7 @@ function AcademyClassList() {
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuItems} titleName={titleName} />
 
       <div className="w-full">
         <h1 className="title-font flex justify-between align-middle">
@@ -119,7 +120,7 @@ function AcademyClassList() {
                     )
                   }
                 >
-                  <div className="flex justify-center items-center w-14 h-14 rounded-xl overflow-hidden">
+                  <div className="flex justify-center items-center w-14 h-14 rounded-xl bg-gray-300 overflow-hidden">
                     <img
                       src={`http://112.222.157.156:5223/pic/academy/${acaId}/${item.acaPic}`}
                       alt=""

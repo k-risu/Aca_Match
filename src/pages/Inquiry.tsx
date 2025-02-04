@@ -7,6 +7,8 @@ import CustomModal from "../components/modal/Modal";
 function Inquiry() {
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const titleName = "고객지원";
   const menuItems = [
     { label: "FAQ", isActive: false, link: "/support" },
     { label: "1 : 1 문의", isActive: true, link: "/support/inquiry" },
@@ -101,7 +103,7 @@ function Inquiry() {
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuItems} titleName={titleName} />
       <div className="flex flex-col w-full">
         <h1 className="title-font">1:1 학원별 문의</h1>
         <div className="flex flex-col w-full border border-[#DBE3E6] rounded-xl">

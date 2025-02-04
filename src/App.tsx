@@ -33,6 +33,7 @@ import AcademyStudent from "./pages/mypage/academy/AcademyStudent";
 import AcademyTestList from "./pages/mypage/academy/AcademyTestList";
 import AcademyRecord from "./pages/mypage/academy/AcademyRecord";
 import HotAcademy from "./pages/HotAcademy.tsx";
+import MypageParent from "./pages/mypage/MypageParent.tsx";
 
 function App() {
   useEffect(() => {
@@ -120,6 +121,7 @@ function App() {
                 <Route path="/mypage/user" element={<MyPageUserInfo />} />
                 <Route path="/mypage/review" element={<MypageReview />} />
                 <Route path="/mypage/child" element={<MypageChild />} />
+                <Route path="/mypage/parent" element={<MypageParent />} />
               </Route>
               <Route path="/mypage/academy">
                 <Route index element={<AcademyList />} />

@@ -14,6 +14,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomInput from "../../components/CustomInput ";
 import { SecondaryButton } from "../../components/modal/Modal";
+import { FadeLoader } from "react-spinners";
+import styled from "@emotion/styled";
 
 function SignupPage() {
   const [value, setValue] = useState<number | null>(null); // 초기값을 1로 설정
@@ -26,6 +28,20 @@ function SignupPage() {
   const [emailCheck, setEmailCheck] = useState<number>(0); // 0: 미확인, 1: 중복, 2: 사용가능
   const [nickNameCheck, setNickNameCheck] = useState<number>(0);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const LoadingWrap = styled.div`
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+  `;
 
   const plainOptions: { label: string; value: string }[] = [
     // 타입을 명시
@@ -94,12 +110,14 @@ function SignupPage() {
     // console.log("Form values:", { ...restValues, birth: formattedBirthday }); // Include formatted birthday in the logged values
 
     try {
+      setIsLoading(true);
       const res = await axios.post("/api/user/sign-up", {
         ...restValues,
         birthday: formattedBirthday,
         signUpType: 0,
       });
-      console.log("Form values:", res);
+      //console.log("Form values:", res);
+      setIsLoading(false);
       navigate("/signup/end");
     } catch (error) {
       console.error(error);
@@ -243,12 +261,13 @@ function SignupPage() {
                   { required: true, message: "회원타입을 선택해주세요." },
                 ]}
               >
-                <div className="flex items-center w-full gap-[12px] h-[56px]">
+                <div className="flex items-center w-full h-[56px]">
                   <Radio.Group
+                    className="flex gap-4"
                     options={[
                       { value: 1, label: "학생" },
                       { value: 2, label: "학부모" },
-                      { value: 3, label: "학생관계자" },
+                      { value: 3, label: "학원 관계자" },
                     ]}
                   />
                 </div>
@@ -488,6 +507,12 @@ function SignupPage() {
               </SecondaryButton>
             </div>
           </Form>
+
+          {isLoading && (
+            <LoadingWrap>
+              <FadeLoader color="#fff" width={10} height={30} margin={20} />
+            </LoadingWrap>
+          )}
         </div>
       </div>
     </>

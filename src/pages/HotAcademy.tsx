@@ -38,6 +38,7 @@ function HotAcademy() {
     return `http://112.222.157.156:5223/pic/academy/${acaId}/${pic}`;
   };
 
+  const titleName = "학원목록";
   const menuItems = [
     { label: "학원 목록", isActive: true, link: "/hotAcademy" },
   ];
@@ -106,7 +107,8 @@ function HotAcademy() {
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuItems} titleName={titleName} />
+
       <div className="w-full">
         <h1 className="title-font">화제의 학원</h1>
         <div className="w-full gap-[12px] py-[16px] px-[16px] border rounded-lg overflow-hidden">

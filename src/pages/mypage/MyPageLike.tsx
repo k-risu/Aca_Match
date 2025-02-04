@@ -36,9 +36,37 @@ function MyPageLike() {
   const [likeStates, setLikeStates] = useState<{ [key: number]: boolean }>({});
   const [totalLikesCount, setTotalLikesCount] = useState(0); // To track total items
 
-  useEffect(() => {
-    fetchData(1); // Fetch data when the component mounts
-  }, [likeStates]);
+  const titleName = "마이페이지";
+  let menuItems = [];
+  switch (currentUserInfo.roleId) {
+    case 3:
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "학원정보 관리", isActive: false, link: "/mypage" },
+        { label: "리뷰 목록", isActive: false, link: "/mypage/academy/review" },
+        { label: "좋아요 목록", isActive: true, link: "/mypage/academy/like" },
+      ];
+      break;
+    case 2:
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "자녀 관리", isActive: false, link: "/mypage/child" },
+        { label: "자녀 학원정보", isActive: false, link: "/mypage" },
+        { label: "자녀 성적확인", isActive: false, link: "/mypage/record" },
+        { label: "나의 좋아요 목록", isActive: true, link: "/mypage/like" },
+        { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
+      ];
+      break;
+    default:
+      menuItems = [
+        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
+        { label: "나의 학원정보", isActive: false, link: "/mypage" },
+        { label: "보호자 정보", isActive: false, link: "/mypage/parent" },
+        { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
+        { label: "나의 좋아요 목록", isActive: true, link: "/mypage/like" },
+        { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
+      ];
+  }
 
   const handleLikeChange = (academyId: number, newIsLiked: boolean) => {
     setLikeStates(prevStates => ({
@@ -83,48 +111,13 @@ function MyPageLike() {
     }
   };
 
-  //   fetchData(1); // Fetch data when the component mounts
-  // }, [likeList]);
-
-  // const showDeleteModal = () => {
-  //   setIsModalVisible(true);
-  // };
-
-
-
-  let menuItems = [];
-  switch (currentUserInfo.roleId) {
-    case 3:
-      menuItems = [
-        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
-        { label: "학원정보 관리", isActive: false, link: "/mypage" },
-        { label: "리뷰 목록", isActive: false, link: "/mypage/academy/review" },
-        { label: "좋아요 목록", isActive: true, link: "/mypage/academy/like" },
-      ];
-      break;
-    case 2:
-      menuItems = [
-        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
-        { label: "자녀 관리", isActive: false, link: "/mypage/child" },
-        { label: "자녀 학원정보", isActive: false, link: "/mypage" },
-        { label: "자녀 성적확인", isActive: false, link: "/mypage/record" },
-        { label: "나의 좋아요 목록", isActive: true, link: "/mypage/like" },
-        { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
-      ];
-      break;
-    default:
-      menuItems = [
-        { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
-        { label: "나의 학원정보", isActive: false, link: "/mypage" },
-        { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
-        { label: "나의 좋아요 목록", isActive: true, link: "/mypage/like" },
-        { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
-      ];
-  }
+  useEffect(() => {
+    fetchData(1); // Fetch data when the component mounts
+  }, []);
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuItems} titleName={titleName} />
 
       <div className="w-full">
         <h1 className="title-font">나의 좋아요 목록</h1>

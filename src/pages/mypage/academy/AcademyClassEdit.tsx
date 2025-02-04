@@ -100,6 +100,7 @@ function AcademyClassEdit() {
   const currentUserInfo = useRecoilValue(userInfo);
   const navigate = useNavigate();
 
+  const titleName = "마이페이지";
   let menuItems = [];
   switch (currentUserInfo.roleId) {
     case 3: //학원 관계자
@@ -161,7 +162,7 @@ function AcademyClassEdit() {
   return (
     <AcademyInfo className="w-full  pb-12">
       <div className="flex gap-5 w-full justify-center align-top">
-        <SideBar menuItems={menuItems} />
+        <SideBar menuItems={menuItems} titleName={titleName} />
 
         <div className="w-full">
           <h1 className="title-font">강좌 수정</h1>
