@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { Checkbox, Dropdown, Form, Input, Menu, Pagination } from "antd";
 import { useEffect, useState } from "react";
 import { SlArrowDown } from "react-icons/sl";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import MainButton from "../components/button/MainButton";
 import LocationModal from "../components/modal/LocationModal";
 import axios from "axios";
@@ -20,8 +20,8 @@ interface FilterSection {
 }
 
 interface AcademyData {
-  image: string;
-  name: string;
+  acaPic: string;
+  acaName: string;
   tag: string;
   location: string;
   rating: string;
@@ -93,7 +93,7 @@ const FilterBox = ({
       <div
         className={`transition-all duration-300 ease-in-out overflow-hidden`}
         style={{
-          maxHeight: isOpen ? `${options.length * 40}px` : "0", // 옵션 개수에 따라 동적 높이
+          maxHeight: isOpen ? `${options.length * 50}px` : "0", // 옵션 개수에 따라 동적 높이
         }}
       >
         {options.map(option => (
@@ -111,11 +111,12 @@ const FilterBox = ({
 };
 
 const AcademySearch = () => {
-  const [totalItems, setTotalItems] = useState(0);
   const [selectedSearchType, setSelectedSearchType] = useState<string>("태그");
   const [currentPage, setCurrentPage] = useState(1);
   // const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
+
+  const { search } = useLocation();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -130,89 +131,30 @@ const AcademySearch = () => {
     setSelectedLocation(location); // 지역 선택
     setIsModalVisible(false); // 모달 닫기
     setSelectedLocationText(locationText);
-    console.log(location);
+
+    // URL에 location 파라미터 추가
+    const params = new URLSearchParams(search);
+    params.set("location", String(location)); // location 값 설정
+    params.set("locationText", locationText); // locationText 값 추가
+    navigate({
+      pathname: window.location.pathname,
+      search: params.toString(),
+    });
   };
-  const academyData: AcademyData[] = [
+  const [academyData, setAcademyData] = useState([
     {
-      image: "/images/academy1.png",
-      name: "코딩키즈",
-      tag: "코딩학원",
-      location: "서울 강남구",
-      rating: "4.8",
+      acaId: "",
+      acaPic: "",
+      acaName: "",
+      tagName: "",
+      address: "",
+      star: "",
+      totalCount: "",
     },
-    {
-      image: "/images/academy2.png",
-      name: "체육키즈",
-      tag: "체육학원",
-      location: "서울 서초구",
-      rating: "4.5",
-    },
-    {
-      image: "/images/academy3.png",
-      name: "영어나라",
-      tag: "어학원",
-      location: "서울 송파구",
-      rating: "4.9",
-    },
-    {
-      image: "/images/academy4.png",
-      name: "아트스쿨",
-      tag: "미술학원",
-      location: "서울 강동구",
-      rating: "4.7",
-    },
-    {
-      image: "/images/academy5.png",
-      name: "축구교실",
-      tag: "체육학원",
-      location: "서울 마포구",
-      rating: "4.6",
-    },
-    {
-      image: "/images/academy6.png",
-      name: "체스아카데미",
-      tag: "교육학원",
-      location: "서울 영등포구",
-      rating: "4.3",
-    },
-    {
-      image: "/images/academy7.png",
-      name: "수영스쿨",
-      tag: "체육학원",
-      location: "서울 강서구",
-      rating: "4.4",
-    },
-    {
-      image: "/images/academy8.png",
-      name: "로봇과학교실",
-      tag: "과학학원",
-      location: "서울 노원구",
-      rating: "4.9",
-    },
-    {
-      image: "/images/academy9.png",
-      name: "발레아카데미",
-      tag: "무용학원",
-      location: "서울 종로구",
-      rating: "4.6",
-    },
-    {
-      image: "/images/academy10.png",
-      name: "음악스쿨",
-      tag: "음악학원",
-      location: "서울 용산구",
-      rating: "4.7",
-    },
-  ];
+  ]);
 
   const navigate = useNavigate();
 
-  // const handleOpenModal = () => {
-  //   setVisible(true);
-  // };
-  // const handleCloseModal = () => {
-  //   setVisible(false);
-  // };
   const getRandomUniqueNumber = () => {
     if (usedRandomNumbers.size === 10) {
       usedRandomNumbers.clear(); // 모든 숫자가 사용되면 초기화
@@ -251,34 +193,38 @@ const AcademySearch = () => {
       id: "age",
       title: "수강 연령",
       options: [
-        { label: "성인", value: "adult" },
-        { label: "청소년", value: "teenager" },
-        { label: "초등학생", value: "elementary" },
-        { label: "유아", value: "child" },
-        { label: "기타", value: "etc" },
+        { label: "성인", value: "1" },
+        { label: "청소년", value: "2" },
+        { label: "초등학생", value: "3" },
+        { label: "유아", value: "4" },
+        { label: "기타", value: "5" },
       ],
     },
     {
       id: "level",
       title: "수준",
       options: [
-        { label: "전문가", value: "expert" },
-        { label: "상급", value: "advanced" },
-        { label: "중급", value: "intermediate" },
-        { label: "초급", value: "beginner" },
-        { label: "입문자", value: "novice" },
+        { label: "전문가", value: "6" },
+        { label: "상급", value: "7" },
+        { label: "중급", value: "8" },
+        { label: "초급", value: "9" },
+        { label: "입문자", value: "10" },
       ],
     },
   ];
-  // const fetchData = (page: number) => {
-  //   //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
-  //   setTotalItems(10);
-  // };
 
   // 페이지 변경 핸들러
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    fetchData(page);
+    setCurrentPage(page); // 상태 업데이트
+
+    // URL 업데이트
+    const params = new URLSearchParams(location.search);
+    params.set("page", String(page));
+
+    navigate({
+      pathname: location.pathname,
+      search: params.toString(),
+    });
   };
 
   // 필터 상태 관리
@@ -289,34 +235,101 @@ const AcademySearch = () => {
     level: [],
   });
 
+  const [prevFilters, setPrevFilters] = useState({
+    age: "",
+    level: "",
+  });
+
   // 개별 필터 값 변경 핸들러
   const handleFilterChange = (
     sectionId: string,
-    value: string,
+    id: string,
     checked: boolean,
   ) => {
     setSelectedFilters(prev => {
       const currentValues = prev[sectionId] || [];
-      if (checked) {
-        return {
-          ...prev,
-          [sectionId]: [...currentValues, value],
-        };
+      if (checked && !currentValues.includes(id)) {
+        currentValues.push(id);
       } else {
-        return {
-          ...prev,
-          [sectionId]: currentValues.filter(v => v !== value),
-        };
+        const index = currentValues.indexOf(id);
+        if (index > -1) {
+          currentValues.splice(index, 1);
+        }
       }
+
+      // URL 쿼리 스트링 업데이트
+      const params = new URLSearchParams(search);
+      params.set(sectionId, currentValues.join(","));
+      navigate({
+        pathname: window.location.pathname,
+        search: params.toString(),
+      });
+
+      return {
+        ...prev,
+        [sectionId]: currentValues,
+      };
     });
-    // console.log(selectedFilters);
   };
-  // useEffect(() => {
-  //   try {
-  //     const res = axios.post("/api/academy/getAcademyListByAll");
-  //   } catch (error) {}
-  //   console.log("Updated filters:", selectedFilters);
-  // }, [selectedFilters]); // selectedFilters가 변경될 때마다 실행
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const newFilters: { [key: string]: string[] } = {};
+
+    // 필터 값 갱신
+    filterSections.forEach(section => {
+      const values = params.get(section.id);
+      newFilters[section.id] = values ? values.split(",") : [];
+    });
+
+    // 필터 상태가 이전과 다르면 업데이트
+    // if (JSON.stringify(newFilters) !== JSON.stringify(selectedFilters)) {
+    //   setSelectedFilters(newFilters);
+    // }
+    const currentAge = params.get("age");
+    const currentLevel = params.get("level");
+    if (currentAge !== prevFilters.age || currentLevel !== prevFilters.level) {
+      handlePageChange(1);
+      setPrevFilters({ age: currentAge || "", level: currentLevel || "" }); // 이전 값을 업데이트
+    }
+
+    // handlePageChange(1);
+
+    // 지역 값 갱신
+    const location = params.get("location");
+    const locationText = params.get("locationText");
+
+    if (
+      location !== String(selectedLocation) ||
+      locationText !== selectedLocationText
+    ) {
+      setSelectedLocation(location ? Number(location) : -1);
+      setSelectedLocationText(locationText || null);
+    }
+
+    // URL에서 'location' 파라미터를 가져와서 상태에 반영
+    // if (location) {
+    //   setSelectedLocation(Number(location));
+
+    // }
+
+    fetchData(currentPage); // 필터가 변경될 때마다 데이터 갱신
+  }, [
+    // selectedFilters.age,
+    // selectedFilters.level,
+    // selectedLocation,
+    searchInput,
+    search,
+    currentPage,
+  ]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const pageParam = params.get("page");
+
+    if (pageParam) {
+      setCurrentPage(Number(pageParam)); // 'string' → 'number' 변환
+    }
+  }, [location.search]);
 
   const SearchInput = styled(Input.Search)`
     .ant-input {
@@ -332,38 +345,91 @@ const AcademySearch = () => {
   `;
 
   const onFinish = async (values: any) => {
-    console.log("Selected Filters:", selectedFilters);
-    console.log(values);
-  };
-  // 검색어 변경 핸들러
-  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchInput(e.target.value);
+    const params = new URLSearchParams(search);
+
+    // 필터 값 추가
+    for (const [key, values] of Object.entries(selectedFilters)) {
+      if (values.length) {
+        params.set(key, values.join(",")); // 필터 값들을 ','로 연결하여 저장
+      }
+    }
+
+    // 지역 추가
+    if (selectedLocation !== -1) {
+      params.set("dongId", String(selectedLocation));
+    }
+
+    console.log(selectedSearchType);
+    console.log(values.searchInput);
+
+    // 검색어 추가 (버튼을 눌렀을 때만 반영)
+    if (values.searchInput) {
+      if (selectedSearchType === "태그") {
+        params.set("tagName", values.searchInput);
+        params.delete("searchName");
+      } else {
+        params.set("searchName", values.searchInput);
+        params.delete("tagName");
+      }
+    } else {
+      params.delete("tagName");
+      params.delete("searchName");
+    }
+
+    // URL 업데이트
+    navigate({
+      pathname: window.location.pathname,
+      search: params.toString(),
+    });
+
+    fetchData(1); // 첫 페이지에서 다시 검색
   };
 
   const fetchData = async (page: number) => {
-    const params = {
-      dongId: selectedLocation || -1, // 선택된 지역
-      searchName: searchInput, // 검색어
-      tagId: 1, // 태그 ID, 필요시 수정
-      categoryIds: selectedFilters.age.concat(selectedFilters.level), // 연령대 및 수준 필터
-      page: page, // 페이지 번호
-      size: 10, // 페이지 크기
-    };
+    const params = new URLSearchParams(search);
+
+    // 페이지 번호와 크기
+    params.set("page", String(page));
+    params.set("size", "10");
+
+    // 필터 값 추가
+    for (const [key, values] of Object.entries(selectedFilters)) {
+      if (values.length) {
+        values.forEach(value => {
+          params.append("categoryIds", value); // 같은 key에 여러 값을 추가
+        });
+      }
+    }
+
+    // location 값 추가 (필터가 있을 경우 추가)
+    // if (selectedLocation !== -1) {
+    //   params.set("dongId", String(selectedLocation));
+    // }
+    // console.log(searchInput);
+
+    if (searchInput) {
+      if (selectedSearchType === "태그") {
+        params.set("tagName", String(searchInput));
+      } else {
+        params.set("searchName", String(searchInput));
+      }
+    }
+
+    // params가 어떤 값인지 확인하기
+    console.log(params.toString()); // URL 파라미터 형태로 출력
 
     try {
       const response = await axios.get("/api/academy/getAcademyListByAll", {
-        params,
+        params: params,
       });
-      console.log(response.data); // 데이터 확인
-      setTotalItems(response.data.totalItems); // 총 아이템 수 설정
-      // 데이터를 기반으로 학원 목록 갱신
+
+      setAcademyData(response.data.resultData);
+      // setTotalCount(response.data.)
+      console.log(response);
     } catch (error) {
       console.error("API 요청 실패:", error);
     }
   };
-
-  const id = 123;
-  const path = `/academy/detail?id=${id}`;
 
   return (
     <Form form={form} onFinish={onFinish}>
@@ -378,23 +444,15 @@ const AcademySearch = () => {
 
             <div className="flex flex-col gap-[8px]">
               {filterSections.map((section, index) => (
-                <Form.Item
-                  name="selectedFilters"
-                  className="mx-0 my-0"
-                  initialValue={selectedFilters}
-                  // key={section.id}
-                  // label={section.title}
-                >
-                  <FilterBox
-                    key={section.id}
-                    title={section.title}
-                    options={section.options}
-                    selectedValues={selectedFilters[section.id] || []}
-                    onValueChange={(value, checked) =>
-                      handleFilterChange(section.id, value, checked)
-                    }
-                  />
-                </Form.Item>
+                <FilterBox
+                  key={section.id}
+                  title={section.title}
+                  options={section.options}
+                  selectedValues={selectedFilters[section.id] || []}
+                  onValueChange={(value, checked) =>
+                    handleFilterChange(section.id, value, checked)
+                  }
+                />
               ))}
             </div>
           </div>
@@ -426,11 +484,7 @@ const AcademySearch = () => {
               </div>
             </div>
             <div className="relative">
-              <Form.Item
-                name="searchInput"
-                // label="검색어"
-                // rules={[{ required: true, message: "검색어를 입력하세요!" }]}
-              >
+              <Form.Item name="searchInput">
                 <SearchInput
                   placeholder={`${selectedSearchType}를 입력해주세요`}
                   className="border-none w-[395px] h-[56px]"
@@ -472,64 +526,73 @@ const AcademySearch = () => {
 
             {/* 학원 목록 아이템 */}
 
-            {academyData.map((academy, index) => (
-              <div
-                key={index}
-                className="flex flex-row h-[72px] border-t border-[#DBE3E6] cursor-pointer"
-                onClick={() => navigate(path)}
-              >
-                <div className="flex justify-center items-center min-w-[10%]">
-                  <img
-                    className="w-[60px] h-[60px] rounded-[20px]"
-                    src={academy.image} // 기본 이미지 설정
-                    onError={e => {
-                      const target = e.target as HTMLImageElement;
-                      const randomNum = getRandomUniqueNumber();
-                      target.src = `/default_academy${randomNum}.jpg`;
-                    }}
-                  />
-                </div>
-                <div className="flex items-center p-4 w-full text-start">
-                  <span className="text-[14px] text-brand-default">
-                    {academy.name}
-                  </span>
-                </div>
-                <div className="flex min-w-[15%] justify-center items-center p-4">
-                  <span className="text-[14px] text-brand-placeholder">
-                    {academy.tag}
-                  </span>
-                </div>
-                <div className="flex min-w-[15%] justify-center items-center p-4">
-                  <span className="text-[14px] text-brand-placeholder">
-                    {academy.location}
-                  </span>
-                </div>
-                <div className="flex min-w-[15%] justify-center items-center p-4">
-                  <div className="flex justify-center items-center px-4 h-8 bg-[#F0F2F5] rounded-xl">
-                    <span className="text-[14px] font-medium text-brand-default">
-                      {academy.rating}
+            {academyData && academyData.length > 0 ? (
+              academyData.map((academy, index) => (
+                <div
+                  key={index}
+                  className="flex flex-row h-[72px] border-t border-[#DBE3E6] cursor-pointer"
+                  onClick={() => {
+                    const id = academy.acaId;
+                    const path = `/academy/detail?id=${id}`;
+                    navigate(path);
+                  }}
+                >
+                  <div className="flex justify-center items-center min-w-[10%]">
+                    <img
+                      className="w-[60px] h-[60px] rounded-[20px]"
+                      src={academy.acaPic} // 기본 이미지 설정
+                      onError={e => {
+                        const target = e.target as HTMLImageElement;
+                        const randomNum = getRandomUniqueNumber();
+                        target.src = `/default_academy${randomNum}.jpg`;
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center p-4 w-full text-start">
+                    <span className="text-[14px] text-brand-default">
+                      {academy.acaName}
                     </span>
                   </div>
+                  <div className="flex min-w-[15%] items-center p-4">
+                    <span className="text-[14px] text-brand-placeholder line-clamp-1 text-start">
+                      {academy.tagName}
+                    </span>
+                  </div>
+                  <div className="flex min-w-[15%] justify-center items-center p-4">
+                    <span className="text-[14px] text-brand-placeholder line-clamp-1">
+                      {academy.address}
+                    </span>
+                  </div>
+                  <div className="flex min-w-[15%] justify-center items-center p-4">
+                    <div className="flex justify-center items-center px-4 h-8 bg-[#F0F2F5] rounded-xl">
+                      <span className="text-[14px] font-medium text-brand-default ">
+                        {Number(academy.star).toFixed(1)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="text-center p-4 border-t">
+                등록한 학원이 없습니다.
               </div>
-            ))}
+            )}
           </div>
           <div className="flex w-full justify-center items-center my-4">
             <Pagination
               current={currentPage}
-              total={500} // 전체 아이템 수
+              total={
+                academyData &&
+                academyData.length > 0 &&
+                academyData[0].totalCount
+                  ? Number(academyData[0].totalCount)
+                  : 1
+              } // 전체 아이템 수
               pageSize={10} // 페이지당 아이템 수
               onChange={handlePageChange}
               showSizeChanger={false} // 페이지 사이즈 변경 옵션 숨김
             />
           </div>
-          {/* <div className="flex w-full justify-center items-center">
-          <Pages
-            perPage={5}
-            totalPage={10}
-            onPageChange={() => handlePageChange(1)}
-          />
-        </div> */}
         </div>
         {isModalVisible && (
           <Form.Item name="location">

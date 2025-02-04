@@ -5,10 +5,12 @@ import axios from "axios";
 import { SecondaryButton } from "./Modal";
 import MainButton from "../button/MainButton";
 import jwtAxios from "../../apis/jwt";
+import { useRecoilState } from "recoil";
+import userInfo from "../../atoms/userInfo";
 
 interface ReviewModalProps {
   onClose: () => void;
-  joinClassId: number;
+  joinClassId: number[];
 }
 
 interface ReviewFormValues {
@@ -17,13 +19,18 @@ interface ReviewFormValues {
 
 function ReviewModal({ onClose, joinClassId }: ReviewModalProps) {
   const [form] = Form.useForm();
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(1);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [user, setUser] = useRecoilState(userInfo);
 
   const handleStarClick = (selectedRating: number) => {
     setRating(selectedRating);
+    // console.log(rating);
   };
+  // useEffect(() => {
+  //   console.log(rating); // rating 값이 변경된 후 출력됨
+  // }, [rating]); // rating이 변경될 때마다 호출
 
   useEffect(() => {
     try {
@@ -46,9 +53,10 @@ function ReviewModal({ onClose, joinClassId }: ReviewModalProps) {
       setIsSubmitting(true);
 
       const res = await jwtAxios.post("/api/review/user", {
-        joinClassId: joinClassId,
+        joinClassId: joinClassId[0],
         comment: values.comment.trim(),
         star: rating,
+        userId: user.userId,
       });
 
       console.log(res);
@@ -66,7 +74,9 @@ function ReviewModal({ onClose, joinClassId }: ReviewModalProps) {
     return (
       <div
         className="flex gap-0.5 mt-2"
-        onMouseLeave={() => setHoveredRating(0)}
+        onMouseLeave={() => {
+          setHoveredRating(0);
+        }}
       >
         {Array(5)
           .fill(null)

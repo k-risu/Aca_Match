@@ -53,7 +53,7 @@ function LoginPage() {
         <div className="w-[1280px] flex items-center justify-between mx-auto">
           <img
             src="/public/logo2.png"
-            className="w-[210px] h-[48px] cursor-pointer mr-[full]"
+            className="w-[160px] cursor-pointer mr-[full]"
             onClick={() => {
               navigate("/");
             }}

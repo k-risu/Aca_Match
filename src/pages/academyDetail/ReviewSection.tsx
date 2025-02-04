@@ -2,6 +2,9 @@ import { Pagination } from "antd";
 import { useEffect, useState } from "react";
 import ReviewModal from "../../components/modal/ReviewModal";
 import { AcademyClass, Review } from "./types"; // types.ts에서 Review 타입을 임포트
+import jwtAxios from "../../apis/jwt";
+import userInfo from "../../atoms/userInfo";
+import { useRecoilState } from "recoil";
 
 interface ReviewSectionProps {
   star: number;
@@ -10,6 +13,10 @@ interface ReviewSectionProps {
   academyId: number;
   reviews: Review[];
   classes: AcademyClass[];
+}
+interface ClassItem {
+  classId: number;
+  className: string;
 }
 
 const styles = {
@@ -45,6 +52,8 @@ const ReviewSection = ({
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [user, setUser] = useRecoilState(userInfo);
+  const [commonClasses, setCommonClasses] = useState<number[]>([]);
 
   // const fetchReviews = async (page: number) => {
   //   try {
@@ -67,6 +76,51 @@ const ReviewSection = ({
   useEffect(() => {
     setReviews(initialReviews);
   }, [initialReviews]);
+  useEffect(() => {
+    getData();
+  }, []);
+  const getData = async () => {
+    try {
+      // 비동기적으로 데이터 요청
+      const res = await jwtAxios.get(
+        `/api/joinClass?userId=${user.userId}&page=1&size=100`,
+      );
+
+      // API 응답에서 resultData를 가져옵니다.
+      const resultData = res.data.resultData;
+
+      // classes와 resultData의 classId를 비교하는 로직
+      const isClassInRes = classes.some(classItem =>
+        resultData.some(academy =>
+          academy.classList?.some(
+            classListItem => classListItem.classId === classItem.classId,
+          ),
+        ),
+      );
+
+      console.log(resultData);
+      console.log("Classes: ", classes);
+      console.log("결과: ", isClassInRes); // true 또는 false가 출력됨
+
+      // const commonClasses: number[] = [];
+
+      if (isClassInRes) {
+        classes.forEach(classItem => {
+          resultData.forEach((academy: Academy) => {
+            academy.classList?.forEach((classListItem: ClassItem) => {
+              if (classListItem.classId === classItem.classId) {
+                // 일치하는 classId를 commonClasses 배열에 추가
+                commonClasses.push(classItem.classId);
+              }
+            });
+          });
+        });
+      }
+      console.log(commonClasses);
+    } catch (error) {
+      console.log("오류 발생:", error);
+    }
+  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -147,7 +201,7 @@ const ReviewSection = ({
       </div>
       {isModalVisible && (
         <ReviewModal
-          joinClassId={classes.classId}
+          joinClassId={commonClasses}
           // rating={3} // 선택적으로 전달
           onClose={() => setIsModalVisible(false)}
         />

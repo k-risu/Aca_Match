@@ -14,7 +14,7 @@ function SignupEnd() {
         <div className="w-[1280px] flex items-center justify-between mx-auto">
           <img
             src="/public/logo2.png"
-            className="w-[210px] h-12 cursor-pointer"
+            className="w-[160px] cursor-pointer"
             onClick={() => navigate("/")}
           />
         </div>
