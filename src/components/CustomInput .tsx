@@ -88,6 +88,7 @@ function CustomInput({
           maxLength={24}
           className={inputClassName}
           placeholder={placeholder}
+          onChange={onChange}
           style={{
             width,
             height,

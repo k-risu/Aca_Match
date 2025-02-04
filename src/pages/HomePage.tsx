@@ -1,6 +1,6 @@
 import { Skeleton } from "antd";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import CustomInput from "../components/CustomInput ";
@@ -50,59 +50,7 @@ function HomePage() {
 
   const [loading, setLoading] = useState(true); // 로딩 상태 추가
 
-  const popularSubjects = [
-    { name: "수학", link: "/" },
-    { name: "과학", link: "/" },
-    { name: "영어", link: "/" },
-    { name: "스페인어", link: "/" },
-    { name: "프랑스어", link: "/" },
-    { name: "중국어", link: "/" },
-    { name: "피아노", link: "/" },
-    { name: "바이올린", link: "/" },
-    { name: "기타", link: "/" },
-    { name: "음악", link: "/" },
-    { name: "코딩", link: "/" },
-    { name: "일본어", link: "/" },
-  ];
-
-  // const pickAcademyCards = [
-  //   {
-  //     subject: "수학 학원",
-  //     description: "Math, Algebra, Calculus",
-  //     reviews: "5.0 (123 reviews)",
-  //     questionsAnswered: "12,000 questions answered",
-  //     link: "/",
-  //   },
-  //   {
-  //     subject: "과학 학원",
-  //     description: "Physics, Chemistry",
-  //     reviews: "4.9 (87 reviews)",
-  //     questionsAnswered: "9,000 questions answered",
-  //     link: "/",
-  //   },
-  //   {
-  //     subject: "영어 학원",
-  //     description: "English, Grammar, ESL",
-  //     reviews: "4.8 (56 reviews)",
-  //     questionsAnswered: "7,500 questions answered",
-  //     link: "/",
-  //   },
-  //   {
-  //     subject: "외국어 학원",
-  //     description: "Spanish, French, Italian",
-  //     reviews: "4.7 (34 reviews)",
-  //     questionsAnswered: "6,000 questions answered",
-  //     link: "/",
-  //   },
-  //   {
-  //     subject: "코딩 학원",
-  //     description: "Programming, Web Development",
-  //     reviews: "4.9 (45 reviews)",
-  //     questionsAnswered: "5,500 questions answered",
-  //     link: "/",
-  //   },
-  // ];
-
+  const [popularTag, setPopularTag] = useState([]);
   const [bestAcademyCards, setBestAcademyCards] = useState<BestAcademy[]>([
     {
       subject: "수학 학원",
@@ -158,14 +106,24 @@ function HomePage() {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const handleButton1Click = () => {
-    setIsModalVisible(false);
+  const [searchValue, setSearchValue] = useState("");
+
+  const handleInputChange = e => {
+    setSearchValue(e.target.value);
   };
 
+  const handleButton1Click = () => {
+    navigate(`academy?tagName=${searchValue}`);
+  };
+  const randomNumbersRef = useRef<{ [key: number]: number }>({});
+
   const getAcademyImageUrl = (acaId: number, pic: string) => {
-    // console.log(acaId, pic);
-    if (pic === "default.jpg" || pic === undefined || pic === null) {
-      return `/default_academy${getRandomUniqueNumber()}.jpg`;
+    if (!pic || pic === "default.jpg") {
+      // 🔥 학원별로 고유한 랜덤 숫자를 설정
+      if (!randomNumbersRef.current[acaId]) {
+        randomNumbersRef.current[acaId] = Math.floor(Math.random() * 10) + 1; // 1~10 사이 랜덤
+      }
+      return `/default_academy${randomNumbersRef.current[acaId]}.jpg`;
     }
     return `http://112.222.157.156:5223/pic/academy/${acaId}/${pic}`;
   };
@@ -178,11 +136,28 @@ function HomePage() {
     const fetchDefaultAcademies = async () => {
       setIsDefaultLoading(true);
       try {
+        const response = await axios.get("/api/academy/popularSearch");
+        setPopularTag(response.data.resultData);
+        console.log(response);
+      } catch (error) {
+        console.error("Error fetching default academies:", error);
+      } finally {
+        setIsDefaultLoading(false);
+      }
+    };
+
+    fetchDefaultAcademies();
+  }, []);
+
+  useEffect(() => {
+    const fetchDefaultAcademies = async () => {
+      setIsDefaultLoading(true);
+      try {
         const response = await axios.get("/api/academy/AcademyDefault");
         setDefaultAcademies(response.data.resultData);
         console.log(response);
       } catch (error) {
-        console.error("Error fetching default academies:", error);
+        console.error(error);
       } finally {
         setIsDefaultLoading(false);
       }
@@ -272,6 +247,8 @@ function HomePage() {
             focusOutline="none"
             focusBorder="none"
             border="none"
+            value={searchValue}
+            onChange={handleInputChange}
           >
             <CiSearch className="text-[24px] font-bold  text-brand-placeholder absolute left-[10px] bottom-[40px] " />
 
@@ -290,38 +267,17 @@ function HomePage() {
       <div className="w-full max-w-[990px]">
         <h2 className="text-2xl font-bold mb-6">인기 태그</h2>
         <div className="flex flex-wrap gap-5 justify-start items-center">
-          {popularSubjects.map((subject, index) => (
+          {popularTag.map((subject, index) => (
             <div
               key={index}
               className="bg-brand-BTWhite hover:bg-brand-BTWhiteHover px-4 py-1.5 rounded-xl flex-row-center cursor-pointer"
-              onClick={() => navigate(subject.link)}
+              onClick={() => navigate(`academy?tagName=${subject.tagName}`)}
             >
-              <span className="text-sm font-medium">{subject.name}</span>
+              <span className="text-sm font-medium">{subject.tagName}</span>
             </div>
           ))}
         </div>
       </div>
-
-      {/* 이 학원은 어떠신가요? */}
-      {/* <div className="w-full max-w-[990px]">
-        <h2 className="text-2xl font-bold mb-6">이 학원 어떠신가요?</h2>
-        <div className="grid grid-cols-5 gap-[6]">
-          {pickAcademyCards.map((card, index) => (
-            <div
-              key={index}
-              className="flex flex-col gap-4 cursor-pointer"
-              onClick={() => navigate(card.link)}
-            >
-              <div className="w-[186px] h-[186px] bg-gray-200 rounded-xl"></div>
-              <div>
-                <h3 className="font-medium text-base">{card.subject}</h3>
-                <p className="text-sm text-[#507A95]">{card.description}</p>
-                <p className="text-sm text-[#507A95]">{card.reviews}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div> */}
       <div className="w-full max-w-[990px]">
         <h2 className="text-2xl font-bold mb-6">이 학원 어떠신가요?</h2>
         <div className="grid grid-cols-5 gap-6">

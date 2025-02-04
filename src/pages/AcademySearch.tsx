@@ -127,6 +127,11 @@ const AcademySearch = () => {
 
   const [searchInput, setSearchInput] = useState<string>("");
 
+  const [age, setAge] = useState("");
+  const [level, setLevel] = useState("");
+
+  const [searchValue, setSearchValue] = useState("");
+
   const handleLocationSelect = (location: number, locationText: string) => {
     setSelectedLocation(location); // 지역 선택
     setIsModalVisible(false); // 모달 닫기
@@ -288,7 +293,7 @@ const AcademySearch = () => {
     const currentAge = params.get("age");
     const currentLevel = params.get("level");
     if (currentAge !== prevFilters.age || currentLevel !== prevFilters.level) {
-      handlePageChange(1);
+      // handlePageChange(1);
       setPrevFilters({ age: currentAge || "", level: currentLevel || "" }); // 이전 값을 업데이트
     }
 
@@ -305,12 +310,22 @@ const AcademySearch = () => {
       setSelectedLocation(location ? Number(location) : -1);
       setSelectedLocationText(locationText || null);
     }
+    if (currentAge !== age || currentLevel !== level) {
+      setAge(currentAge);
+      setLevel(currentLevel);
+      handlePageChange(1); // 필터 변경 시 페이지 1로 이동
+    }
+    console.log("작동중", age, level);
 
     // URL에서 'location' 파라미터를 가져와서 상태에 반영
     // if (location) {
     //   setSelectedLocation(Number(location));
 
     // }
+    if (params.get("tagName")) {
+      setSearchValue(params.get("tagName"));
+      console.log("작동중", searchValue);
+    }
 
     fetchData(currentPage); // 필터가 변경될 때마다 데이터 갱신
   }, [
@@ -486,9 +501,14 @@ const AcademySearch = () => {
             <div className="relative">
               <Form.Item name="searchInput">
                 <SearchInput
+                  key={location.search}
                   placeholder={`${selectedSearchType}를 입력해주세요`}
                   className="border-none w-[395px] h-[56px]"
                   size="large"
+                  value={searchValue}
+                  defaultValue={
+                    new URLSearchParams(location.search).get("tagName") || ""
+                  }
                   onSearch={value => form.submit()}
                 />
               </Form.Item>
