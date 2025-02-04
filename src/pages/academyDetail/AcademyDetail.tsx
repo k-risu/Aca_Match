@@ -71,7 +71,11 @@ const styles = {
 };
 const AcademyDetail = () => {
   const [searchParams] = useSearchParams();
+
   const acaId = searchParams.get("id");
+  const page = searchParams.get("page") || "1";
+  const size = 10;
+
   const [academyData, setAcademyData] = useState<AcademyData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -118,8 +122,8 @@ const AcademyDetail = () => {
         setLoading(true);
         // userId가 있을 경우 signedUserId 파라미터 추가
         const url = userId
-          ? `/api/academy/getAcademyDetailAllInfo?signedUserId=${userId}&acaId=${acaId}`
-          : `/api/academy/getAcademyDetailAllInfo?acaId=${acaId}`;
+          ? `/api/academy/getAcademyDetailAllInfo?signedUserId=${userId}&acaId=${acaId}&page=${page}&size=${size}`
+          : `/api/academy/getAcademyDetailAllInfo?acaId=${acaId}&page=${page}&size=${size}`;
 
         const response = await axios.get(url);
 

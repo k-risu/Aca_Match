@@ -6,6 +6,7 @@ import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import userInfo from "../../atoms/userInfo";
+import jwtAxios from "../../apis/jwt";
 
 interface LikeButtonProps {
   academyId: number;
@@ -59,7 +60,7 @@ const LikeButton = ({
 
       if (isLiked) {
         // 좋아요 삭제
-        const res = await axios.delete(
+        const res = await jwtAxios.delete(
           `/api/like?userId=${userId}&acaId=${academyId}`,
           {
             headers: {
@@ -77,7 +78,7 @@ const LikeButton = ({
         console.log("좋아요 삭제 완료", res);
       } else {
         // 좋아요 등록
-        const res = await axios.post(
+        const res = await jwtAxios.post(
           `/api/like`,
           {
             userId: userId,

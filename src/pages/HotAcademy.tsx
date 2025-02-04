@@ -48,8 +48,9 @@ function HotAcademy() {
       image: string;
       name: string;
       tags: string;
-      rating: string;
-      reviews: number;
+      likeCount: string;
+      reviewCount: number;
+      academyLikeCount: number;
     }>
   >([]);
 
@@ -69,8 +70,9 @@ function HotAcademy() {
           image: getAcademyImageUrl(item.acaId, item.acaPic),
           acaName: item.acaName || "학원 이름",
           tags: item.tagNames || "태그 정보 없음",
-          rating: item.starAvg?.toFixed(1) || "0.0",
-          reviews: item.reviewCount || 0,
+          starAvg: item.starAvg?.toFixed(1) || "0.0",
+          reviewCount: item.reviewCount || 0,
+          academyLikeCount: item.academyLikeCount,
         }));
 
         console.log(response);
@@ -112,7 +114,7 @@ function HotAcademy() {
         <div className="w-full gap-[12px] py-[16px] px-[16px] border rounded-lg overflow-hidden">
           <div className="flex flex-col gap-6">
             {/* 학원 목록 */}
-            <div className="grid grid-cols-5 gap-6">
+            <div className="grid grid-cols-5 gap-6 h-[568px]">
               {showSkeleton
                 ? [...Array(10)].map((_, index) => <SkeletonCard key={index} />)
                 : academyData.map(academy => (
@@ -126,7 +128,13 @@ function HotAcademy() {
         <div className="flex justify-center items-center m-6">
           <Pagination
             current={currentPage}
-            total={(currentPage + (hasMore ? 1 : 0)) * pageSize}
+            total={
+              academyData &&
+              academyData.length > 0 &&
+              academyData[0].academyLikeCount
+                ? Number(academyData[0].academyLikeCount)
+                : 1
+            } // 전체 아이템 수
             pageSize={pageSize}
             onChange={handlePageChange}
             showSizeChanger={false}
@@ -157,10 +165,14 @@ const SkeletonCard = () => (
 // 학원 카드 컴포넌트
 const AcademyCard = ({ academy }: { academy: (typeof academyData)[0] }) => {
   const navigate = useNavigate();
+  console.log("여기", academy);
+
   return (
     <div
       className="flex flex-col items-start pb-3 gap-3 w-[166px] cursor-pointer"
-      onClick={() => navigate(`/academy/detail?id=${academy.id}`)}
+      onClick={() =>
+        navigate(`/academy/detail?id=${academy.id}&page=1&size=10`)
+      }
     >
       <img
         src={academy.image}
@@ -171,11 +183,12 @@ const AcademyCard = ({ academy }: { academy: (typeof academyData)[0] }) => {
         <h3 className="text-base font-medium text-[#0E161B] leading-6 w-full line-clamp-1">
           {academy.acaName}
         </h3>
-        <p className="text-sm text-[#507A95] leading-[21px] w-full line-clamp-1">
-          {academy.tags}
-          <br />
-          {console.log(academy.rating)}
-          {academy.rating} ({academy.reviews} reviews)
+        <p className="text-sm text-[#507A95] leading-[21px] w-full ">
+          <p className="line-clamp-1">{academy.tags}</p>
+          <p className="text-sm line-clamp-1">
+            {console.log(academy.starAvg)}
+            {academy.starAvg} ({academy.reviewCount} reviews)
+          </p>
         </p>
       </div>
     </div>
