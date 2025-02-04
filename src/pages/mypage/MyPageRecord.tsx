@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import SideBar from "../../components/SideBar";
-import { Pagination } from "antd";
+import { message, Pagination } from "antd";
 import { useRecoilValue } from "recoil";
-import { getCookie } from "../../utils/cookie";
 import userInfo from "../../atoms/userInfo";
 import jwtAxios from "../../apis/jwt";
+import { useNavigate } from "react-router-dom";
 
 function MyPageRecord() {
   const [myAcademyArray, setMyAcademyArray] = useState([]);
   const currentUserInfo = useRecoilValue(userInfo);
-  const accessToken = getCookie("accessToken");
+  const navigate = useNavigate();
 
+  const titleName = "마이페이지";
   let menuItems = [];
   switch (currentUserInfo.roleId) {
     case 3: //학원 관계자
@@ -35,6 +36,7 @@ function MyPageRecord() {
       menuItems = [
         { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
         { label: "나의 학원정보", isActive: false, link: "/mypage" },
+        { label: "보호자 정보", isActive: false, link: "/mypage/parent" },
         { label: "나의 성적확인", isActive: true, link: "/mypage/record" },
         { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
         { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
@@ -46,14 +48,9 @@ function MyPageRecord() {
     try {
       //나의 수강목록 호출
       const res = await jwtAxios.get(
-        `/api/joinClass?userId=${currentUserInfo.userId}&page=${page}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
+        `/api/joinClass?userId=${currentUserInfo.userId}&page=1`,
       );
-      console.log(res.data.resultData);
+      //console.log(res.data.resultData);
       setMyAcademyArray(res.data.resultData);
     } catch (error) {
       console.log(error);
@@ -66,9 +63,16 @@ function MyPageRecord() {
     myAcademyList();
   }, []);
 
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
+  }, []);
+
   return (
     <div className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuItems} titleName={titleName} />
 
       <div className="w-full">
         <h1 className="title-font">나의 성적확인</h1>
@@ -89,13 +93,13 @@ function MyPageRecord() {
             </div>
           </div>
 
-          {myAcademyArray.length === 0 && (
+          {myAcademyArray === null && (
             <div className="text-center p-4 border-b">
               등록한 학원이 없습니다.
             </div>
           )}
 
-          {myAcademyArray.map((item, index) => (
+          {myAcademyArray?.map((item, index) => (
             <div
               key={index}
               className="loop-content flex justify-between align-middle p-4 border-b"
@@ -132,7 +136,7 @@ function MyPageRecord() {
         <div className="flex justify-center items-center m-6 mb-10">
           <Pagination
             defaultCurrent={1}
-            total={myAcademyArray.length}
+            total={myAcademyArray?.length}
             showSizeChanger={false}
           />
         </div>

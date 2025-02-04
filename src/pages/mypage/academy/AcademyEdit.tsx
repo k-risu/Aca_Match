@@ -123,6 +123,7 @@ const TagListSelect = styled.div`
   }
 `;
 
+const titleName = "마이페이지";
 const menuItems = [
   { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
   { label: "학원정보 관리", isActive: true, link: "/mypage/academy" },
@@ -384,7 +385,7 @@ function AcademyEdit() {
   return (
     <AcademyInfo className="w-full">
       <div className="flex gap-5 w-full justify-center pb-10">
-        <SideBar menuItems={menuItems} />
+        <SideBar menuItems={menuItems} titleName={titleName} />
 
         <div className="w-full">
           <h1 className="title-font flex justify-between align-middle">

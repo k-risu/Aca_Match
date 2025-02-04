@@ -15,6 +15,7 @@ function AcademyStudent() {
 
   const classId = searchParams.get("classId");
 
+  const titleName = "마이페이지";
   const menuItems = [
     { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
     { label: "학원정보 관리", isActive: true, link: "/mypage/academy" },
@@ -51,7 +52,7 @@ function AcademyStudent() {
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuItems} titleName={titleName} />
 
       <div className="w-full">
         <h1 className="title-font flex justify-between align-middle">

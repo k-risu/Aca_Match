@@ -17,6 +17,7 @@ function AcademyReview() {
   const currentUserInfo = useRecoilValue(userInfo);
   //const acaId = searchParams.get("acaId");
 
+  const titleName = "마이페이지";
   let menuItems = [];
   switch (currentUserInfo.roleId) {
     case 3: //학원 관계자
@@ -100,7 +101,7 @@ function AcademyReview() {
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuItems} titleName={titleName} />
 
       <div className="w-full">
         <h1 className="title-font">학원리뷰 목록</h1>
@@ -115,21 +116,28 @@ function AcademyReview() {
             </div>
           </div>
 
-          {academyReviewList.map((item, index) => (
+          {academyReviewList?.length === 0 && (
+            <div className="p-4 text-center border-b">
+              등록된 학원리뷰가 없습니다.
+            </div>
+          )}
+
+          {academyReviewList?.map((item, index) => (
             <div
               key={index}
               className="loop-content flex justify-between align-middle p-6 border-b"
             >
               <div className="w-full">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full overflow-hidden">
+                  <div className="flex justify-center items-center w-10 h-10 border rounded-full overflow-hidden">
                     <img
                       src={
                         item.writerPic
                           ? `http://112.222.157.156:5223/pic/user/${item.userId}/${item.writerPic}`
                           : "/aca_image_1.png"
                       }
-                      alt=" /"
+                      className="max-w-fit max-h-full object-cover"
+                      alt=""
                     />
                   </div>
                   <div>
@@ -164,7 +172,7 @@ function AcademyReview() {
         <div className="flex justify-center items-center m-6 mb-10">
           <Pagination
             defaultCurrent={1}
-            total={academyReviewList.length}
+            total={academyReviewList?.length}
             showSizeChanger={false}
           />
         </div>

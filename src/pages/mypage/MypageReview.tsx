@@ -17,6 +17,7 @@ function MypageReview() {
 
   const cookies = new Cookies();
 
+  const titleName = "마이페이지";
   let menuItems = [];
   switch (currentUserInfo.roleId) {
     case 3: //학원 관계자
@@ -41,6 +42,7 @@ function MypageReview() {
       menuItems = [
         { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
         { label: "나의 학원정보", isActive: false, link: "/mypage" },
+        { label: "보호자 정보", isActive: false, link: "/mypage/parent" },
         { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
         { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
         { label: "나의 리뷰 목록", isActive: true, link: "/mypage/review" },
@@ -62,10 +64,9 @@ function MypageReview() {
           },
         },
       );
-      console.log(res);
 
       if (res.data.resultData.length > 0) {
-        console.log(res.data.resultData);
+        //console.log(res.data.resultData);
         setReviewList(res.data.resultData);
       }
     } catch (error) {
@@ -80,7 +81,7 @@ function MypageReview() {
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuItems} titleName={titleName} />
 
       <div className="w-full">
         <h1 className="title-font">나의 리뷰 목록</h1>

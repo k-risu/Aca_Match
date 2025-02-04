@@ -27,6 +27,7 @@ function AcademyTestList() {
   const acaId = searchParams.get("acaId");
   const classId = searchParams.get("classId");
 
+  const titleName = "마이페이지";
   const menuItems = [
     { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
     { label: "학원정보 관리", isActive: true, link: "/mypage/academy" },
@@ -139,7 +140,7 @@ function AcademyTestList() {
         `/api/grade/status?acaId=${acaId}&classId=${classId}`,
       );
       setMyAcademyTestList(res.data.resultData);
-      console.log(res.data.resultData);
+      //console.log(res.data.resultData);
     } catch (error) {
       console.log(error);
     }
@@ -155,7 +156,7 @@ function AcademyTestList() {
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuItems} titleName={titleName} />
 
       <TestList className="w-full">
         <h1 className="title-font flex justify-between align-middle">

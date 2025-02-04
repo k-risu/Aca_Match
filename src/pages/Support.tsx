@@ -10,6 +10,7 @@ function Support() {
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [openItems, setOpenItems] = useState<number[]>([]); // 열린 항목들의 인덱스 배열
 
+  const titleName = "고객지원";
   const menuItems = [
     { label: "FAQ", isActive: true, link: "/support" },
     { label: "1 : 1 문의", isActive: false, link: "/support/inquiry" },
@@ -130,7 +131,7 @@ function Support() {
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuItems} titleName={titleName} />
       <div className="flex flex-col w-full gap-[12px]">
         <h1 className="title-font">자주 물어보는 질문</h1>
         <div className="flex flex-wrap gap-3 justify-start items-center">

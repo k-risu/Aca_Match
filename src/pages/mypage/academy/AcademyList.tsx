@@ -12,6 +12,7 @@ function AcademyList() {
   const [myAcademyList, setMyAcademyList] = useState([]);
   const navigate = useNavigate();
 
+  const titleName = "마이페이지";
   const menuItems = [
     { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
     { label: "학원정보 관리", isActive: true, link: "/mypage/academy" },
@@ -49,7 +50,7 @@ function AcademyList() {
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuItems} titleName={titleName} />
 
       <div className="w-full">
         <h1 className="title-font flex justify-between align-middle">
@@ -80,7 +81,18 @@ function AcademyList() {
             </div>
           </div>
 
-          {myAcademyList.map((item: never, index: number) => (
+          {myAcademyList?.length === 0 && (
+            <div className="p-4 text-center border-b">
+              등록된 학원이 없습니다.
+            </div>
+          )}
+          {myAcademyList === null && (
+            <div className="p-4 text-center border-b">
+              등록된 학원이 없습니다.
+            </div>
+          )}
+
+          {myAcademyList?.map((item: never, index: number) => (
             <div
               key={index}
               className="loop-content flex justify-between align-middle p-4 border-b"
@@ -127,7 +139,7 @@ function AcademyList() {
         <div className="flex justify-center items-center m-6 mb-10">
           <Pagination
             defaultCurrent={1}
-            total={myAcademyList.length}
+            total={myAcademyList?.length}
             showSizeChanger={false}
           />
         </div>

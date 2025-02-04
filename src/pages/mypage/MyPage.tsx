@@ -17,6 +17,7 @@ function MyPage() {
   const accessToken = getCookie("accessToken");
   const navigate = useNavigate();
 
+  const titleName = "마이페이지";
   let menuItems = [];
   let mypageUrl = "";
   switch (currentUserInfo.roleId) {
@@ -44,6 +45,7 @@ function MyPage() {
       menuItems = [
         { label: "회원정보 관리", isActive: false, link: "/mypage/user" },
         { label: "나의 학원정보", isActive: true, link: "/mypage" },
+        { label: "보호자 정보", isActive: false, link: "/mypage/parent" },
         { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
         { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
         { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
@@ -64,7 +66,7 @@ function MyPage() {
         },
       );
 
-      if (res.data.resultData.length > 0) {
+      if (res.data.resultData?.length > 0) {
         //console.log(res.data.resultData);
         setMypageAcademyList(res.data.resultData);
       }
@@ -99,7 +101,7 @@ function MyPage() {
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuItems} titleName={titleName} />
 
       <div className="w-full">
         <h1 className="title-font">나의 학원정보</h1>
@@ -118,7 +120,7 @@ function MyPage() {
             </div>
           </div>
 
-          {mypageAcademyList.length === 0 && (
+          {mypageAcademyList?.length === 0 && (
             <div className="text-center p-4 border-b">
               등록한 학원이 없습니다.
             </div>
@@ -161,7 +163,7 @@ function MyPage() {
         <div className="flex justify-center items-center m-6 mb-10">
           <Pagination
             defaultCurrent={1}
-            total={mypageAcademyList.length}
+            total={mypageAcademyList?.length}
             showSizeChanger={false}
           />
         </div>

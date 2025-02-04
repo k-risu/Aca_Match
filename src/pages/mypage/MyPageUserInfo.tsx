@@ -123,6 +123,7 @@ function MyPageUserInfo() {
 
   const navigate = useNavigate();
 
+  const titleName = "마이페이지";
   let menuItems = [];
   switch (currentUserInfo.roleId) {
     case 3: //학원 관계자
@@ -151,6 +152,7 @@ function MyPageUserInfo() {
       menuItems = [
         { label: "회원정보 관리", isActive: true, link: "/mypage/user" },
         { label: "나의 학원정보", isActive: false, link: "/mypage" },
+        { label: "보호자 정보", isActive: false, link: "/mypage/parent" },
         { label: "나의 성적확인", isActive: false, link: "/mypage/record" },
         { label: "나의 좋아요 목록", isActive: false, link: "/mypage/like" },
         { label: "나의 리뷰 목록", isActive: false, link: "/mypage/review" },
@@ -369,9 +371,16 @@ function MyPageUserInfo() {
     }
   };
 
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
+  }, []);
+
   return (
     <MemberInfo className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuItems} titleName={titleName} />
 
       <div className="w-full mb-20">
         <h1 className="title-font">회원정보 관리</h1>
