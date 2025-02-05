@@ -90,19 +90,20 @@ function HomePage() {
     {
       icon: BsClock,
       title: "최근 접속자 수",
-      count: "1,234",
+      count: "0",
     },
     {
       icon: BsBuilding,
       title: "총 학원 수",
-      count: "567",
+      count: "0",
     },
     {
       icon: LiaUserFriendsSolid,
       title: "등록 인원",
-      count: "8,910",
+      count: "0",
     },
   ];
+  const [service, setService] = useState(serviceStats);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -138,7 +139,7 @@ function HomePage() {
       try {
         const response = await axios.get("/api/academy/popularSearch");
         setPopularTag(response.data.resultData);
-        console.log(response);
+        // console.log(response);
       } catch (error) {
         console.error("Error fetching default academies:", error);
       } finally {
@@ -155,7 +156,7 @@ function HomePage() {
       try {
         const response = await axios.get("/api/academy/AcademyDefault");
         setDefaultAcademies(response.data.resultData);
-        console.log(response);
+        // console.log(response);
       } catch (error) {
         console.error(error);
       } finally {
@@ -164,6 +165,57 @@ function HomePage() {
     };
 
     fetchDefaultAcademies();
+  }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get("/api/access-log");
+        console.log(res);
+
+        setService(prevService =>
+          prevService.map(item =>
+            item.title === "최근 접속자 수"
+              ? { ...item, count: res.data.resultData }
+              : item,
+          ),
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const fetchData2 = async () => {
+      try {
+        const res = await axios.post("/api/access-log");
+        console.log("작동중", res);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const fetchData3 = async () => {
+      try {
+        const res = await axios.get("/api/academy/GetAcademyCount");
+        console.log("작동중", res);
+
+        setService(prevService =>
+          prevService.map(item => {
+            if (item.title === "총 학원 수") {
+              return { ...item, count: res.data.resultData.academyCount };
+            } else if (item.title === "등록 인원") {
+              return { ...item, count: res.data.resultData.userCount };
+            }
+            return item;
+          }),
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData2();
+    fetchData();
+    fetchData3();
   }, []);
 
   //화제의 학원
@@ -222,7 +274,7 @@ function HomePage() {
     <div className="flex flex-col items-center px-4 py-[36px] gap-8 mx-auto">
       {/* 메인 베너 */}
       <div
-        className="w-full h-[480px] bg-gradient-to-b from-black/10 to-black/40 rounded-xl relative"
+        className="w-[990px] h-[480px] bg-gradient-to-b from-black/10 to-black/40 rounded-xl relative"
         style={{
           backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4)), url(/main_banner.jpg)`,
           backgroundSize: "cover",
@@ -320,7 +372,7 @@ function HomePage() {
       <div className="w-full max-w-[990px]">
         <h2 className="text-2xl font-bold font-lexend mb-7">서비스 현황</h2>
         <div className="grid grid-cols-3 gap-6">
-          {serviceStats.map((stat, index) => (
+          {service.map((stat, index) => (
             <div
               key={index}
               className="flex flex-col gap-3 p-4 bg-[#F8FAFB] border border-[#D1DDE6] rounded-lg"

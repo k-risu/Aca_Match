@@ -319,9 +319,9 @@ function SignupPage() {
                   },
                   {
                     pattern:
-                      /^(?=.*[A-Za-z])(?=.*\d|.*\W)|(?=.*\d)(?=.*\W)[A-Za-z\d\W]{8,16}$/,
+                      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*\W)[A-Za-z\d\W]{8,16}$/,
                     message:
-                      "8~16자 이내이며, 영문자와 숫자, 특수문자를 조합해야 합니다.",
+                      "8~16자, 대문자, 소문자, 숫자, 특수문자를 조합해야 합니다.",
                   },
                 ]}
               >
@@ -429,7 +429,10 @@ function SignupPage() {
               <Form.Item
                 name="nickName"
                 className="mb-0"
-                rules={[{ required: true, message: "닉네임을 입력해주세요." }]}
+                rules={[
+                  { required: true, message: "닉네임을 입력해주세요." },
+                  { min: 3, message: "닉네임은 최소 3글자 이상 입력해주세요." },
+                ]}
               >
                 <div className="flex items-center w-full gap-[12px]">
                   <CustomInput
