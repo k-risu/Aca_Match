@@ -38,16 +38,11 @@ function InquiryList() {
   //학원 목록
   const academyList = async () => {
     try {
-      //학원 관계자일 때
-      if (roleId === 3) {
-        const res = await axios.get(
-          `/api/academy/getAcademyListByUserId?signedUserId=${userId}`,
-        );
-      } else {
-        const res = await jwtAxios.get(
-          `/api/joinClass?userId=${userId}&page=1`,
-        );
-      }
+      const res = await jwtAxios.get(
+        roleId === 3
+          ? `/api/academy/getAcademyListByUserId?signedUserId=${userId}`
+          : `/api/joinClass?userId=${userId}&page=1`,
+      );
       setMyAcademyList(res.data.resultData);
       console.log(res.data.resultData);
     } catch (error) {
@@ -106,7 +101,7 @@ function InquiryList() {
           <Pagination
             // current={currentPage}
             pageSize={10} // 페이지당 아이템 수
-            total={myAcademyList.length} // 전체 아이템 수
+            total={myAcademyList?.length} // 전체 아이템 수
             // onChange={handlePageChange}
             showSizeChanger={false} // 페이지 사이즈 변경 옵션 숨김
           />

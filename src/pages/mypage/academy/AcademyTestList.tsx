@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Button, Pagination, Radio } from "antd";
+import { Button, message, Pagination, Radio } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaPlusCircle } from "react-icons/fa";
@@ -152,6 +152,13 @@ function AcademyTestList() {
 
   useEffect(() => {
     academyTestList();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
   }, []);
 
   return (

@@ -5,7 +5,7 @@ import { getCookie } from "../../utils/cookie";
 import { useRecoilValue } from "recoil";
 import userInfo from "../../atoms/userInfo";
 import { jwtApiRequest } from "../../apis/jwt";
-import { Pagination } from "antd";
+import { message, Pagination } from "antd";
 import { useNavigate } from "react-router-dom";
 import LikeButton from "../../components/button/LikeButton";
 
@@ -113,6 +113,13 @@ function MyPageLike() {
 
   useEffect(() => {
     fetchData(1); // Fetch data when the component mounts
+  }, []);
+
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
   }, []);
 
   return (

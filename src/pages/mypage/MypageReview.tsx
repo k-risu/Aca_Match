@@ -79,6 +79,13 @@ function MypageReview() {
     fetchData(1);
   }, []);
 
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
+  }, []);
+
   return (
     <div className="flex gap-5 w-full justify-center align-top">
       <SideBar menuItems={menuItems} titleName={titleName} />

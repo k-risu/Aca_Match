@@ -2,7 +2,7 @@ import { useRecoilValue } from "recoil";
 //import { getCookie } from "../../../utils/cookie";
 import userInfo from "../../../atoms/userInfo";
 import SideBar from "../../../components/SideBar";
-import { Pagination } from "antd";
+import { message, Pagination } from "antd";
 import jwtAxios from "../../../apis/jwt";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -86,6 +86,13 @@ function AcademyLike() {
 
   useEffect(() => {
     getLikeList();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
   }, []);
 
   return (

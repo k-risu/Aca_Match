@@ -1,4 +1,4 @@
-import { Pagination } from "antd";
+import { message, Pagination } from "antd";
 import { useEffect, useState } from "react";
 import { GoStar, GoStarFill } from "react-icons/go";
 import SideBar from "../../../components/SideBar";
@@ -8,6 +8,7 @@ import userInfo from "../../../atoms/userInfo";
 import axios from "axios";
 import jwtAxios from "../../../apis/jwt";
 import CustomModal from "../../../components/modal/Modal";
+import { useNavigate } from "react-router-dom";
 
 function AcademyReview() {
   const [academyReviewList, setAcademyReviewList] = useState([]); //학원리뷰 목록
@@ -15,6 +16,7 @@ function AcademyReview() {
   const [reviewId, setReviewId] = useState();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const currentUserInfo = useRecoilValue(userInfo);
+  const navigate = useNavigate();
   //const acaId = searchParams.get("acaId");
 
   const titleName = "마이페이지";
@@ -97,6 +99,13 @@ function AcademyReview() {
 
   useEffect(() => {
     getTagList();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
   }, []);
 
   return (

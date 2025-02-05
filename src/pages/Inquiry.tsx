@@ -11,6 +11,7 @@ function Inquiry() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { userId } = useRecoilValue(userInfo); // Recoil에서 userId 가져오기
   const [academyData, setAcademyData] = useState<InquiryData[]>([]); // 초기값을 빈 배열로 설정
+
   const titleName = "고객지원";
   const menuItems = [
     { label: "FAQ", isActive: false, link: "/support" },
@@ -41,6 +42,7 @@ function Inquiry() {
     //console.log(page);
     //axios 데이터 호출할 때 페이지당 갯수랑 페이지 번호 전달
   };
+
   useEffect(() => {
     myMtomList();
   }, []);
@@ -65,6 +67,7 @@ function Inquiry() {
               취소하기
             </span>*/}
           </div>
+
           {academyData && academyData.length > 0 ? (
             academyData.map((academy, index) => (
               <div

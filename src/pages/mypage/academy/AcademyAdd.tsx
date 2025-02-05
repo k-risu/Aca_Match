@@ -327,6 +327,13 @@ function AcademyAdd() {
     getTagList(); //태그목록 가져오기
   }, []);
 
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
+  }, []);
+
   return (
     <AcademyInfo className="w-full">
       <div className="flex gap-5 w-full justify-center pb-10">

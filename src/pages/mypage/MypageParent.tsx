@@ -8,6 +8,7 @@ import jwtAxios from "../../apis/jwt";
 import { FaPlusCircle } from "react-icons/fa";
 import CustomModal from "../../components/modal/Modal";
 import styled from "@emotion/styled";
+import { useNavigate } from "react-router-dom";
 
 function MypageParent() {
   const [form] = Form.useForm();
@@ -18,6 +19,7 @@ function MypageParent() {
   const currentUserInfo = useRecoilValue(userInfo);
   const accessToken = getCookie("accessToken");
   const [parentList, setParentList] = useState<object[]>([]); //자녀 목록
+  const navigate = useNavigate();
 
   const titleName = "마이페이지";
   let menuItems = [];
@@ -172,6 +174,13 @@ function MypageParent() {
 
   useEffect(() => {
     myChildList();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
   }, []);
 
   return (
