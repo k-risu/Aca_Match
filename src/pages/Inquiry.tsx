@@ -6,19 +6,11 @@ import CustomModal from "../components/modal/Modal";
 import jwtAxios from "../apis/jwt";
 import { useRecoilValue } from "recoil";
 import userInfo from "../atoms/userInfo";
-
 function Inquiry() {
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { userId } = useRecoilValue(userInfo); // Recoil에서 userId 가져오기
   const [academyData, setAcademyData] = useState<InquiryData[]>([]); // 초기값을 빈 배열로 설정
-
-  const { userId } = useRecoilValue(userInfo); // Recoil에서 userId 가져오기
-  const [mtomArray, setMtomArray] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const [academyData, setAcademyData] = useState<InquiryData[]>([]); // 초기값을 빈 배열로 설정
-
   const titleName = "고객지원";
   const menuItems = [
     { label: "FAQ", isActive: false, link: "/support" },
@@ -31,15 +23,12 @@ function Inquiry() {
     status: "처리중" | "답변완료";
     canCancel: boolean;
   }
-
   const handleButton1Click = () => {
     setIsModalVisible(false);
   };
-
   const handleButton2Click = () => {
     setIsModalVisible(false);
   };
-
   //1:1 문의 목록 호출
   const myMtomList = async () => {
     try {
@@ -55,7 +44,6 @@ function Inquiry() {
   useEffect(() => {
     myMtomList();
   }, []);
-
   return (
     <div className="flex gap-5 w-full justify-center align-top">
       <SideBar menuItems={menuItems} titleName={titleName} />
@@ -77,6 +65,11 @@ function Inquiry() {
               취소하기
             </span>*/}
           </div>
+          {academyData && academyData.length > 0 ? (
+            academyData.map((academy, index) => (
+              <div
+                key={index}
+                className="flex flex-row h-[72px] border-t border-[#DBE3E6]"
               >
                 <div className="flex justify-center items-center min-w-[10%]">
                   <div className="flex justify-center items-center w-14 h-14 rounded-xl bg-gray-300 overflow-hidden">
@@ -116,13 +109,32 @@ function Inquiry() {
                   </div>
                 </div>
                 <div className="flex min-w-[15%] justify-center items-center p-4">
-
                   <span className="text-[14px] text-brand-placeholder">
                     {academy.createdAt.substr(0, 10)}
                   </span>
                 </div>
                 {/*
                 <div className="flex min-w-[15%] justify-center items-center p-4">
+                  {academy.canCancel ? (
+                    <button
+                      className="small_line_button"
+                      onClick={e => {
+                        e.stopPropagation(); // 이벤트 전파 중지
+                        setIsModalVisible(true);
+                      }}
+                    >
+                      취소하기
+                    </button>
+                  ) : (
+                    <button
+                      className="small_line_button bg-gray-200 opacity-50"
+                      disabled
+                      onClick={e => e.stopPropagation()}
+                    >
+                      취소하기
+                    </button>
+                  )}
+                </div>
                 */}
               </div>
             ))
@@ -132,7 +144,6 @@ function Inquiry() {
             </div>
           )}
         </div>
-
         <div className="flex justify-center items-center m-6">
           <Pagination
             // current={currentPage}
@@ -159,5 +170,4 @@ function Inquiry() {
     </div>
   );
 }
-
 export default Inquiry;

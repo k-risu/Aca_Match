@@ -1,7 +1,7 @@
 import { message, Radio } from "antd";
 import axios from "axios";
 import DOMPurify from "dompurify";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Cookies } from "react-cookie";
 import { FaFacebookF, FaLink, FaShare, FaXTwitter } from "react-icons/fa6";
 import { GoStar, GoStarFill } from "react-icons/go";
@@ -191,6 +191,7 @@ const AcademyDetail = () => {
         classId: selectClass,
         userId: userId,
         discount: 0,
+        certification: 1,
       });
       console.log(selectClass, userId);
       if (res.data.resultMessage === "이미 수강 신청하였습니다.")
@@ -453,18 +454,39 @@ const AcademyDetail = () => {
 
 export default AcademyDetail;
 
-const LinkModal = ({ projectId }: { projectId: string }) => {
+const LinkModal = ({ projectId }: { projectId?: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLink, setIsLink] = useState(false);
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
-  // 모달 외부 클릭 시 닫기
-  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      setIsOpen(false);
+  // ✅ 모달 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      setTimeout(() => {
+        window.addEventListener("click", handleClickOutside);
+      }, 0);
     }
+
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
+  }, [isOpen]);
+
+  // ✅ 모달 내부 클릭 이벤트 전파 방지
+  const handleModalClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
   };
 
-  // 링크 복사 기능
+  // ✅ 링크 복사 기능
   const handleCopy = async () => {
     setIsLink(true);
     try {
@@ -475,7 +497,7 @@ const LinkModal = ({ projectId }: { projectId: string }) => {
     }
   };
 
-  // SNS 공유 함수
+  // ✅ SNS 공유 함수
   const snsSendProc = (type: string) => {
     const shareTitle = "공유하기";
     const shareURL = `http://localhost:5173/share/view?projectId=${projectId}`;
@@ -501,44 +523,48 @@ const LinkModal = ({ projectId }: { projectId: string }) => {
   return (
     <div className="relative inline-block">
       {/* 모달을 여는 버튼 */}
-      <button onClick={() => setIsOpen(true)}>
+      <button
+        onClick={e => {
+          e.stopPropagation(); // ✅ 버튼 클릭 시 handleClickOutside 방지
+          setIsOpen(true);
+        }}
+      >
         <FaShare color="#507A95" />
       </button>
 
       {/* 모달 */}
       {isOpen && (
-        <div>
+        <div className="absolute right-0 flex justify-center items-center z-50">
           <div
-            className="absolute right-0 flex justify-center items-center z-50"
-            onClick={handleOverlayClick} // 모달 외부 클릭 시 닫힘
+            ref={modalRef}
+            onClick={handleModalClick}
+            className="bg-white p-5 rounded-lg shadow-lg w-64"
           >
-            <div className="bg-white p-5 rounded-lg shadow-lg w-64">
-              <h2 className="text-lg font-semibold mb-3">공유하기</h2>
-              <div className="flex justify-around gap-3">
-                <button onClick={() => snsSendProc("FB")}>
-                  <FaFacebookF className="text-blue-600 text-3xl" />
-                </button>
-                <button onClick={() => snsSendProc("TW")}>
-                  <FaXTwitter className="text-blue-400 text-3xl" />
-                </button>
-                <button onClick={() => snsSendProc("NB")}>
-                  <SiNaver className="text-green-500 text-3xl" />
-                </button>
-                <button onClick={handleCopy}>
-                  <FaLink
-                    className={`text-gray-600 text-3xl ${isLink ? "text-green-400" : ""}`}
-                  />
-                </button>
-              </div>
-
-              {/* 닫기 버튼 */}
-              <button
-                onClick={() => setIsOpen(false)}
-                className="mt-4 w-full bg-gray-200 py-2 rounded-md"
-              >
-                닫기
+            <h2 className="text-lg font-semibold mb-3">공유하기</h2>
+            <div className="flex justify-around gap-3">
+              <button onClick={() => snsSendProc("FB")}>
+                <FaFacebookF className="text-blue-600 text-3xl" />
+              </button>
+              <button onClick={() => snsSendProc("TW")}>
+                <FaXTwitter className="text-blue-400 text-3xl" />
+              </button>
+              <button onClick={() => snsSendProc("NB")}>
+                <SiNaver className="text-green-500 text-3xl" />
+              </button>
+              <button onClick={handleCopy}>
+                <FaLink
+                  className={`text-gray-600 text-3xl ${isLink ? "text-green-400" : ""}`}
+                />
               </button>
             </div>
+
+            {/* 닫기 버튼 */}
+            <button
+              onClick={() => setIsOpen(false)}
+              className="mt-4 w-full bg-gray-200 py-2 rounded-md"
+            >
+              닫기
+            </button>
           </div>
         </div>
       )}
