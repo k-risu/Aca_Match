@@ -1,22 +1,23 @@
-import { message } from "antd";
+import { message, Radio } from "antd";
 import axios from "axios";
+import DOMPurify from "dompurify";
 import { useEffect, useState } from "react";
-import { FaShare } from "react-icons/fa6";
+import { Cookies } from "react-cookie";
+import { FaFacebookF, FaLink, FaShare, FaXTwitter } from "react-icons/fa6";
 import { GoStar, GoStarFill } from "react-icons/go";
+import { SiNaver } from "react-icons/si";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
+import jwtAxios from "../../apis/jwt";
 import userInfo from "../../atoms/userInfo";
-import MainButton from "../../components/button/MainButton";
 import LikeButton from "../../components/button/LikeButton";
+import MainButton from "../../components/button/MainButton";
 import CustomModal from "../../components/modal/Modal";
 import AcademyCalendar from "./AcademyCalendar";
-import KakaoMap from "./KakaoMap";
-import { AcademyClass, AcademyData } from "./types";
 import ClassList from "./ClassList";
+import KakaoMap from "./KakaoMap";
 import ReviewSection from "./ReviewSection";
-import DOMPurify from "dompurify";
-import { Cookies } from "react-cookie";
-import jwtAxios from "../../apis/jwt";
+import { AcademyClass, AcademyData } from "./types";
 
 declare global {
   interface Window {
@@ -73,7 +74,7 @@ const AcademyDetail = () => {
   const [searchParams] = useSearchParams();
 
   const acaId = searchParams.get("id");
-  const page = searchParams.get("page") || "1";
+  const page = searchParams.get("page") || "2";
   const size = 10;
 
   const [academyData, setAcademyData] = useState<AcademyData | null>(null);
@@ -85,6 +86,10 @@ const AcademyDetail = () => {
   const [likeCount, setLikeCount] = useState<number>(0);
 
   const [isLiked, setIsLiked] = useState<boolean>(false);
+
+  const [selectClass, setSelectClass] = useState<number>(0);
+
+  const [isLink, setIslink] = useState(false);
 
   const cookies = new Cookies();
   const navigate = useNavigate();
@@ -135,6 +140,8 @@ const AcademyDetail = () => {
             setAddress(response.data.resultData.addressDto.address);
           }
         }
+        // console.log(`/pic/academy/${academyData.acaId}/${academyData.acaPic}`);
+
         console.log(response.data.resultData);
       } catch (error) {
         console.error("Failed to fetch academy data:", error);
@@ -178,14 +185,31 @@ const AcademyDetail = () => {
   };
 
   const handleButton1Click = () => setIsModalVisible(false);
-  const handleButton2Click = () => {
-    // try {
-    //   const res = jwtAxios.post()
-    // } catch (error) {}
+  const handleButton2Click = async () => {
+    try {
+      const res = await jwtAxios.post("/api/joinClass", {
+        classId: selectClass,
+        userId: userId,
+        discount: 0,
+      });
+      console.log(selectClass, userId);
+      if (res.data.resultMessage === "이미 수강 신청하였습니다.")
+        message.success("이미 수강중 입니다");
+      else message.success("수강 신청이 완료되었습니다.");
+
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
     setIsModalVisible(false);
   };
 
+  const handleClassSelect = (classId: number) => {
+    setSelectClass(classId);
+  };
+
   const handleCopy = async () => {
+    setIslink(true);
     try {
       await navigator.clipboard.writeText(window.location.href);
       message.success("링크가 복사되었습니다!");
@@ -253,15 +277,15 @@ const AcademyDetail = () => {
               <div className={styles.content.image}>
                 {academyData.acaPic && (
                   <img
-                    src={`/pic/academy/${academyData.acaId}/${academyData.acaPic}`}
+                    src={`http://112.222.157.156:5223/pic/academy/${academyData.acaId}/${academyData.acaPic}`}
                     alt={academyData.acaName}
                     className="w-full h-full object-cover rounded-[12px]"
-                    onError={e => {
-                      const target = e.target as HTMLImageElement;
-                      const randomNum = getRandomUniqueNumber();
-                      target.src = `/default_academy${randomNum}.jpg`;
-                      // console.log(`/default_academy${randomNum}.jpg`);
-                    }}
+                    // onError={e => {
+                    // const target = e.target as HTMLImageElement;
+                    // const randomNum = getRandomUniqueNumber();
+                    // target.src = `/default_academy${randomNum}.jpg`;
+                    // console.log(`/default_academy${randomNum}.jpg`);
+                    // }}
                   />
                 )}
               </div>
@@ -270,9 +294,10 @@ const AcademyDetail = () => {
               <h2 className={`${styles.academy.title} relative`}>
                 {academyData.acaName}
                 <div className="flex items-center gap-2 text-2xl absolute right-[16px] top-[25px] ">
-                  <button onClick={handleCopy}>
+                  {/* <button onClick={handleCopy}>
                     <FaShare color="#507A95" />
-                  </button>
+                  </button> */}
+                  <LinkModal />
                 </div>
               </h2>
               <div className={styles.academy.description}>
@@ -392,15 +417,131 @@ const AcademyDetail = () => {
       <CustomModal
         visible={isModalVisible}
         title={"수강등록"}
-        content={<p className="h-[50px]">수강등록 하시겠습니까?</p>}
+        content={
+          <>
+            <div className="flex flex-col gap-2">
+              {academyData.classes.map(classItem => (
+                <Radio
+                  key={classItem.classId}
+                  checked={selectClass === classItem.classId}
+                  onChange={() => handleClassSelect(classItem.classId)}
+                >
+                  <div className="flex items-center line-clamp-1">
+                    <p className="text-[16px] font-[400] line-clamp-1">
+                      {classItem.className}{" "}
+                    </p>
+                    <p className="text-[14px] line-clamp-1">
+                      ({classItem.classStartDate}~{classItem.classEndDate})
+                    </p>
+                  </div>
+                </Radio>
+              ))}
+              <p className="mt-[15px]">수강등록 하시겠습니까?</p>
+            </div>
+          </>
+        }
         onButton1Click={handleButton1Click}
-        // onButton2Click={console.log("test")}
+        onButton2Click={handleButton2Click}
         button1Text={"취소"}
         button2Text={"확인"}
         modalWidth={400}
       />
+      {/* {isLink && <LinkModal></LinkModal>} */}
     </div>
   );
 };
 
 export default AcademyDetail;
+
+const LinkModal = ({ projectId }: { projectId: string }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLink, setIsLink] = useState(false);
+
+  // 모달 외부 클릭 시 닫기
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      setIsOpen(false);
+    }
+  };
+
+  // 링크 복사 기능
+  const handleCopy = async () => {
+    setIsLink(true);
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      message.success("링크가 복사되었습니다!");
+    } catch (error) {
+      message.error("링크 복사에 실패했습니다.");
+    }
+  };
+
+  // SNS 공유 함수
+  const snsSendProc = (type: string) => {
+    const shareTitle = "공유하기";
+    const shareURL = `http://localhost:5173/share/view?projectId=${projectId}`;
+    let href = "";
+
+    switch (type) {
+      case "FB":
+        href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareURL)}&t=${encodeURIComponent(shareTitle)}`;
+        break;
+      case "TW":
+        href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTitle)}&url=${encodeURIComponent(shareURL)}`;
+        break;
+      case "NB":
+        href = `https://share.naver.com/web/shareView?url=${encodeURIComponent(shareURL)}&title=${encodeURIComponent(shareTitle)}`;
+        break;
+    }
+
+    if (href) {
+      window.open(href, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  return (
+    <div className="relative inline-block">
+      {/* 모달을 여는 버튼 */}
+      <button onClick={() => setIsOpen(true)}>
+        <FaShare color="#507A95" />
+      </button>
+
+      {/* 모달 */}
+      {isOpen && (
+        <div>
+          <div
+            className="absolute right-0 flex justify-center items-center z-50"
+            onClick={handleOverlayClick} // 모달 외부 클릭 시 닫힘
+          >
+            <div className="bg-white p-5 rounded-lg shadow-lg w-64">
+              <h2 className="text-lg font-semibold mb-3">공유하기</h2>
+              <div className="flex justify-around gap-3">
+                <button onClick={() => snsSendProc("FB")}>
+                  <FaFacebookF className="text-blue-600 text-3xl" />
+                </button>
+                <button onClick={() => snsSendProc("TW")}>
+                  <FaXTwitter className="text-blue-400 text-3xl" />
+                </button>
+                <button onClick={() => snsSendProc("NB")}>
+                  <SiNaver className="text-green-500 text-3xl" />
+                </button>
+                <button onClick={handleCopy}>
+                  <FaLink
+                    className={`text-gray-600 text-3xl ${isLink ? "text-green-400" : ""}`}
+                  />
+                </button>
+              </div>
+
+              {/* 닫기 버튼 */}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="mt-4 w-full bg-gray-200 py-2 rounded-md"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
