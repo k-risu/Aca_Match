@@ -6,7 +6,6 @@ import CustomModal from "../components/modal/Modal";
 import jwtAxios from "../apis/jwt";
 import { useRecoilValue } from "recoil";
 import userInfo from "../atoms/userInfo";
-
 function Inquiry() {
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -25,15 +24,12 @@ function Inquiry() {
     status: "처리중" | "답변완료";
     canCancel: boolean;
   }
-
   const handleButton1Click = () => {
     setIsModalVisible(false);
   };
-
   const handleButton2Click = () => {
     setIsModalVisible(false);
   };
-
   //1:1 문의 목록 호출
   const myMtomList = async () => {
     try {
@@ -50,7 +46,6 @@ function Inquiry() {
   useEffect(() => {
     myMtomList();
   }, []);
-
   return (
     <div className="flex gap-5 w-full justify-center align-top">
       <SideBar menuItems={menuItems} titleName={titleName} />
@@ -152,7 +147,6 @@ function Inquiry() {
             </div>
           )}
         </div>
-
         <div className="flex justify-center items-center m-6">
           <Pagination
             // current={currentPage}
@@ -179,5 +173,4 @@ function Inquiry() {
     </div>
   );
 }
-
 export default Inquiry;
