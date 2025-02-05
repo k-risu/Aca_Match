@@ -1,75 +1,80 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SideBar from "../components/SideBar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { VscSend } from "react-icons/vsc";
 import styled from "@emotion/styled";
+import jwtAxios from "../apis/jwt";
+import { useRecoilValue } from "recoil";
+import userInfo from "../atoms/userInfo";
+import { Button, Form } from "antd";
 
 function InquiryDetail() {
+  const [form] = Form.useForm();
   const navigate = useNavigate();
+  const [chatMessages, setChatMessages] = useState([]);
+  const [academyName, setAcademyName] = useState();
+  const { roleId } = useRecoilValue(userInfo); // Recoil에서 userId 가져오기
+  const [searchParams, setSearchParams] = useSearchParams();
+  const acaId = searchParams.get("acaId");
+  const userId = searchParams.get("userId");
+
+  const titleName = "고객지원";
   const menuItems = [
     { label: "FAQ", isActive: false, link: "/support" },
     { label: "1 : 1 문의", isActive: true, link: "/support/inquiry" },
   ];
 
-  const chatMessages = [
-    {
-      id: 1,
-      isUser: true,
-      message: "안녕하세요. 학원 홈페이지 정보가 있어서요.",
-    },
-    {
-      id: 2,
-      isUser: false,
-      message: [
-        "네, 안녕하세요~ 편하게 질문 남겨주시면 좋아 주세요! 빠른 답변 드리도록 하겠습니다. 어떤 점이 궁금하실까요?",
-      ],
-    },
-    {
-      id: 3,
-      isUser: true,
-      message: [
-        "예비 중3자녀가 있는데요, 특목고 입시 준비 중이라도요. 무료 수업번이 따로 있을까요? 있다면 교육 진행 방식이 궁금합니다. 자세 문은 거 있으시면 전달 부탁드려요",
-      ],
-    },
-    {
-      id: 4,
-      isUser: false,
-      message: [
-        "네, 특목고 입시 준비 반이 따로 개설되어 있습니다! 더 자세한 내용은 말씀해오신 전달드리겠습니다 ㅎㅎ",
-      ],
-    },
-    // 추가 메시지
-    {
-      id: 5,
-      isUser: true,
-      message: "감사합니다. 수업료는 어느 정도인가요?",
-    },
-    {
-      id: 6,
-      isUser: false,
-      message: [
-        "수업료는 주 2회 기준으로 월 30만원입니다. 첫 수업은 무료 체험으로 진행 가능하십니다.",
-      ],
-    },
-    {
-      id: 7,
-      isUser: true,
-      message: ["네, 이해했습니다. 무료 체험 수업은 언제든 가능한가요?"],
-    },
-    {
-      id: 8,
-      isUser: false,
-      message: [
-        "네, 평일 오후 2시부터 8시 사이에 가능합니다. 원하시는 시간대를 말씀해 주시면 예약 도와드리겠습니다.",
-      ],
-    },
-  ];
+  const SendMessage = styled.div`
+    .ant-form-item-additional {
+      margin-top: 10px;
+    }
+    .ant-form-item-explain-error {
+      padding-left: 12px;
+    }
+    .ant-btn {
+      border: none !important;
+    }
+  `;
+
+  //1:1 문의 내용 호출
+  const myMtomDetail = async () => {
+    try {
+      const res = await jwtAxios.get(
+        `/api/chat/log?user-id=${userId}&aca-id=${acaId}`,
+      );
+      //console.log(res.data.resultData);
+      setAcademyName(res.data.resultData[0].acaName);
+      setChatMessages(res.data.resultData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //1:1 문의 등록
+  const onFinished = async values => {
+    try {
+      const res = await jwtAxios.post(
+        `/api/chat?userId=${parseInt(userId)}&acaId=${parseInt(acaId)}&senderType=${roleId === 3 ? 1 : 0}&message=${values.message}`,
+      );
+      //console.log(res.data.resultData);
+      if (res.data.resultData === 1) {
+        myMtomDetail();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    myMtomDetail();
+  }, []);
 
   return (
     <div className="flex gap-5 w-full justify-center align-top">
-      <SideBar menuItems={menuItems} />
-      <div className="flex flex-col w-full">
+      <SideBar menuItems={menuItems} titleName={titleName} />
+      <div className="flex flex-col w-full mb-16">
         <h1 className="title-font">1:1 학원별 문의</h1>
+
         <div
           className="flex items-center w-full py-4 text-white rounded-t-[12px] relative"
           style={{
@@ -96,72 +101,42 @@ function InquiryDetail() {
             </svg>
           </button>
           <span className="flex mx-auto text-lg font-medium">
-            체임학원 금곡점
+            {academyName ? academyName : "학원명"}
           </span>
         </div>
-        <div className="flex flex-col bg-[#4B89DC] h-[80vh] rounded-[12px]">
+        <div
+          className="flex flex-col bg-[#4B89DC] h-[80vh] rounded-[12px]"
+          style={{ height: "calc(100vh - 300px)" }}
+        >
           {/* 채팅 컨테이너 */}
           <div className="flex flex-col h-full bg-gray-200">
             {/* 메시지 영역 */}
             <CustomScrollbar>
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {/* {chatMessages.map(chat => (
+                {chatMessages?.map((chat, index) => (
                   <div
-                    key={chat.id}
-                    className={`flex ${chat.isUser ? "justify-end" : "gap-2"}`}
-                  >
-                    {!chat.isUser && (
-                      <div className="w-8 h-8 bg-gray-200 rounded-full" />
-                    )}
-                    <div
-                      className={`${
-                        chat.isUser
-                          ? "bg-[#4B89DC] text-white"
-                          : "bg-gray-100 text-black"
-                      } rounded-lg p-3 max-w-[70%]`}
-                      style={
-                        chat.isUser
-                          ? {
-                              background:
-                                "linear-gradient(45deg, #3B77D8 0%, #4B89DC 50%, #69A7E4 100%)",
-                            }
-                          : {}
-                      }
-                    >
-                      {Array.isArray(chat.message) ? (
-                        chat.message.map((msg, index) => (
-                          <p key={index} className="mb-1 last:mb-0">
-                            {msg}
-                          </p>
-                        ))
-                      ) : (
-                        <p>{chat.message}</p>
-                      )}
-                    </div>
-                  </div>
-                ))} */}
-                {chatMessages.map(chat => (
-                  <div
-                    key={chat.id}
-                    className={`flex ${chat.isUser ? "justify-end" : "gap-2"}`}
+                    key={index}
+                    className={`flex ${chat.senderType === 0 ? "justify-end" : "gap-2"}`}
                   >
                     {/* 학원 프로필 이미지 (사용자가 아닐 때만 표시) */}
-                    {!chat.isUser && (
+                    {!chat.senderType === 1 && (
                       <div
-                        className="w-10 h-10 rounded-full bg-white flex-shrink-0 bg-cover bg-center border border-gray-200"
+                        className="w-12 h-12 rounded-full bg-white flex-shrink-0 bg-cover bg-center border border-gray-200"
                         style={{
                           backgroundImage: `url('/default_academy.jpg')`,
                         }}
-                      />
+                      ></div>
                     )}
 
                     {/* 메시지 내용 */}
                     <div
                       className={`${
-                        chat.isUser ? "text-white" : "bg-white text-black"
+                        chat.senderType === 0
+                          ? "text-white"
+                          : "bg-white text-black"
                       } rounded-lg p-3 max-w-[70%]`}
                       style={
-                        chat.isUser
+                        chat.senderType === 0
                           ? {
                               background:
                                 "linear-gradient(45deg, #3B77D8 0%, #4B89DC 50%, #69A7E4 100%)",
@@ -185,18 +160,33 @@ function InquiryDetail() {
             </CustomScrollbar>
 
             {/* 입력창 영역 - 하단 고정 */}
-            <div className="p-4 bg-gray-200">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="내용을 입력해 주세요."
-                  className="w-full p-3 rounded-lg bg-gray-100 focus:outline-none"
-                />
-                <button className="absolute right-[10px] bottom-[12px]">
-                  <VscSend size={24} />
-                </button>
-              </div>
-            </div>
+            <SendMessage className="p-4 bg-gray-200">
+              <Form form={form} onFinish={values => onFinished(values)}>
+                <div className="relative">
+                  <Form.Item
+                    name="message"
+                    className="w-full"
+                    rules={[
+                      {
+                        required: true,
+                        message: "메시지 내용을 입력해 주세요.",
+                      },
+                    ]}
+                  >
+                    <input
+                      maxLength={100}
+                      placeholder="내용을 입력해 주세요."
+                      className="w-full p-3 rounded-lg bg-gray-100 focus:outline-none"
+                    />
+                  </Form.Item>
+                  <Form.Item className="absolute right-[10px] top-[9px]">
+                    <Button htmlType="submit">
+                      <VscSend size={24} />
+                    </Button>
+                  </Form.Item>
+                </div>
+              </Form>
+            </SendMessage>
           </div>
         </div>
       </div>

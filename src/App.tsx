@@ -34,6 +34,7 @@ import AcademyTestList from "./pages/mypage/academy/AcademyTestList";
 import AcademyRecord from "./pages/mypage/academy/AcademyRecord";
 import HotAcademy from "./pages/HotAcademy.tsx";
 import MypageParent from "./pages/mypage/MypageParent.tsx";
+import InquiryList from "./pages/InquiryList.tsx";
 
 function App() {
   useEffect(() => {
@@ -164,6 +165,7 @@ function App() {
               <Route path="/support">
                 <Route index element={<Support />} />
                 <Route path="inquiry" element={<Inquiry />} />
+                <Route path="inquiryList" element={<InquiryList />} />
                 <Route path="inquiry/detail" element={<InquiryDetail />} />
               </Route>
               <Route path="/hotAcademy" element={<HotAcademy />} />
