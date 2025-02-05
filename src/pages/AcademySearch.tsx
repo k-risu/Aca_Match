@@ -131,6 +131,7 @@ const AcademySearch = () => {
   const [level, setLevel] = useState("");
 
   const [searchValue, setSearchValue] = useState("");
+  const [searchLocation, setSearchLocation] = useState("");
 
   const handleLocationSelect = (location: number, locationText: string) => {
     setSelectedLocation(location); // 지역 선택
@@ -287,9 +288,9 @@ const AcademySearch = () => {
     });
 
     // 필터 상태가 이전과 다르면 업데이트
-    // if (JSON.stringify(newFilters) !== JSON.stringify(selectedFilters)) {
-    //   setSelectedFilters(newFilters);
-    // }
+    if (JSON.stringify(newFilters) !== JSON.stringify(selectedFilters)) {
+      setSelectedFilters(newFilters);
+    }
     const currentAge = params.get("age");
     const currentLevel = params.get("level");
     if (currentAge !== prevFilters.age || currentLevel !== prevFilters.level) {
@@ -313,18 +314,22 @@ const AcademySearch = () => {
     if (currentAge !== age || currentLevel !== level) {
       setAge(currentAge);
       setLevel(currentLevel);
-      handlePageChange(1); // 필터 변경 시 페이지 1로 이동
+      // handlePageChange(1); // 필터 변경 시 페이지 1로 이동
     }
     console.log("작동중", age, level);
 
-    // URL에서 'location' 파라미터를 가져와서 상태에 반영
-    // if (location) {
-    //   setSelectedLocation(Number(location));
+    if (searchLocation !== location) {
+      setSearchLocation(location);
+      // handlePageChange(1);
+    }
 
-    // }
+    if (location) {
+      // URL에서 'location' 파라미터를 가져와서 상태에 반영
+      setSelectedLocation(Number(location));
+    }
     if (params.get("tagName")) {
       setSearchValue(params.get("tagName"));
-      console.log("작동중", searchValue);
+      // console.log("작동중", searchValue);
     }
 
     fetchData(currentPage); // 필터가 변경될 때마다 데이터 갱신
@@ -417,10 +422,11 @@ const AcademySearch = () => {
     }
 
     // location 값 추가 (필터가 있을 경우 추가)
-    // if (selectedLocation !== -1) {
-    //   params.set("dongId", String(selectedLocation));
-    // }
-    // console.log(searchInput);
+    if (selectedLocation !== -1) {
+      params.set("dongId", String(selectedLocation));
+    }
+
+    console.log(searchInput);
 
     if (searchInput) {
       if (selectedSearchType === "태그") {
@@ -451,7 +457,7 @@ const AcademySearch = () => {
       <div className="flex flex-row justify-between w-full gap-[12px]">
         <div className="flex mt-[77px] ">
           <div className="flex-col-start gap-4 w-[288px] h-[916px]">
-            <div className="flex items-start pb-5 pl-[15px] ">
+            <div className="flex items-start pb-5">
               <h2 className="text-[24px] font-[500] leading-[21px] text-brand-default mb-[15px]">
                 카테고리
               </h2>

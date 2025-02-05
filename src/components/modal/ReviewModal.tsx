@@ -53,18 +53,26 @@ function ReviewModal({ onClose, joinClassId }: ReviewModalProps) {
       setIsSubmitting(true);
 
       const res = await jwtAxios.post("/api/review/user", {
-        joinClassId: joinClassId[0],
+        classId: joinClassId[0],
         comment: values.comment.trim(),
         star: rating,
         userId: user.userId,
       });
+
+      console.log(joinClassId[0]);
+      console.log(user.userId);
 
       console.log(res);
       message.success("리뷰가 등록되었습니다.");
       onClose();
     } catch (error) {
       console.error("리뷰 등록 실패:", error);
-      message.error("리뷰 등록에 실패했습니다. 다시 시도해주세요.");
+      if (error.response && error.response.status === 409) {
+        message.error("이미 등록된 리뷰입니다.");
+      } else if (error.response && error.response.request) {
+        message.error("리뷰 등록에 실패했습니다. 다시 시도해주세요.");
+      }
+      onClose();
     } finally {
       setIsSubmitting(false);
     }

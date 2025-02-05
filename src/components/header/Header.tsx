@@ -52,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
             userId: response.data.resultData.userId, // userId를 문자열로 변환
           };
 
-          console.log(response);
+          // console.log(response);
 
           setUserInfo(userData); // Recoil 상태 업데이트
         } catch (error) {
@@ -63,9 +63,9 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
       fetchUserData();
     }
   }, [setUserInfo]);
-  useEffect(() => {
-    console.log("Current userInfo:", currentUserInfo);
-  }, [currentUserInfo]); // userInfo가 변경될 때마다 로그 출력
+  // useEffect(() => {
+  //   // console.log("Current userInfo:", currentUserInfo);
+  // }, [currentUserInfo]); // userInfo가 변경될 때마다 로그 출력
 
   const logOut = async () => {
     try {
