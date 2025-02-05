@@ -2,15 +2,33 @@ import { Button, Form, Input, message } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import MainButton from "../../components/button/MainButton";
+import { FadeLoader } from "react-spinners";
+import styled from "@emotion/styled";
 
 function ForgotPw() {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [form] = Form.useForm();
+
+  const LoadingWrap = styled.div`
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+  `;
 
   const onFinish = async (values: any) => {
     try {
+      setIsLoading(true);
       const res = await axios.post("/api/user/temp-pw", values);
-      console.log(res);
+      //console.log(res);
+      setIsLoading(false);
       navigate("/signup/end");
     } catch (error) {
       console.log(error);
@@ -63,6 +81,12 @@ function ForgotPw() {
             </MainButton>
           </div>
         </Form>
+
+        {isLoading && (
+          <LoadingWrap>
+            <FadeLoader color="#fff" width={10} height={30} margin={20} />
+          </LoadingWrap>
+        )}
       </div>
     </div>
   );

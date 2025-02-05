@@ -48,7 +48,7 @@ function AcademyRecord() {
 
   const RecordList = styled.div`
     button {
-      display: none !important;
+      //display: none !important;
     }
     .addOk button,
     .title-font button,
@@ -75,7 +75,8 @@ function AcademyRecord() {
   };
   const handle2Button2Click = async () => {
     const res = await axios.get(`/api/grade/export?subjectId=${subjectId}`);
-    console.log(res.data);
+    //console.log(res.data);
+
     setIsModalVisible2(false);
   };
 

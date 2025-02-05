@@ -13,7 +13,7 @@ function Support() {
   const titleName = "고객지원";
   const menuItems = [
     { label: "FAQ", isActive: true, link: "/support" },
-    { label: "1 : 1 문의", isActive: false, link: "/support/inquiry" },
+    { label: "1 : 1 문의", isActive: false, link: "/support/inquiryList" },
   ];
 
   const faqData: {
