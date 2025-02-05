@@ -4,11 +4,13 @@ import React, { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import userInfo from "../../../atoms/userInfo";
 import SideBar from "../../../components/SideBar";
-import { Button, Form, Pagination } from "antd";
+import { Button, Form, message, Pagination, Upload, UploadProps } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { FaPlusCircle } from "react-icons/fa";
 import CustomModal from "../../../components/modal/Modal";
 import jwtAxios from "../../../apis/jwt";
+import { UploadChangeParam, UploadFile } from "antd/es/upload";
 
 function AcademyRecord() {
   const [form] = Form.useForm();
@@ -21,6 +23,7 @@ function AcademyRecord() {
   const [isModalVisible3, setIsModalVisible3] = useState(false);
   const [isModalVisible4, setIsModalVisible4] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const navigate = useNavigate();
   const acaId = searchParams.get("acaId");
@@ -47,8 +50,8 @@ function AcademyRecord() {
   ];
 
   const RecordList = styled.div`
-    button {
-      //display: none !important;
+    .editModal button {
+      display: none !important;
     }
     .addOk button,
     .title-font button,
@@ -131,6 +134,40 @@ function AcademyRecord() {
     record: testRecord ? testRecord : 0,
   };
 
+  //첨부파일 처리
+  const props: UploadProps = {
+    name: "file",
+    //action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
+    headers: {
+      authorization: "authorization-text",
+    },
+    onChange(info) {
+      if (info.file.status !== "uploading") {
+        console.log(info.file, info.fileList);
+      }
+      if (info.file.status === "done") {
+        message.success(`${info.file.name} file uploaded successfully`);
+      } else if (info.file.status === "error") {
+        message.error(`${info.file.name} file upload failed.`);
+      }
+    },
+  };
+
+  const handleChange = (info: UploadChangeParam<UploadFile>) => {
+    let newFileList = [...info.fileList];
+
+    // maxCount로 인해 하나의 파일만 유지
+    newFileList = newFileList.slice(-1);
+
+    // 파일 상태 업데이트
+    setFileList(newFileList);
+
+    // 선택된 파일이 있으면 콘솔에 출력
+    if (info.file.status === "done" && info.file.originFileObj) {
+      form.setFieldValue("pic", info.file.originFileObj);
+    }
+  };
+
   //점수 수정하기
   const onFinished = async values => {
     const datas = {
@@ -149,8 +186,20 @@ function AcademyRecord() {
     }
   };
 
+  //엑셀 일괄수정
+  const onFinishedSe = async values => {
+    console.log(values);
+  };
+
   useEffect(() => {
     academyStudentList();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
   }, []);
 
   return (
@@ -238,65 +287,67 @@ function AcademyRecord() {
           />
         </div>
 
-        <CustomModal
-          visible={isModalVisible}
-          title={"점수 수정"}
-          content={
-            <AddRecoad>
-              <h4 className="mb-3">
-                수정할 점수, 또는 합격여부를 입력해 주세요.
-              </h4>
-              <Form
-                form={form}
-                initialValues={initialValues}
-                onFinish={values => onFinished(values)}
-              >
-                <Form.Item
-                  name="record"
-                  className="w-full"
-                  rules={[
-                    { required: true, message: "시험 점수를 입력해 주세요." },
-                    {
-                      pattern: /^\d+$/,
-                      message: "숫자만 입력 가능합니다.",
-                    },
-                  ]}
+        <div className="editModal">
+          <CustomModal
+            visible={isModalVisible}
+            title={"점수 수정"}
+            content={
+              <AddRecoad>
+                <h4 className="mb-3">
+                  수정할 점수, 또는 합격여부를 입력해 주세요.
+                </h4>
+                <Form
+                  form={form}
+                  initialValues={initialValues}
+                  onFinish={values => onFinished(values)}
                 >
-                  <input
-                    maxLength={5}
-                    placeholder="시험 점수를 입력해 주세요."
-                    className="w-full h-14 pl-3 border rounded-xl text-sm"
-                  />
-                </Form.Item>
-
-                <div className="flex w-full gap-3 mt-4 justify-between">
-                  <Form.Item className="mb-0">
-                    <Button
-                      className="w-full h-14 bg-[#E8EEF3] text-sm"
-                      onClick={() => handleButton1Click()}
-                    >
-                      창닫기
-                    </Button>
+                  <Form.Item
+                    name="record"
+                    className="w-full"
+                    rules={[
+                      { required: true, message: "시험 점수를 입력해 주세요." },
+                      {
+                        pattern: /^\d+$/,
+                        message: "숫자만 입력 가능합니다.",
+                      },
+                    ]}
+                  >
+                    <input
+                      maxLength={5}
+                      placeholder="시험 점수를 입력해 주세요."
+                      className="w-full h-14 pl-3 border rounded-xl text-sm"
+                    />
                   </Form.Item>
 
-                  <Form.Item className="w-full mb-0">
-                    <Button
-                      htmlType="submit"
-                      className="w-full h-14 bg-[#E8EEF3] text-sm"
-                    >
-                      수정하기
-                    </Button>
-                  </Form.Item>
-                </div>
-              </Form>
-            </AddRecoad>
-          }
-          onButton1Click={handleButton1Click}
-          onButton2Click={handleButton2Click}
-          button1Text={"취소하기"}
-          button2Text={"수정하기"}
-          modalWidth={400}
-        />
+                  <div className="flex w-full gap-3 mt-4 justify-between">
+                    <Form.Item className="mb-0">
+                      <Button
+                        className="w-full h-14 bg-[#E8EEF3] text-sm"
+                        onClick={() => handleButton1Click()}
+                      >
+                        창닫기
+                      </Button>
+                    </Form.Item>
+
+                    <Form.Item className="w-full mb-0">
+                      <Button
+                        htmlType="submit"
+                        className="w-full h-14 bg-[#E8EEF3] text-sm"
+                      >
+                        수정하기
+                      </Button>
+                    </Form.Item>
+                  </div>
+                </Form>
+              </AddRecoad>
+            }
+            onButton1Click={handleButton1Click}
+            onButton2Click={handleButton2Click}
+            button1Text={"취소하기"}
+            button2Text={"수정하기"}
+            modalWidth={400}
+          />
+        </div>
 
         <CustomModal
           visible={isModalVisible2}
@@ -309,52 +360,87 @@ function AcademyRecord() {
           modalWidth={400}
         />
 
-        <CustomModal
-          visible={isModalVisible3}
-          title={"점수 일괄 업로드"}
-          content={
-            <div>
-              <h4 className="mb-2">업로드하실 파일을 선택해 주세요.</h4>
+        <div className="editModal">
+          <CustomModal
+            visible={isModalVisible3}
+            title={"점수 일괄 업로드"}
+            content={
               <div>
-                <input
-                  type="file"
-                  name="add-record"
-                  className="w-full h-14 pl-3 border rounded-xl text-sm"
-                />
-              </div>
-            </div>
-          }
-          onButton1Click={handle3Button1Click}
-          onButton2Click={handle3Button2Click}
-          button1Text={"취소하기"}
-          button2Text={"업로드하기"}
-          modalWidth={400}
-        />
+                <h4 className="mb-2">업로드하실 파일을 선택해 주세요.</h4>
+                <Form form={form} onFinish={values => onFinishedSe(values)}>
+                  <Form.Item name="file">
+                    <Upload
+                      {...props}
+                      maxCount={1}
+                      onChange={handleChange}
+                      fileList={fileList}
+                      customRequest={({ onSuccess }) => {
+                        // 자동 업로드 방지
+                        setTimeout(() => {
+                          onSuccess?.("ok");
+                        }, 0);
+                      }}
+                    >
+                      <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                    </Upload>
+                  </Form.Item>
 
-        <CustomModal
-          visible={isModalVisible4}
-          title={"점수 수정"}
-          content={
-            <div>
-              <p>점수 수정이 완료되었습니다.</p>
-              <div className="w-full mt-4 justify-between">
-                <Form.Item className="mb-0">
-                  <Button
-                    className="w-full h-14 bg-[#E8EEF3] text-sm"
-                    onClick={() => handle4Button1Click()}
-                  >
-                    창닫기
-                  </Button>
-                </Form.Item>
+                  <div className="flex w-full gap-3 justify-between">
+                    <Form.Item>
+                      <Button
+                        className="w-full h-14 bg-[#E8EEF3] text-sm"
+                        onClick={() => setIsModalVisible3(false)}
+                      >
+                        창닫기
+                      </Button>
+                    </Form.Item>
+
+                    <Form.Item className="w-full">
+                      <Button
+                        htmlType="submit"
+                        className="w-full h-14 bg-[#E8EEF3] text-sm"
+                      >
+                        등록하기
+                      </Button>
+                    </Form.Item>
+                  </div>
+                </Form>
               </div>
-            </div>
-          }
-          onButton1Click={handle4Button1Click}
-          onButton2Click={handle4Button2Click}
-          button1Text={"취소하기"}
-          button2Text={"다운로드"}
-          modalWidth={400}
-        />
+            }
+            onButton1Click={handle3Button1Click}
+            onButton2Click={handle3Button2Click}
+            button1Text={"취소하기"}
+            button2Text={"업로드하기"}
+            modalWidth={400}
+          />
+        </div>
+
+        <div className="editModal">
+          <CustomModal
+            visible={isModalVisible4}
+            title={"점수 수정"}
+            content={
+              <div>
+                <p>점수 수정이 완료되었습니다.</p>
+                <div className="w-full mt-4 justify-between">
+                  <Form.Item className="mb-0">
+                    <Button
+                      className="w-full h-14 bg-[#E8EEF3] text-sm"
+                      onClick={() => handle4Button1Click()}
+                    >
+                      창닫기
+                    </Button>
+                  </Form.Item>
+                </div>
+              </div>
+            }
+            onButton1Click={handle4Button1Click}
+            onButton2Click={handle4Button2Click}
+            button1Text={"취소하기"}
+            button2Text={"다운로드"}
+            modalWidth={400}
+          />
+        </div>
       </RecordList>
     </div>
   );

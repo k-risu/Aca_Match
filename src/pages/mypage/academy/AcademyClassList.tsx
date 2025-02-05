@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import userInfo from "../../../atoms/userInfo";
 import SideBar from "../../../components/SideBar";
-import { Pagination } from "antd";
+import { message, Pagination } from "antd";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { FaPlusCircle } from "react-icons/fa";
 
@@ -72,6 +72,13 @@ function AcademyClassList() {
     academyGetInfo();
   }, []);
 
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
+  }, []);
+
   return (
     <div className="flex gap-5 w-full justify-center align-top">
       <SideBar menuItems={menuItems} titleName={titleName} />
@@ -93,10 +100,13 @@ function AcademyClassList() {
             <div className="flex items-center justify-center w-full">
               강좌명
             </div>
-            <div className="flex items-center justify-center w-60">시작일</div>
-            <div className="flex items-center justify-center w-60">종료일</div>
-            <div className="flex items-center justify-center w-40">
+            <div className="flex items-center justify-center w-48">시작일</div>
+            <div className="flex items-center justify-center w-48">종료일</div>
+            <div className="flex items-center justify-center w-60">
               테스트 관리
+            </div>
+            <div className="flex items-center justify-center w-40">
+              수정하기
             </div>
           </div>
 
@@ -130,13 +140,13 @@ function AcademyClassList() {
                   {item.className}
                 </div>
               </div>
-              <div className="flex items-center justify-center w-60">
+              <div className="flex items-center justify-center w-48">
                 {item.startDate}
               </div>
-              <div className="flex items-center justify-center w-60">
+              <div className="flex items-center justify-center w-48">
                 {item.endDate}
               </div>
-              <div className="flex items-center justify-center w-40">
+              <div className="flex items-center justify-center w-60">
                 <button
                   className="small_line_button"
                   onClick={() =>
@@ -146,6 +156,18 @@ function AcademyClassList() {
                   }
                 >
                   테스트 목록
+                </button>
+              </div>
+              <div className="flex items-center justify-center w-40">
+                <button
+                  className="small_line_button"
+                  onClick={() =>
+                    navigate(
+                      `/mypage/academy/classEdit?acaId=${acaId}&classId=${item.classId}`,
+                    )
+                  }
+                >
+                  수정하기
                 </button>
               </div>
             </div>

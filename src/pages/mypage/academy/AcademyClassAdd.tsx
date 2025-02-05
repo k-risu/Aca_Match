@@ -1,5 +1,13 @@
 import styled from "@emotion/styled";
-import { DatePicker, Button, Checkbox, Form, Input, TimePicker } from "antd";
+import {
+  DatePicker,
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  TimePicker,
+  message,
+} from "antd";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useRecoilValue } from "recoil";
@@ -8,7 +16,7 @@ import SideBar from "../../../components/SideBar";
 import dayjs from "dayjs";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CustomModal from "../../../components/modal/Modal";
 const { RangePicker } = DatePicker;
 
@@ -193,11 +201,9 @@ function AcademyClassAdd() {
         const res = await axios.post("/api/acaClass", datas);
         //console.log(res.data);
         if (res.data.resultData === 1) {
-          //alert("수업등록 완료되었습니다.");
           setResultMessage("수업등록이 완료되었습니다.");
           setIsModalVisible(true);
         } else {
-          //alert("수업등록이 실패되었습니다. 다시 시도해주세요.");
           setResultMessage("수업등록이 실패되었습니다. 다시 시도해 주세요.");
           setIsModalVisible(true);
         }
@@ -207,6 +213,13 @@ function AcademyClassAdd() {
     };
     postClass();
   };
+
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
+  }, []);
 
   return (
     <AcademyInfo className="w-full">

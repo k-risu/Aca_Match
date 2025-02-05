@@ -1,12 +1,23 @@
 import styled from "@emotion/styled";
-import { DatePicker, Button, Checkbox, Form, Input, TimePicker } from "antd";
+import {
+  DatePicker,
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  TimePicker,
+  message,
+} from "antd";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useRecoilValue } from "recoil";
 import userInfo from "../../../atoms/userInfo";
 import SideBar from "../../../components/SideBar";
 import dayjs from "dayjs";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import jwtAxios from "../../../apis/jwt";
+import CustomModal from "../../../components/modal/Modal";
 const { RangePicker } = DatePicker;
 
 const AcademyInfo = styled.div`
@@ -99,6 +110,11 @@ function AcademyClassEdit() {
   const [form] = Form.useForm();
   const currentUserInfo = useRecoilValue(userInfo);
   const navigate = useNavigate();
+  const [resultMessage, setResultMessage] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const acaId = searchParams.get("acaId");
+  const classId = searchParams.get("classId");
 
   const titleName = "마이페이지";
   let menuItems = [];
@@ -138,8 +154,19 @@ function AcademyClassEdit() {
       ];
   }
 
+  const handleButton1Click = () => {
+    setIsModalVisible(false);
+    navigate(`/mypage/academy/class?acaId=${acaId}`);
+  };
+
+  const handleButton2Click = () => {
+    setIsModalVisible(false);
+    navigate(`/mypage/academy/class?acaId=${acaId}`);
+  };
+
   const initialValues = {
     acaId: "",
+    classId: "",
     className: "",
     classComment: "",
     startDate: "",
@@ -154,10 +181,77 @@ function AcademyClassEdit() {
     navigate(-1);
   };
 
-  const onFinished = (values: any) => {
-    //alert("학원 등록 완료");
-    console.log(values);
+  //강좌정보 가져오기
+  const academyGetInfo = async () => {
+    try {
+      const res = await jwtAxios.get(`/api/acaClass/detail?acaId=${acaId}`);
+      console.log("aca_info : ", res.data.resultData);
+
+      // 데이터를 받아온 즉시 form 값 설정
+      form.setFieldsValue({
+        /*
+        acaId: res.data.resultData.acaId,
+        classId: res.data.resultData.classId,
+        className: res.data.resultData.className,
+        classComment: res.data.resultData.comment,
+        startTime: dayjs(res.data.resultData.openTime.substr(0, 5), "HH:mm"),
+        endTime: dayjs(res.data.resultData.closeTime.substr(0, 5), "HH:mm"),
+        price: res.data.resultData.price,
+        day: res.data.resultData.day,
+        yearsAndLevel: res.data.resultData.yearsAndLevel,
+        */
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  const onFinished = async (values: any) => {
+    console.log(values);
+
+    const startDate = dayjs(values.classDate[0].$d).format("YYYY-MM-DD");
+    const endDate = dayjs(values.classDate[1].$d).format("YYYY-MM-DD");
+    const startTimes = dayjs(values.startTime.$d).format("HH:mm");
+    const endTimes = dayjs(values.endTime.$d).format("HH:mm");
+
+    const datas = {
+      acaId: acaId,
+      className: values.className,
+      classComment: values.classComment,
+      startDate: startDate,
+      endDate: endDate,
+      startTime: startTimes,
+      endTime: endTimes,
+      price: values.price,
+    };
+
+    try {
+      const res = await jwtAxios.put("/api/acaClass", datas);
+      //console.log(res.data.resultData);
+
+      if (res.data.resultData === 1) {
+        //alert("강좌 수정 완료");
+        setResultMessage("강좌 수정이 완료되었습니다.");
+        setIsModalVisible(true);
+      } else {
+        setResultMessage("강좌 수정이 실패되었습니다. 다시 시도해 주세요.");
+        setIsModalVisible(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    academyGetInfo();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUserInfo.userId) {
+      navigate("/login");
+      message.error("로그인이 필요한 서비스입니다.");
+    }
+  }, []);
 
   return (
     <AcademyInfo className="w-full  pb-12">
@@ -288,6 +382,19 @@ function AcademyClassEdit() {
               </Form.Item>
             </Form>
           </div>
+
+          {resultMessage && (
+            <CustomModal
+              visible={isModalVisible}
+              title={"수업수정 완료"}
+              content={resultMessage}
+              onButton1Click={handleButton1Click}
+              onButton2Click={handleButton2Click}
+              button1Text={"닫기"}
+              button2Text={"확인"}
+              modalWidth={400}
+            />
+          )}
         </div>
       </div>
     </AcademyInfo>
